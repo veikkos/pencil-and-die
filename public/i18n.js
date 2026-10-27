@@ -127,7 +127,7 @@ export const STRINGS = {
     health: { unhurt: 'Unhurt', hurt: 'Hurt', bloodied: 'Bloodied', nearDeath: 'Near death', defeated: 'Defeated' },
     combat: { fight: '⚔ Fight!', round: (n) => `⚔ Round ${n}`, turnOf: (name) => `${name}'s turn` },
     sys: {
-      rest: (p) => `${p.names.join(', ')} take a ${p.kind === 'long' ? 'long' : 'short'} rest.`,
+      rest: (p) => `${joinList(p.names, 'and')} ${p.names.length > 1 ? 'take' : 'takes'} a ${p.kind === 'long' ? 'long' : 'short'} rest.`,
       fell: (p) => (p.outcome === 'dead' ? `${p.name} has died.` : `${p.name} is knocked out.`),
       arrived: (p) => `${p.names.join(', ')} ${p.names.length > 1 ? 'are' : 'is'} here.`,
       left: (p) => `${p.names.join(', ')} ${p.names.length > 1 ? 'are' : 'is'} gone.`,
@@ -269,7 +269,7 @@ export const STRINGS = {
     health: { unhurt: 'Vahingoittumaton', hurt: 'Haavoittunut', bloodied: 'Verta vuotava', nearDeath: 'Kuoleman kynnyksellä', defeated: 'Kukistettu' },
     combat: { fight: '⚔ Taistelu!', round: (n) => `⚔ Kierros ${n}`, turnOf: (name) => `Vuorossa: ${name}` },
     sys: {
-      rest: (p) => `${p.names.join(', ')}: ${p.kind === 'long' ? 'pitkä' : 'lyhyt'} lepo.`,
+      rest: (p) => `${joinList(p.names, 'ja')} ${p.names.length > 1 ? 'ottavat' : 'ottaa'} ${p.kind === 'long' ? 'pitkän' : 'lyhyen'} levon.`,
       fell: (p) => (p.outcome === 'dead' ? `${p.name} on kuollut.` : `${p.name} on tyrmätty.`),
       arrived: (p) => `Paikalla: ${p.names.join(', ')}.`,
       left: (p) => `Poissa: ${p.names.join(', ')}.`,
@@ -287,6 +287,18 @@ export const STRINGS = {
     timelineTypes: { dm: 'PJ', player: '', rollRequested: 'Heittopyyntö', roll: 'Heitto', character: 'Uusi sankari', sketch: 'Piirros', scene: 'Paikka', started: 'Seikkailu alkaa' },
   },
 };
+
+/** "A", "A and B", "A, B and C". */
+function joinList(names, and) {
+  return names.length < 2 ? names.join('') : `${names.slice(0, -1).join(', ')} ${and} ${names[names.length - 1]}`;
+}
+
+/** Stored resource text is English ("Hit dice (d8) 0/1"); swap a known name prefix for the language's own. */
+function resourceText(v, lang) {
+  const known = STRINGS.en.resources;
+  const id = Object.keys(known).sort((a, b) => known[b].length - known[a].length).find((k) => v.startsWith(known[k]));
+  return id === undefined ? v : STRINGS[lang].resources[id] + v.slice(known[id].length);
+}
 
 export function sign(n) { return n >= 0 ? `+${n}` : `${n}`; }
 
@@ -318,13 +330,13 @@ const PART_EN = {
   hp: (v) => `HP ${v}`, maxHp: (v) => `max HP ${v}`, tempHp: (v) => `temp HP ${v}`, ac: (v) => `AC ${v}`,
   level: (v) => `level ${v}`, xp: (v) => `XP ${v}`, gold: (v) => `gold ${v}`, gained: (v) => `gained ${v}`,
   lost: (v) => `lost ${v}`, condOn: (v) => `now ${v}`, condOff: (v) => `no longer ${v}`, feature: (v) => `new: ${v}`,
-  resource: (v) => v, status: (v) => STATUS_EN[v] ?? v,
+  resource: (v) => resourceText(v, 'en'), status: (v) => STATUS_EN[v] ?? v,
 };
 const PART_FI = {
   hp: (v) => `OP ${v}`, maxHp: (v) => `maks. OP ${v}`, tempHp: (v) => `väliaikaiset OP ${v}`, ac: (v) => `PL ${v}`,
   level: (v) => `taso ${v}`, xp: (v) => `KP ${v}`, gold: (v) => `kulta ${v}`, gained: (v) => `sai: ${v}`,
   lost: (v) => `menetti: ${v}`, condOn: (v) => `tila: ${v}`, condOff: (v) => `ei enää: ${v}`, feature: (v) => `uusi: ${v}`,
-  resource: (v) => v, status: (v) => STATUS_FI[v] ?? v,
+  resource: (v) => resourceText(v, 'fi'), status: (v) => STATUS_FI[v] ?? v,
 };
 
 // Finnish names for the character-creation choices; English comes from the server.

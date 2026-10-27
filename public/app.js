@@ -413,6 +413,7 @@ function renderTopbar() {
   const el = app.querySelector('#topbar');
   el.innerHTML = `<button class="ghost" data-go-lobby>← ${esc(s.lobby)}</button>
     <span class="scene"><b>${esc(shown.title)}</b>${scene ? ` — ${esc(scene.title)}` : ''}</span>
+    ${shown.combat ? `<span class="round">${esc(shown.combat.round === 0 ? s.combat.fight : s.combat.round(shown.combat.round))}</span>` : ''}
     ${dmStatusPill()}
     <button class="ghost" id="voice" title="${esc(s.voice)}">${prefs.voice ? '🔊' : '🔈'} ${esc(prefs.voice ? s.voiceOn : s.voiceOff)}</button>
     ${prefs.voice ? voiceSelect() : ''}
@@ -565,24 +566,105 @@ function animateDrawing(group) {
   }));
 }
 
-function renderParty() {
+/**
+ * Everyone in the scene as strip cards. Heroes first, then creatures grouped on (groupId, health) in roster
+ * order. During a fight the cards follow combat.order: a group's split cards share one turn number, and
+ * anything not in the order goes last without a number. Pure, so it can be tried without a page.
+ */
+function buildStrip(characters, present, combat) {
+  const heroes = characters.map((c) => ({ kind: 'hero', key: `h:${c.id}`, hero: c }));
+  const creatures = [];
+  for (const p of present ?? []) {
+    const key = `g:${p.groupId}:${p.health ?? ''}`;
+    let card = creatures.find((x) => x.key === key);
+    if (!card) creatures.push(card = { kind: 'creature', key, groupId: p.groupId, side: p.side, health: p.health, members: [] });
+    card.members.push(p);
+  }
+  for (const card of creatures) {
+    card.name = card.members[0].name;
+    card.defeated = card.members.every((m) => m.defeated);
+  }
+  if (!combat) return [...heroes, ...creatures];
+  const out = [];
+  combat.order.forEach((entry, i) => {
+    const found = entry.ref.kind === 'hero'
+      ? heroes.filter((h) => h.hero.id === entry.ref.id)
+      : creatures.filter((g) => g.groupId === entry.ref.groupId);
+    for (const card of found) {
+      card.turn = i + 1;
+      card.ready = entry.ready;
+      card.active = combat.round > 0 && combat.turn === i;
+      out.push(card);
+    }
+  });
+  return [...out, ...[...heroes, ...creatures].filter((c) => !out.includes(c))];
+}
+
+const HEALTH_WIDTH = { unhurt: 100, hurt: 75, bloodied: 45, nearDeath: 15, defeated: 0 };
+
+function turnBadge(card) {
+  return card.turn === undefined ? '' : `<span class="n">${card.ready === false ? '…' : card.turn}</span>`;
+}
+
+function heroCardHtml(card) {
   const s = t();
+  const c = card.hero;
+  const pct = Math.round((c.hp / c.maxHp) * 100);
+  const status = c.status ?? 'up';
+  const life = status === 'up' ? '' : s.life[status]?.[level()] ?? '';
+  return `<button class="pc hero ${status === 'up' ? '' : status} ${card.active ? 'turn' : ''}" data-sheet="${esc(c.id)}"${card.active ? ` title="${esc(s.combat.turnOf(c.name))}"` : ''}>
+    ${turnBadge(card)}
+    <div class="name">${esc(c.name)}</div>
+    <div class="sub">${esc(raceName(c))} · ${esc(className(c))} ${c.level}${c.player ? ` · ${esc(c.player)}` : ''}${life ? ` · <b class="life">${esc(life)}</b>` : ''}</div>
+    <div class="hpbar"><i class="${pct <= 30 ? 'low' : ''}" style="width:${pct}%"></i></div>
+    <div class="nums"><span>${s.hp} ${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp}` : ''}</span>${isBeginner() ? '' : `<span>${s.ac} ${c.ac}</span>`}</div>
+    ${status === 'dying' ? deathSaveRows(c) : ''}
+    ${status === 'dead' ? '' : visibleResources(c).map(resourceRow).join('')}
+    ${c.conditions.length ? `<div class="conds">${c.conditions.map(esc).join(', ')}</div>` : ''}
+  </button>`;
+}
+
+function creatureCardHtml(card) {
+  const s = t();
+  const word = card.health ? s.health[card.health] ?? card.health : '';
+  const conds = [...new Set(card.members.flatMap((m) => m.conditions ?? []))];
+  const n = card.members.length;
+  return `<button class="pc creature ${esc(card.side)} ${card.defeated ? 'defeated' : ''} ${card.active ? 'turn' : ''}" data-group="${esc(card.groupId)}" data-health="${esc(card.health ?? '')}"${card.active ? ` title="${esc(s.combat.turnOf(card.name))}"` : ''}>
+    ${turnBadge(card)}
+    <div class="name">${esc(card.name)}${n > 1 ? ` ×${n}` : ''}</div>
+    ${word ? `<div class="sub">${esc(word)}</div>
+    <div class="hpbar"><i class="${card.health === 'nearDeath' || card.health === 'bloodied' ? 'low' : ''}" style="width:${HEALTH_WIDTH[card.health] ?? 0}%"></i></div>` : ''}
+    ${conds.length ? `<div class="conds">${conds.map(esc).join(', ')}</div>` : ''}
+  </button>`;
+}
+
+function renderParty() {
   const el = app.querySelector('#party');
-  el.innerHTML = shown.characters.map((c) => {
-    const pct = Math.round((c.hp / c.maxHp) * 100);
-    const status = c.status ?? 'up';
-    const life = status === 'up' ? '' : s.life[status]?.[level()] ?? '';
-    return `<button class="pc hero ${status === 'up' ? '' : status}" data-sheet="${c.id}">
-      <div class="name">${esc(c.name)}</div>
-      <div class="sub">${esc(raceName(c))} · ${esc(className(c))} ${c.level}${c.player ? ` · ${esc(c.player)}` : ''}${life ? ` · <b class="life">${esc(life)}</b>` : ''}</div>
-      <div class="hpbar"><i class="${pct <= 30 ? 'low' : ''}" style="width:${pct}%"></i></div>
-      <div class="nums"><span>${s.hp} ${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp}` : ''}</span>${isBeginner() ? '' : `<span>${s.ac} ${c.ac}</span>`}</div>
-      ${status === 'dying' ? deathSaveRows(c) : ''}
-      ${status === 'dead' ? '' : visibleResources(c).map(resourceRow).join('')}
-      ${c.conditions.length ? `<div class="conds">${c.conditions.map(esc).join(', ')}</div>` : ''}
-    </button>`;
-  }).join('');
+  const cards = buildStrip(shown.characters, shown.present, shown.combat);
+  el.innerHTML = cards.map((c) => (c.kind === 'hero' ? heroCardHtml(c) : creatureCardHtml(c))).join('');
   el.querySelectorAll('[data-sheet]').forEach((b) => b.onclick = () => showSheet(shown.characters.find((c) => c.id === b.dataset.sheet)));
+  el.querySelectorAll('[data-group]').forEach((b) => b.onclick = () => {
+    const card = cards.find((c) => c.kind === 'creature' && c.groupId === b.dataset.group && (c.health ?? '') === b.dataset.health);
+    if (card) showPresence(card);
+  });
+}
+
+function showPresence(card) {
+  const s = t();
+  const word = card.health ? s.health[card.health] ?? card.health : '';
+  const n = card.members.length;
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `<div class="card"><h2>${esc(card.name)}${n > 1 ? ` ×${n}` : ''}</h2>
+    ${word ? `<div><b>${esc(word)}</b></div>` : ''}
+    ${card.members.map((m) => `<div>
+      ${n > 1 ? `<h3>${esc(m.name)}</h3>` : ''}
+      ${m.description ? `<p>${esc(m.description)}</p>` : ''}
+      ${m.conditions?.length ? `<h3>${s.conditions}</h3><div>${m.conditions.map(esc).join(', ')}</div>` : ''}
+    </div>`).join('')}
+    <div class="wizard-nav"><span></span><button class="btn">OK</button></div></div>`;
+  modal.onclick = (e) => { if (e.target === modal || e.target.tagName === 'BUTTON') modal.remove(); };
+  document.body.appendChild(modal);
 }
 
 // ---- Dice prompts ----------------------------------------------------------
