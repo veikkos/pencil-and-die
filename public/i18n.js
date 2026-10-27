@@ -96,7 +96,46 @@ export const STRINGS = {
     simpleRolled: (p) => `${p.name} rolled ${rollMath(p)}${p.success === undefined ? '' : p.success ? ' — it works!' : ' — not this time.'}`,
     sketchEmpty: 'The DM has not drawn anything yet.',
     sketchOf: (i, n) => `${i} / ${n}`,
+    resources: {
+      'hit-dice': 'Hit dice', 'second-wind': 'Second Wind', rage: 'Rage', 'spell-slots-1': 'Spell slots',
+      'arcane-recovery': 'Arcane Recovery', 'bardic-inspiration': 'Bardic Inspiration', 'pact-slot': 'Pact slot', 'lay-on-hands': 'Lay on Hands',
+    },
+    resourcesBeginner: { 'spell-slots-1': 'Spells', 'pact-slot': 'Spells', 'arcane-recovery': 'Recover spells' },
+    resourcesExpert: { 'spell-slots-1': '1st-level spell slots' },
+    usesLeft: 'Uses left',
+    recharge: {
+      short: { beginner: 'Back after a short break', casual: 'Back after a short rest', intermediate: 'Short rest' },
+      long: { beginner: "Back after a night's sleep", casual: 'Back after a long rest', intermediate: 'Long rest' },
+    },
+    life: {
+      dying: { beginner: 'Fading', casual: 'Dying', intermediate: 'Dying' },
+      stable: { beginner: 'Stable', casual: 'Resting, stable', intermediate: 'Resting, stable' },
+      out: { beginner: 'Out cold', casual: 'Knocked out', intermediate: 'Knocked out' },
+      dead: { beginner: '✝ Fallen', casual: '✝ Fallen', intermediate: '✝ Fallen' },
+    },
+    deathSaves: {
+      beginner: { ok: 'Holding on', no: 'Slipping' },
+      casual: { ok: 'Saves', no: 'Fails' },
+      intermediate: { ok: 'Saves', no: 'Fails' },
+    },
+    deathSavePrompt: (name) => `${name} is fading. Roll a d20: 10 or more holds on.`,
+    deathSaveLabel: { casual: 'Death save', intermediate: 'Death saving throw' },
+    fallen: {
+      label: 'When a hero falls', knockout: 'Knocked out', death: 'Can die',
+      hints: { knockout: 'A fallen hero is knocked out and wakes after the fight.', death: 'A hero who fails three death saves dies.' },
+    },
+    health: { unhurt: 'Unhurt', hurt: 'Hurt', bloodied: 'Bloodied', nearDeath: 'Near death', defeated: 'Defeated' },
+    combat: { fight: '⚔ Fight!', round: (n) => `⚔ Round ${n}`, turnOf: (name) => `${name}'s turn` },
     sys: {
+      rest: (p) => `${p.names.join(', ')} take a ${p.kind === 'long' ? 'long' : 'short'} rest.`,
+      fell: (p) => (p.outcome === 'dead' ? `${p.name} has died.` : `${p.name} is knocked out.`),
+      arrived: (p) => `${p.names.join(', ')} ${p.names.length > 1 ? 'are' : 'is'} here.`,
+      left: (p) => `${p.names.join(', ')} ${p.names.length > 1 ? 'are' : 'is'} gone.`,
+      presenceUpdated: (p) => `${p.name}: ${presenceBits(p, HEALTH_EN, SIDE_EN, ['now ', 'no longer ', 'now ']).join(', ')}`,
+      defeated: (p) => `${p.name} is defeated.`,
+      combatStarted: () => 'Fight!',
+      combatOrder: (p) => `Turn order: ${p.names.join(', ')}.`,
+      combatEnded: () => 'The fight is over.',
       joined: (p) => `${p.name} the ${p.race} ${p.cls} joins the party.`,
       started: () => 'The adventure begins.',
       rolled: (p) => `${p.name} rolled ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)} = ${p.total}${p.success === undefined ? '' : p.success ? ' — success' : ' — failure'}`,
@@ -199,7 +238,46 @@ export const STRINGS = {
     simpleRolled: (p) => `${p.name} heitti ${rollMath(p)}${p.success === undefined ? '' : p.success ? ' — se onnistuu!' : ' — ei tällä kertaa.'}`,
     sketchEmpty: 'Pelinjohtaja ei ole vielä piirtänyt mitään.',
     sketchOf: (i, n) => `${i} / ${n}`,
+    resources: {
+      'hit-dice': 'Osumanopat', 'second-wind': 'Toinen tuulahdus', rage: 'Raivo', 'spell-slots-1': 'Loitsupaikat',
+      'arcane-recovery': 'Taian palautus', 'bardic-inspiration': 'Bardin inspiraatio', 'pact-slot': 'Sopimuspaikka', 'lay-on-hands': 'Kätten päällepano',
+    },
+    resourcesBeginner: { 'spell-slots-1': 'Loitsut', 'pact-slot': 'Loitsut', 'arcane-recovery': 'Palauta loitsuja' },
+    resourcesExpert: { 'spell-slots-1': '1. tason loitsupaikat' },
+    usesLeft: 'Käyttökertoja jäljellä',
+    recharge: {
+      short: { beginner: 'Palautuu pienen tauon jälkeen', casual: 'Palautuu lyhyen levon jälkeen', intermediate: 'Lyhyt lepo' },
+      long: { beginner: 'Palautuu yöunen jälkeen', casual: 'Palautuu pitkän levon jälkeen', intermediate: 'Pitkä lepo' },
+    },
+    life: {
+      dying: { beginner: 'Hiipuu', casual: 'Kuolemassa', intermediate: 'Kuolemassa' },
+      stable: { beginner: 'Vakaa', casual: 'Lepää, vakaa', intermediate: 'Lepää, vakaa' },
+      out: { beginner: 'Tajuton', casual: 'Tyrmätty', intermediate: 'Tyrmätty' },
+      dead: { beginner: '✝ Kaatunut', casual: '✝ Kaatunut', intermediate: '✝ Kaatunut' },
+    },
+    deathSaves: {
+      beginner: { ok: 'Pitää pintansa', no: 'Lipsuu' },
+      casual: { ok: 'Onnistuu', no: 'Epäonnistuu' },
+      intermediate: { ok: 'Onnistuu', no: 'Epäonnistuu' },
+    },
+    deathSavePrompt: (name) => `${name} hiipuu. Heitä d20: 10 tai enemmän riittää pitämään pintansa.`,
+    deathSaveLabel: { casual: 'Kuolemanpelastus', intermediate: 'Kuolemanpelastusheitto' },
+    fallen: {
+      label: 'Kun sankari kaatuu', knockout: 'Tyrmätään', death: 'Voi kuolla',
+      hints: { knockout: 'Kaatunut sankari tyrmätään ja herää taistelun jälkeen.', death: 'Sankari, joka epäonnistuu kolmessa kuolemanpelastuksessa, kuolee.' },
+    },
+    health: { unhurt: 'Vahingoittumaton', hurt: 'Haavoittunut', bloodied: 'Verta vuotava', nearDeath: 'Kuoleman kynnyksellä', defeated: 'Kukistettu' },
+    combat: { fight: '⚔ Taistelu!', round: (n) => `⚔ Kierros ${n}`, turnOf: (name) => `Vuorossa: ${name}` },
     sys: {
+      rest: (p) => `${p.names.join(', ')}: ${p.kind === 'long' ? 'pitkä' : 'lyhyt'} lepo.`,
+      fell: (p) => (p.outcome === 'dead' ? `${p.name} on kuollut.` : `${p.name} on tyrmätty.`),
+      arrived: (p) => `Paikalla: ${p.names.join(', ')}.`,
+      left: (p) => `Poissa: ${p.names.join(', ')}.`,
+      presenceUpdated: (p) => `${p.name}: ${presenceBits(p, HEALTH_FI, SIDE_FI, ['nyt ', 'ei enää: ', 'nyt ']).join(', ')}`,
+      defeated: (p) => `${p.name} on kukistettu.`,
+      combatStarted: () => 'Taistelu alkaa!',
+      combatOrder: (p) => `Vuorojärjestys: ${p.names.join(', ')}.`,
+      combatEnded: () => 'Taistelu on ohi.',
       joined: (p) => `${p.name} liittyy seurueeseen.`,
       started: () => 'Seikkailu alkaa.',
       rolled: (p) => `${p.name} heitti: ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)} = ${p.total}${p.success === undefined ? '' : p.success ? ' — onnistui' : ' — epäonnistui'}`,
@@ -219,15 +297,34 @@ function rollMath(p) {
   return `${die} ${p.mod > 0 ? '+' : '−'} ${Math.abs(p.mod)} = ${p.total}`;
 }
 
+const HEALTH_EN = { unhurt: 'unhurt', hurt: 'hurt', bloodied: 'bloodied', nearDeath: 'near death', defeated: 'defeated' };
+const HEALTH_FI = { unhurt: 'vahingoittumaton', hurt: 'haavoittunut', bloodied: 'verta vuotava', nearDeath: 'kuoleman kynnyksellä', defeated: 'kukistettu' };
+const SIDE_EN = { enemy: 'an enemy', neutral: 'neutral', ally: 'an ally' };
+const SIDE_FI = { enemy: 'vihollinen', neutral: 'puolueeton', ally: 'liittolainen' };
+const STATUS_EN = { up: 'back on their feet', dying: 'dying', stable: 'stable', out: 'knocked out', dead: 'fallen' };
+const STATUS_FI = { up: 'jaloillaan', dying: 'kuolemassa', stable: 'vakaa', out: 'tyrmätty', dead: 'kaatunut' };
+
+/** Pieces of a presence change line: health word, conditions, side. `lead` = [now, no longer, now] prefixes. */
+function presenceBits(p, health, side, lead) {
+  return [
+    p.health && `${lead[0]}${health[p.health] ?? p.health}`,
+    ...(p.condOn ?? []).map((c) => c),
+    ...(p.condOff?.length ? [`${lead[1]}${p.condOff.join(', ')}`] : []),
+    p.sideChange && `${lead[2]}${side[p.sideChange] ?? p.sideChange}`,
+  ].filter(Boolean);
+}
+
 const PART_EN = {
   hp: (v) => `HP ${v}`, maxHp: (v) => `max HP ${v}`, tempHp: (v) => `temp HP ${v}`, ac: (v) => `AC ${v}`,
   level: (v) => `level ${v}`, xp: (v) => `XP ${v}`, gold: (v) => `gold ${v}`, gained: (v) => `gained ${v}`,
   lost: (v) => `lost ${v}`, condOn: (v) => `now ${v}`, condOff: (v) => `no longer ${v}`, feature: (v) => `new: ${v}`,
+  resource: (v) => v, status: (v) => STATUS_EN[v] ?? v,
 };
 const PART_FI = {
   hp: (v) => `OP ${v}`, maxHp: (v) => `maks. OP ${v}`, tempHp: (v) => `väliaikaiset OP ${v}`, ac: (v) => `PL ${v}`,
   level: (v) => `taso ${v}`, xp: (v) => `KP ${v}`, gold: (v) => `kulta ${v}`, gained: (v) => `sai: ${v}`,
   lost: (v) => `menetti: ${v}`, condOn: (v) => `tila: ${v}`, condOff: (v) => `ei enää: ${v}`, feature: (v) => `uusi: ${v}`,
+  resource: (v) => v, status: (v) => STATUS_FI[v] ?? v,
 };
 
 // Finnish names for the character-creation choices; English comes from the server.

@@ -64,6 +64,7 @@ async function boot() {
     if (ev.type === 'language') { cfg.language = ev.language; document.documentElement.lang = ev.language; render(); }
     if (ev.type === 'complexity') { cfg.complexity = ev.complexity; rerenderAll(); }
     if (ev.type === 'verbosity') { cfg.verbosity = ev.verbosity; rerenderAll(); }
+    if (ev.type === 'fallenHeroes') { cfg.fallenHeroes = ev.fallenHeroes; rerenderAll(); }
   };
 }
 
@@ -119,6 +120,13 @@ async function setVerbosity(level) {
   rerenderAll();
 }
 
+async function setFallenHeroes(mode) {
+  if (mode === cfg.fallenHeroes) return;
+  await api('/api/fallen-heroes', { fallenHeroes: mode });
+  cfg.fallenHeroes = mode;
+  rerenderAll();
+}
+
 /** Forces every region to rebuild (language/complexity changed). */
 function rerenderAll() {
   app.dataset.lang = '';
@@ -153,7 +161,15 @@ function verbosityPicker() {
   </select>`;
 }
 
+function fallenPicker() {
+  const s = t();
+  return `<select class="input" id="fallen" title="${esc(s.fallen.hints[cfg.fallenHeroes])}" style="width:auto;padding:.2em .4em" aria-label="${esc(s.fallen.label)}">
+    ${['knockout', 'death'].map((m) => `<option value="${m}" ${m === cfg.fallenHeroes ? 'selected' : ''}>${esc(s.fallen.label)}: ${esc(s.fallen[m])}</option>`).join('')}
+  </select>`;
+}
+
 function bindCommon(root) {
+  root.querySelectorAll('#fallen').forEach((sel) => sel.onchange = () => setFallenHeroes(sel.value).catch(fail));
   root.querySelectorAll('#verbosity').forEach((sel) => sel.onchange = () => setVerbosity(Number(sel.value)).catch(fail));
   root.querySelectorAll('[data-lang]').forEach((b) => b.onclick = () => setLanguage(b.dataset.lang).catch(fail));
   root.querySelectorAll('#complexity').forEach((sel) => sel.onchange = () => setComplexity(sel.value).catch(fail));
@@ -164,6 +180,33 @@ function bindCommon(root) {
 function goodAt(c) {
   const best = Object.keys(c.abilities).sort((a, b) => c.abilities[b] - c.abilities[a]).slice(0, 2);
   return `<div class="muted">${esc(t().goodAt)}: ${best.map((a) => esc(t().abilityNames[a])).join(', ')}, ${c.skills.slice(0, 3).map((k) => esc(skillName(k))).join(', ')}</div>`;
+}
+
+// ---- Resources & life status -------------------------------------------------
+
+function resourceName(r) {
+  const s = t();
+  const lv = level();
+  const override = lv === 'beginner' ? s.resourcesBeginner[r.id] : lv === 'intermediate' ? s.resourcesExpert[r.id] : undefined;
+  if (override) return override;
+  const base = s.resources[r.id];
+  if (!base) return r.name;
+  const die = r.id === 'hit-dice' && lv === 'intermediate' ? /\(d\d+\)/.exec(r.name)?.[0] : null;
+  return die ? `${base} ${die}` : base;
+}
+
+const visibleResources = (c) => (c.resources ?? []).filter((r) => !(isBeginner() && r.id === 'hit-dice'));
+const pips = (left, total, cls = '') => `<span class="pip ${cls}">${'●'.repeat(Math.max(0, left))}${'○'.repeat(Math.max(0, total - left))}</span>`;
+
+function resourceRow(r) {
+  const left = r.max - r.used;
+  return `<div class="res"><span>${esc(resourceName(r))}</span>${r.unit === 'hp' ? `<span class="pip">${left}/${r.max}</span>` : pips(left, r.max)}</div>`;
+}
+
+function deathSaveRows(c) {
+  const labels = t().deathSaves[level()];
+  const ds = c.deathSaves ?? { successes: 0, failures: 0 };
+  return `<div class="ds"><span>${esc(labels.ok)} ${pips(ds.successes, 3, 'ok')}</span><span>${esc(labels.no)} ${pips(ds.failures, 3, 'no')}</span></div>`;
 }
 
 function statsBlock(c) {
@@ -180,7 +223,7 @@ function renderLobby() {
   const s = t();
   const when = (iso) => new Date(iso).toLocaleString(cfg.language === 'fi' ? 'fi-FI' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' });
   app.innerHTML = `
-    <div class="topbar"><span class="brand">${esc(s.appTitle)}</span><span class="scene"></span>${verbosityPicker()}${complexityPicker()}${langToggle()}</div>
+    <div class="topbar"><span class="brand">${esc(s.appTitle)}</span><span class="scene"></span>${verbosityPicker()}${fallenPicker()}${complexityPicker()}${langToggle()}</div>
     <div class="page">
       <div class="hero"><h1>${esc(s.appTitle)}</h1><p>${esc(s.tagline)}</p></div>
       <div class="card">
@@ -222,7 +265,7 @@ function renderSetup() {
   const s = t();
   app.innerHTML = `
     <div class="topbar"><button class="ghost" data-go-lobby>← ${esc(s.lobby)}</button>
-      <span class="scene"><b>${esc(live.title)}</b></span>${dmStatusPill()}${verbosityPicker()}${complexityPicker()}${langToggle()}</div>
+      <span class="scene"><b>${esc(live.title)}</b></span>${dmStatusPill()}${verbosityPicker()}${fallenPicker()}${complexityPicker()}${langToggle()}</div>
     <div class="page">
       <h1>${esc(s.party)}</h1>
       <div class="party-grid">${live.characters.map((c) => `
@@ -313,6 +356,7 @@ function sheetHtml(c) {
     <div class="muted">${esc(raceName(c))} · ${esc(className(c))} · ${s.level} ${c.level}${c.player ? ` · ${esc(c.player)}` : ''}</div>
     ${statsBlock(c)}
     <div><b>${s.hp}</b> ${c.hp}/${c.maxHp}${c.tempHp ? ` (+${c.tempHp})` : ''}${isBeginner() ? '' : ` · <b>${s.ac}</b> ${c.ac} <span class="muted">(${esc(c.acNote)})</span> · <b>${s.speed}</b> ${c.speed}`} · <b>${s.gold}</b> ${c.gold}${isBeginner() ? '' : ` · <b>${s.xp}</b> ${c.xp}`}</div>
+    ${visibleResources(c).length ? `<h3>${esc(s.usesLeft)}</h3><ul class="res-list">${visibleResources(c).map((r) => `<li>${resourceRow(r)}<small class="muted">${esc(s.recharge[r.recharge]?.[level()] ?? '')}</small></li>`).join('')}</ul>` : ''}
     ${c.conditions.length ? `<h3>${s.conditions}</h3><div>${c.conditions.map(esc).join(', ')}</div>` : ''}
     <h3>${s.skills}</h3><div>${c.skills.map((k) => esc(skillName(k))).join(', ')}</div>
     ${isExpert() ? `<h3>${s.saves}</h3><div>${c.saves.map((a) => s.abilityNames[a]).join(', ')}</div><div class="muted">+${c.proficiencyBonus} proficiency</div>` : ''}
@@ -372,7 +416,7 @@ function renderTopbar() {
     ${dmStatusPill()}
     <button class="ghost" id="voice" title="${esc(s.voice)}">${prefs.voice ? '🔊' : '🔈'} ${esc(prefs.voice ? s.voiceOn : s.voiceOff)}</button>
     ${prefs.voice ? voiceSelect() : ''}
-    ${verbosityPicker()}${complexityPicker()}
+    ${verbosityPicker()}${fallenPicker()}${complexityPicker()}
     ${langToggle()}`;
   bindCommon(el);
   el.querySelector('#voice').onclick = () => savePrefs({ voice: !prefs.voice });
@@ -526,11 +570,15 @@ function renderParty() {
   const el = app.querySelector('#party');
   el.innerHTML = shown.characters.map((c) => {
     const pct = Math.round((c.hp / c.maxHp) * 100);
-    return `<button class="pc ${c.hp === 0 ? 'down' : ''}" data-sheet="${c.id}">
+    const status = c.status ?? 'up';
+    const life = status === 'up' ? '' : s.life[status]?.[level()] ?? '';
+    return `<button class="pc hero ${status === 'up' ? '' : status}" data-sheet="${c.id}">
       <div class="name">${esc(c.name)}</div>
-      <div class="sub">${esc(raceName(c))} · ${esc(className(c))} ${c.level}${c.player ? ` · ${esc(c.player)}` : ''}</div>
+      <div class="sub">${esc(raceName(c))} · ${esc(className(c))} ${c.level}${c.player ? ` · ${esc(c.player)}` : ''}${life ? ` · <b class="life">${esc(life)}</b>` : ''}</div>
       <div class="hpbar"><i class="${pct <= 30 ? 'low' : ''}" style="width:${pct}%"></i></div>
       <div class="nums"><span>${s.hp} ${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp}` : ''}</span>${isBeginner() ? '' : `<span>${s.ac} ${c.ac}</span>`}</div>
+      ${status === 'dying' ? deathSaveRows(c) : ''}
+      ${status === 'dead' ? '' : visibleResources(c).map(resourceRow).join('')}
       ${c.conditions.length ? `<div class="conds">${c.conditions.map(esc).join(', ')}</div>` : ''}
     </button>`;
   }).join('');
@@ -544,6 +592,13 @@ function diceFor(roll) {
   const count = m[1] ? Number(m[1]) : 1;
   const sides = Number(m[2]);
   return roll.advantage === 'none' ? { count, sides } : { count: 2, sides: 20 };
+}
+
+/** Death saves get plain words for beginners and the rules name for everyone else. */
+function rollHeading(r, who) {
+  if (r.purpose !== 'death_save') return t().rollTitle(who?.name ?? '?', r.label);
+  const name = who?.name ?? '?';
+  return isBeginner() ? t().deathSavePrompt(name) : t().rollTitle(name, t().deathSaveLabel[level()]);
 }
 
 function renderRolls() {
@@ -570,7 +625,7 @@ function renderRolls() {
         </label>`).join('')}
       </div>
       <div class="info">
-        <h3>🎲 ${esc(s.rollTitle(who?.name ?? '?', r.label))}</h3>
+        <h3>🎲 ${esc(rollHeading(r, who))}</h3>
         <div class="how"><b>${esc(instruction)}</b>${isExpert() ? '' : ` · ${esc(`d${sides}`)} = ${esc(s.dieHelp[sides])}`}</div>
         <div class="notes">${esc(s.typeResult)}. ${esc(isBeginner() ? s.bonusAdded : r.modifier ? s.modifierAdded(sign(r.modifier)) : s.noModifier)}${!isBeginner() && r.dc !== undefined && r.dc !== null ? ` ${esc(s.beat(r.dc))}` : ''}</div>
       </div>
