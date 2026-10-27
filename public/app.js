@@ -31,7 +31,9 @@ const isExpert = () => cfg.complexity === 'intermediate';
 
 async function api(path, body) {
   const res = await fetch(path, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  const data = await res.json();
+  const data = await res.json().catch(() => null);
+  // A non-JSON reply means the page is newer than the running server.
+  if (!data) throw new Error(`${t().serverOutdated} (${res.status} ${path})`);
   if (!res.ok) throw new Error(data.error ?? res.statusText);
   return data;
 }
