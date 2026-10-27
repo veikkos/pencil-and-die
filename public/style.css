@@ -119,6 +119,10 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 .5em; }
 }
 .msg { margin: 0 0 12px; line-height: 1.5; }
 .msg.dm { font-family: var(--serif); font-size: 1.12em; }
+.say-btn {
+  float: right; border: none; background: none; padding: 0 0 0 6px; font-size: .8em; opacity: .25; cursor: pointer;
+}
+.msg.dm:hover .say-btn { opacity: .9; }
 .msg.dm.answer { border-left: 3px solid var(--gold); padding-left: 10px; }
 .msg .who { font-weight: 700; margin-right: .35em; }
 .msg.player .who { color: var(--accent); }

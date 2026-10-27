@@ -421,7 +421,7 @@ function logLine(l) {
     return `<p class="msg system">${esc(fn ? fn(l.sys.params) : l.text)}</p>`;
   }
   if (l.from === 'dm') {
-    return `<p class="msg dm ${l.kind}">${l.kind === 'answer' && who ? `<span class="tag">→ ${esc(who.name)}</span>` : ''}${esc(l.text).replace(/\n/g, '<br>')}</p>`;
+    return `<p class="msg dm ${l.kind}"><button class="say-btn" data-speak="${l.seq}" title="${esc(s.readAloud)}">🔊</button>${l.kind === 'answer' && who ? `<span class="tag">→ ${esc(who.name)}</span>` : ''}${esc(l.text).replace(/\n/g, '<br>')}</p>`;
   }
   const tag = l.kind === 'action' || l.kind === 'speech' ? '' : `<span class="tag">${esc(s.kinds[l.kind])}</span>`;
   return `<p class="msg player ${l.kind}">${tag}<span class="who">${esc(who?.name ?? '—')}</span><span class="text">${esc(l.text)}</span></p>`;
@@ -431,6 +431,11 @@ function renderStory() {
   const el = app.querySelector('#story');
   const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
   el.innerHTML = shown.log.map(logLine).join('');
+  el.querySelectorAll('[data-speak]').forEach((b) => b.onclick = () => {
+    const line = shown.log.find((l) => l.seq === Number(b.dataset.speak));
+    speech?.cancel();
+    if (line) speak(line.text);
+  });
   if (atBottom || viewSeq !== null || !el.dataset.init) el.scrollTop = el.scrollHeight;
   el.dataset.init = '1';
 }
@@ -657,22 +662,34 @@ function voiceSelect() {
     `<option ${v === chosen ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</select>`;
 }
 
+function speak(text) {
+  if (!speech) return;
+  const voice = pickVoice();
+  const u = new SpeechSynthesisUtterance(text.replace(/[*_#`>]/g, ''));
+  if (voice) { u.voice = voice; u.lang = voice.lang; } else u.lang = LANG_CODES[cfg.language][0];
+  u.rate = 0.97;
+  speech.speak(u);
+}
+
 function speakNew() {
   const fresh = live.log.filter((l) => l.from === 'dm' && l.seq > spokenSeq && l.kind !== 'ooc');
   spokenSeq = Math.max(spokenSeq, live.seq);
-  if (!prefs.voice || !speech || viewSeq !== null) return;
-  const voice = pickVoice();
-  for (const l of fresh) {
-    const u = new SpeechSynthesisUtterance(l.text.replace(/[*_#`>]/g, ''));
-    if (voice) { u.voice = voice; u.lang = voice.lang; } else u.lang = LANG_CODES[cfg.language][0];
-    u.rate = 0.97;
-    speech.speak(u);
-  }
+  if (!prefs.voice || viewSeq !== null) return;
+  fresh.forEach((l) => speak(l.text));
+}
+
+/** The DM's latest turn: everything it said since a player last spoke. */
+function latestDmTurn() {
+  const lastPlayer = shown.log.findLastIndex((l) => l.from === 'player');
+  return shown.log.slice(lastPlayer + 1).filter((l) => l.from === 'dm' && l.kind !== 'ooc');
 }
 
 async function savePrefs(patch) {
+  const turningOn = patch.voice === true && !prefs.voice;
   prefs = await api('/api/prefs', patch);
-  if (!prefs.voice) speech?.cancel();
+  speech?.cancel();
+  // Catch up on what's already on screen, e.g. the opening narration.
+  if (turningOn && shown) latestDmTurn().forEach((l) => speak(l.text));
   render();
 }
 
