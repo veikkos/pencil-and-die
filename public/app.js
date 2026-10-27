@@ -674,8 +674,11 @@ function voiceSelect() {
   const list = voicesFor(cfg.language);
   if (!list.length) return `<span class="muted" style="font-size:.8em">${esc(t().noVoice)}</span>`;
   const chosen = pickVoice();
+  // "Eddy (Finnish (Finland))" → "Eddy"; add the region only where names would clash (en-GB vs en-US).
+  const base = (v) => v.name.replace(/\s*\(.*\)\s*$/, '');
+  const label = (v) => list.filter((x) => base(x) === base(v)).length > 1 ? `${base(v)} (${v.lang.split(/[-_]/)[1] ?? v.lang})` : base(v);
   return `<select id="voice-name" class="input" style="width:auto;padding:.2em .4em">${list.map((v) =>
-    `<option ${v === chosen ? 'selected' : ''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}</select>
+    `<option ${v === chosen ? 'selected' : ''}>${esc(label(v))}</option>`).join('')}</select>
     <button class="ghost" id="voice-test" title="${esc(t().testVoice)}">▶︎</button>`;
 }
 
