@@ -264,3 +264,73 @@ test('order completing with nobody able to act has no current actor', async () =
   const wait = await c.call('wait_for_players', { timeout_seconds: 5 });
   assert.match(wait.text, /Initiative order: .*\. No one can act\./);
 });
+
+test('rewinding to the initiative roll that opened round 1 on a dying hero asks for the death save once', () => {
+  const { store, g, state, start, init, hurt } = fight();
+  hurt('mira', -100);
+  start();
+  init('torvald', 5);
+  init('mira', 18);
+  const opened = store.liveEvents(g.id).findLast((e) => e.event.type === 'roll_resolved')!;
+  const saves = () => state().pendingRolls.filter((r) => r.purpose === 'death_save');
+  assert.equal(saves().length, 1);
+  store.rewind(g.id, opened.seq);
+  assert.equal(state().combat!.round, 1);
+  assert.deepEqual(saves().map((r) => r.characterId), ['mira']);
+  store.append(g.id, { type: 'message', from: 'dm', kind: 'narration', text: 'x' });
+  assert.equal(saves().length, 1);
+  store.rewind(g.id, state().seq - 1);
+  assert.equal(saves().length, 1);
+});
+
+test('rolled log lines carry the roll purpose so the page can name it', () => {
+  const { state, start, init } = fight();
+  start();
+  init('mira', 18);
+  const line = state().log.findLast((l) => l.sys?.code === 'rolled')!;
+  assert.equal(line.sys!.params.purpose, 'initiative');
+});
+
+test('creatures added after a group left the fight get fresh ids and one turn each', async () => {
+  const { store, db, g, state, ordered } = fight();
+  ordered();
+  store.append(g.id, { type: 'presence_removed', presenceIds: ['goblin-1', 'goblin-2'] });
+  const c = await mcpClient(store, db);
+  const r = await c.call('add_to_scene', { name: 'Goblin', side: 'enemy', hp: 7, count: 2, initiative: 9 });
+  assert.equal(r.isError, false, r.text);
+  const ids = state().present.flatMap((p) => [p.id, p.groupId]);
+  assert.ok(!ids.includes('goblin-1'), ids.join());
+  const groups = state().combat!.order.filter((e) => e.ref.kind === 'group').map((e) => (e.ref as { groupId: string }).groupId);
+  assert.equal(new Set(groups).size, groups.length);
+  assert.equal(groups.length, 2);
+  await c.call('set_scene', { title: 'Hall', present: [{ name: 'Goblin', side: 'enemy', hp: 7, count: 2 }] });
+  const fresh = state().present.map((p) => p.groupId);
+  for (const gid of fresh) assert.ok(!groups.includes(gid), `${gid} is already in the fight`);
+});
+
+test('combatant_added never adds the same combatant twice', () => {
+  const { store, g, state, ordered } = fight();
+  ordered();
+  const before = state().combat!.order.length;
+  store.append(g.id, { type: 'combatant_added', entry: group('goblin-1', 3, 0) });
+  assert.equal(state().combat!.order.length, before);
+});
+
+test('cancel_roll that closes the gathering tells the DM the order and whose turn it is', async () => {
+  const { store, db, start, init, rollOf } = fight();
+  start();
+  init('mira', 18);
+  const c = await mcpClient(store, db);
+  const r = await c.call('cancel_roll', { roll_id: rollOf('torvald').rollId });
+  assert.match(r.text, /^Roll cancelled\. Initiative order: Mira 18, Goblin 14\. Round 1: Mira's turn\.$/);
+});
+
+test('a combatant whose group left the scene is never named by its id', () => {
+  const { store, g, state, start, init } = fight();
+  start();
+  store.append(g.id, { type: 'presence_removed', presenceIds: ['goblin-1', 'goblin-2'] });
+  init('mira', 18);
+  init('torvald', 5);
+  const line = state().log.findLast((l) => l.sys?.code === 'combatOrder')!;
+  assert.doesNotMatch(JSON.stringify(line), /goblin-1/);
+});

@@ -202,3 +202,55 @@ test('fallen: the dead stay dead when healed, and revive brings them back', () =
   assert.equal(c().status, 'up');
   assert.equal(c().hp, 5);
 });
+
+test('fallen: rewinding to the roll that caused the fall records the outcome once, with the current setting', () => {
+  const { store, g, c, hurt, save } = table();
+  hurt(-10);
+  save(2); save(2); save(2);
+  assert.equal(countFell(store, g.id), 1);
+  const third = store.liveEvents(g.id).findLast((e) => e.event.type === 'roll_resolved')!;
+  store.setFallenHeroes('death');
+  store.rewind(g.id, third.seq);
+  assert.equal(countFell(store, g.id), 1);
+  assert.equal((lastEvent(store, g.id).event as { outcome: string }).outcome, 'dead');
+  assert.equal(c().status, 'dead');
+});
+
+test('life: a pending death save goes away once the hero is no longer dying', () => {
+  const { store, g, hurt } = table();
+  const pendingSaves = () => store.state(g.id).pendingRolls.filter((r) => r.purpose === 'death_save');
+  const ask = () => store.append(g.id, { type: 'roll_requested', roll: { rollId: `ask${store.state(g.id).seq}`, characterId: 'mira', label: 'Death save', dice: '1d20', modifier: 0, advantage: 'none', hideDc: true, purpose: 'death_save' } });
+  hurt(-10);
+  ask();
+  assert.equal(pendingSaves().length, 1);
+  hurt(3);
+  assert.equal(pendingSaves().length, 0);
+  hurt(-10);
+  ask();
+  store.append(g.id, { type: 'hero_fell', characterId: 'mira', outcome: 'knocked_out' });
+  assert.equal(pendingSaves().length, 0);
+  hurt(3);
+  hurt(-10);
+  ask();
+  store.append(g.id, { type: 'rest', kind: 'long', characterIds: ['mira'] });
+  assert.equal(pendingSaves().length, 0);
+});
+
+test('fallen: a dead hero is no longer listed as unconscious', () => {
+  const { store, c, hurt, save } = table();
+  store.setFallenHeroes('death');
+  hurt(-10);
+  save(2); save(2); save(2);
+  assert.equal(c().status, 'dead');
+  assert.ok(!c().conditions.includes('Unconscious'));
+});
+
+test('life: update_character tells the DM when a hero is knocked out', async () => {
+  const { store, db, hurt, save } = table();
+  hurt(-10);
+  save(2); save(2); save(2);
+  const mcp = await mcpClient(store, db);
+  const r = await mcp.call('update_character', { character_id: 'mira', notes: 'x' });
+  assert.match(r.text, /Mira is knocked out/);
+  assert.doesNotMatch(r.text, /\b(he|she|her|his|him)\b/i);
+});

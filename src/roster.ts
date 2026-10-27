@@ -57,11 +57,15 @@ export function applyPresencePatch(p: Presence, patch: PresencePatch): Presence 
   const next: Presence = { ...p, conditions: [...p.conditions] };
   if (patch.maxHp !== undefined) next.maxHp = patch.maxHp;
   if (patch.hp !== undefined) next.hp = patch.hp;
-  if (patch.hpDelta !== undefined) next.hp = (next.hp ?? 0) + patch.hpDelta;
+  // A creature that needs no HP (a shopkeeper) has none to lose.
+  if (patch.hpDelta !== undefined && next.hp !== undefined) next.hp += patch.hpDelta;
   const touchedHp = patch.hp !== undefined || patch.hpDelta !== undefined || patch.maxHp !== undefined;
   if (next.hp !== undefined) {
     next.hp = Math.max(0, next.maxHp === undefined ? next.hp : Math.min(next.maxHp, next.hp));
-    if (touchedHp) next.defeated = next.hp === 0;
+    // HP only decides defeat at 0: a creature that surrendered or fled stays defeated when hit,
+    // and only healing from 0 brings one back.
+    if (touchedHp && next.hp === 0) next.defeated = true;
+    else if (touchedHp && p.hp === 0) next.defeated = false;
   }
   if (patch.ac !== undefined) next.ac = patch.ac;
   if (patch.side !== undefined) next.side = patch.side;
@@ -80,8 +84,12 @@ export function publicPresence(p: Presence) {
 
 export const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'creature';
 
-export function newPresences(existing: Presence[], spec: PresenceSpec, count: number): Presence[] {
-  const taken = new Set(existing.map((p) => p.id));
+/**
+ * `reserved` are ids that must not be handed out again even though nobody in `existing` has them,
+ * e.g. groups still in the turn order after leaving the scene.
+ */
+export function newPresences(existing: Presence[], spec: PresenceSpec, count: number, reserved: Iterable<string> = []): Presence[] {
+  const taken = new Set([...existing.flatMap((p) => [p.id, p.groupId]), ...reserved]);
   const base = slug(spec.name);
   const ids: string[] = [];
   if (count === 1 && !taken.has(base)) ids.push(base);

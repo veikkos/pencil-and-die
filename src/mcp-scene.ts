@@ -35,6 +35,10 @@ export function roundText(s: GameState): string {
   return dyingHeroId(s, actor) ? `Round ${s.combat!.round}: ${name} is dying: asked for ${name}'s death save.` : `Round ${s.combat!.round}: ${name}'s turn.`;
 }
 
+/** Group ids the turn order still points at, so new creatures never step into an old slot. */
+export const fightRefs = (s: GameState): string[] =>
+  (s.combat?.order ?? []).flatMap((e) => (e.ref.kind === 'group' ? [e.ref.groupId] : []));
+
 const d20 = () => virtualRoll(parseDice('1d20'), 'none', 0).faces[0];
 
 interface Helpers {
@@ -81,7 +85,7 @@ export function registerSceneTools(server: McpServer, store: GameStore, h: Helpe
     inputSchema: { ...presenceSpec.shape, initiative: z.number().int().optional().describe('Initiative total, for joining a fight already under way.'), game_id: gameIdArg },
   }, (a) => {
     const id = h.resolve(a.game_id);
-    const made = newPresences(store.state(id).present, { name: a.name, side: a.side, description: a.description, hp: a.hp, ac: a.ac, initiativeBonus: a.initiative_bonus, notes: a.notes }, a.count);
+    const made = newPresences(store.state(id).present, { name: a.name, side: a.side, description: a.description, hp: a.hp, ac: a.ac, initiativeBonus: a.initiative_bonus, notes: a.notes }, a.count, fightRefs(store.state(id)));
     store.append(id, { type: 'presence_added', presences: made });
     const added = `Added ${made.map((p) => p.id).join(', ')}.`;
     if (!store.state(id).combat) return text(added);

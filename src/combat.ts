@@ -44,10 +44,17 @@ export function currentActor(s: GameState): CombatEntry | undefined {
   return e && canAct(s, e) ? e : undefined;
 }
 
+/** Whether the hero or group is still around to be named. */
+export function knownEntry(s: GameState, e: CombatEntry): boolean {
+  const { ref } = e;
+  return ref.kind === 'hero' ? s.characters.some((c) => c.id === ref.id) : s.present.some((p) => p.groupId === ref.groupId);
+}
+
+/** Never an id: these names can reach the players' log. */
 export function entryName(s: GameState, e: CombatEntry): string {
   const { ref } = e;
-  if (ref.kind === 'hero') return s.characters.find((c) => c.id === ref.id)?.name ?? ref.id;
-  return s.present.find((p) => p.groupId === ref.groupId)?.name ?? ref.groupId;
+  if (ref.kind === 'hero') return s.characters.find((c) => c.id === ref.id)?.name ?? 'Someone';
+  return s.present.find((p) => p.groupId === ref.groupId)?.name ?? 'Someone';
 }
 
 /** Once no hero initiative is pending: sort and begin round 1. */
@@ -71,6 +78,7 @@ export function nextTurn(s: GameState): { round: number; turn: number } | undefi
 }
 
 export function addEntry(c: Combat, entry: CombatEntry): Combat {
+  if (c.order.some((e) => sameRef(e.ref, entry.ref))) return c;
   if (c.round === 0) return { ...c, order: [...c.order, entry] };
   const current = c.order[c.turn];
   const order = sortOrder([...c.order, entry]);
@@ -91,7 +99,8 @@ export function groupEntry(s: GameState, groupId: string, initiative: (bonus: nu
 }
 
 export function planStartCombat(s: GameState, participants: { heroes: string[]; groupIds: string[] }, roll: () => number): GameEvent[] {
-  const heroes = participants.heroes.map((id) => heroEntry(s, id, null));  const groups = participants.groupIds.map((g) => groupEntry(s, g, (bonus) => roll() + bonus));
+  const heroes = participants.heroes.map((id) => heroEntry(s, id, null));
+  const groups = participants.groupIds.map((g) => groupEntry(s, g, (bonus) => roll() + bonus));
   const asks: GameEvent[] = participants.heroes.map((id, i) => ({
     type: 'roll_requested',
     roll: { rollId: `init-${id}-${s.seq}`, characterId: id, label: 'Initiative', dice: '1d20', modifier: heroes[i].tiebreak, advantage: 'none', hideDc: true, purpose: 'initiative' },

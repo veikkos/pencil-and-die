@@ -5,7 +5,7 @@ import { entryName } from './combat.ts';
 import type { Db } from './db.ts';
 import { parseDice, physicalDice, virtualRoll } from './dice.ts';
 import { DM_GUIDE } from './dm-guide.ts';
-import { orderText, registerSceneTools, roundText } from './mcp-scene.ts';
+import { fightRefs, orderText, registerSceneTools, roundText } from './mcp-scene.ts';
 import { findResource } from './resources.ts';
 import { newPresences, presenceSpec, stillPresent, toSpec, type Presence } from './roster.ts';
 import { checkModifier, type Character } from './rules.ts';
@@ -59,6 +59,7 @@ function lifeNote(c: Character): string {
   const saves = `saves ${c.deathSaves.successes}, fails ${c.deathSaves.failures}`;
   if (c.status === 'dying') return `. ${c.name} is dying (${saves}). Death saves are asked automatically on ${c.name}'s turn in combat; outside combat use request_roll with check "death save".`;
   if (c.status === 'stable') return `. ${c.name} is stable at 0 HP (unconscious).`;
+  if (c.status === 'out') return `. ${c.name} is knocked out at 0 HP: wakes with 1 HP when the fight ends, or sooner if healed.`;
   if (c.status === 'dead') return `. ${c.name} is dead.`;
   return '';
 }
@@ -221,7 +222,10 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     let roster: Presence[] | undefined;
     if (present) {
       roster = [];
-      for (const spec of present) roster.push(...newPresences(roster, toSpec(spec), spec.count));
+      // Ids of who was here, or is still in the turn order, are not reused for newcomers.
+      const before = store.state(id);
+      const reserved = [...before.present.flatMap((p) => [p.id, p.groupId]), ...fightRefs(before)];
+      for (const spec of present) roster.push(...newPresences(roster, toSpec(spec), spec.count, reserved));
     }
     store.append(id, { type: 'scene_set', title, description, present: roster });
     const left = store.state(id).present;
@@ -230,7 +234,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
   });
 
   server.registerTool('add_dm_note', {
-    description: 'Private DM notebook (never shown to players): secrets, NPCs, plot threads, monster HP, initiative order.',
+    description: 'Private DM notebook (never shown to players): secrets, NPC motives, plot threads, things to remember later. Creature HP and the turn order are tracked by the scene and combat tools.',
     inputSchema: { text: z.string().min(1), game_id: gameIdArg },
   }, ({ text: t, game_id }) => {
     const id = resolve(game_id);
@@ -276,9 +280,13 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     inputSchema: { roll_id: z.string(), game_id: gameIdArg },
   }, ({ roll_id, game_id }) => {
     const id = resolve(game_id);
-    if (!store.state(id).pendingRolls.some((r) => r.rollId === roll_id)) throw new Error(`No pending roll ${roll_id}`);
+    const before = store.state(id);
+    if (!before.pendingRolls.some((r) => r.rollId === roll_id)) throw new Error(`No pending roll ${roll_id}`);
     store.append(id, { type: 'roll_cancelled', rollId: roll_id });
-    return text('Roll cancelled.');
+    const after = store.state(id);
+    // Cancelling the last missing initiative roll sets the order.
+    const opened = before.combat?.round === 0 && (after.combat?.round ?? 0) > 0;
+    return text(`Roll cancelled.${opened ? ` Initiative order: ${orderText(after)}. ${roundText(after)}` : ''}`);
   });
 
   server.registerTool('dm_roll', {

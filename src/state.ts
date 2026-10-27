@@ -1,6 +1,6 @@
-import { addEntry, beginIfReady, entryName, nextTurn, sameRef, type Combat, type CombatEntry } from './combat.ts';
+import { addEntry, beginIfReady, entryName, knownEntry, nextTurn, sameRef, type Combat, type CombatEntry } from './combat.ts';
 import type { Advantage } from './dice.ts';
-import { applyDeathSave, applyHpChange, wakeUp } from './life.ts';
+import { applyDeathSave, applyHpChange, UNCONSCIOUS, wakeUp } from './life.ts';
 import { restCharacter, useResource, withDefaults, type Recharge } from './resources.ts';
 import { applyPresencePatch, healthWord, publicPresence, type Presence, type PresencePatch } from './roster.ts';
 import type { Character } from './rules.ts';
@@ -206,7 +206,9 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
     s.combat = beginIfReady(s, c);
     if (s.combat.round === 0) return;
     const names = s.combat.order.map((x) => entryName(s, x));
-    sys('combatOrder', { names }, `Turn order: ${names.join(', ')}.`);
+    // A group that left the scene has no name to show; the page fills in its own word for "someone".
+    const shown = s.combat.order.map((x, i) => (knownEntry(s, x) ? names[i] : null));
+    sys('combatOrder', { names: shown }, `Turn order: ${names.join(', ')}.`);
   };
 
   switch (e.type) {
@@ -247,7 +249,9 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
     case 'hero_fell': {
       const hero = s.characters.find((c) => c.id === e.characterId);
       if (!hero) break;
-      s.characters = s.characters.map((c) => (c.id === e.characterId ? { ...c, hp: 0, status: e.outcome === 'dead' ? 'dead' : 'out' } : c));
+      s.characters = s.characters.map((c) => (c.id !== e.characterId ? c : e.outcome === 'dead'
+        ? { ...c, hp: 0, status: 'dead', conditions: c.conditions.filter((x) => x !== UNCONSCIOUS) }
+        : { ...c, hp: 0, status: 'out' }));
       sys('fell', { name: hero.name, outcome: e.outcome },
         e.outcome === 'dead' ? `${hero.name} has died.` : `${hero.name} is knocked out.`);
       break;
@@ -271,7 +275,7 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
         s.characters = s.characters.map((c) => (c.id === req.characterId ? applyDeathSave(c, e.faces[0]) : c));
       }
       const outcome = e.success === undefined ? '' : e.success ? ' — success' : ' — failure';
-      sys('rolled', { name: nameOf(req.characterId), label: req.label, faces: e.faces, mod: req.modifier, total: e.total, success: e.success, rollSeq: seq },
+      sys('rolled', { name: nameOf(req.characterId), label: req.label, purpose: req.purpose, faces: e.faces, mod: req.modifier, total: e.total, success: e.success, rollSeq: seq },
         `${nameOf(req.characterId)} rolled ${req.label}: ${e.faces.join(' & ')} ${sign(req.modifier)} = ${e.total}${outcome}`);
       if (req.purpose === 'initiative' && s.combat?.round === 0) {
         const order = s.combat.order.map((x) => (x.initiative === null && sameRef(x.ref, { kind: 'hero', id: req.characterId }) ? { ...x, initiative: e.total } : x));
@@ -361,6 +365,9 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       s.dmNotes = [...s.dmNotes, { seq, text: e.text }];
       break;
   }
+  // Healing, a natural 20, stabilising, falling or resting ends dying; an unanswered death save goes with it.
+  const stale = (r: RollRequest) => r.purpose === 'death_save' && s.characters.find((c) => c.id === r.characterId)?.status !== 'dying';
+  if (s.pendingRolls.some(stale)) s.pendingRolls = s.pendingRolls.filter((r) => !stale(r));
   return s;
 }
 

@@ -193,14 +193,20 @@ export class GameStore {
     const cached = this.cache.get(gameId);
     if (cached) this.cache.set(gameId, apply(cached, stored));
     this.changes.emit('change', gameId, stored);
+    this.settle(gameId, before);
+    return stored;
+  }
+
+  /**
+   * Follow-up events the engine owes after the last event, whether it was just appended or
+   * a rewind cut the log right after it. `before` is the state just before that event.
+   */
+  private settle(gameId: string, before: GameState): void {
     // The reducer may not read settings, so the outcome of a third failed save is recorded as its own event.
-    if (event.type !== 'hero_fell') {
-      const fallen = this.state(gameId).characters.find((c) => c.status === 'dying' && c.deathSaves.failures >= 3);
-      if (fallen) this.append(gameId, { type: 'hero_fell', characterId: fallen.id, outcome: this.fallenHeroes() === 'death' ? 'dead' : 'knocked_out' });
-    }
+    const fallen = this.state(gameId).characters.find((c) => c.status === 'dying' && c.deathSaves.failures >= 3);
+    if (fallen) this.append(gameId, { type: 'hero_fell', characterId: fallen.id, outcome: this.fallenHeroes() === 'death' ? 'dead' : 'knocked_out' });
     // However round 1 opens (a tool, a roll from the page, a cancel), a dying hero first up gets a death save.
     for (const follow of planRoundStart(before, this.state(gameId))) this.append(gameId, follow);
-    return stored;
   }
 
   /** Drops every event after `seq`. They stay in the DB, flagged, for the record. */
@@ -213,6 +219,9 @@ export class GameStore {
     this.db.prepare('UPDATE events SET rewound_at = ? WHERE game_id = ? AND seq > ? AND rewound_at IS NULL').run(now, gameId, seq);
     if (this.dmCursor(gameId) > seq) this.setDmCursor(gameId, seq);
     this.cache.delete(gameId);
+    // The cut may fall between an event and the follow-ups it caused; owe them again, decided now.
+    const live = this.liveEvents(gameId);
+    this.settle(gameId, replay(gameId, live.slice(0, -1)));
     const s = this.state(gameId);
     this.notifyDm(gameId, `REWIND: the table rewound the game to seq ${seq}. Everything after it never happened ` +
       `(including your own narration). Call get_game_state, then carry on from that moment.` +

@@ -91,3 +91,26 @@ test('MCP: count, damage by id, remove all', async () => {
   await c.call('remove_from_scene', { presence_ids: 'all' });
   assert.deepEqual(state().present, []);
 });
+
+test('defeat follows HP only when it reaches or leaves 0', () => {
+  const { store, g, state } = table();
+  store.append(g.id, { type: 'presence_added', presences: newPresences([], { name: 'Goblin', side: 'enemy', hp: 7 }, 1) });
+  store.append(g.id, { type: 'presence_updated', presenceId: 'goblin', patch: { defeated: true } });
+  store.append(g.id, { type: 'presence_updated', presenceId: 'goblin', patch: { hpDelta: -2 } });
+  assert.equal(state().present[0].defeated, true, 'a surrendered goblin stays defeated when hit');
+  store.append(g.id, { type: 'presence_updated', presenceId: 'goblin', patch: { hpDelta: -10 } });
+  assert.equal(state().present[0].hp, 0);
+  store.append(g.id, { type: 'presence_updated', presenceId: 'goblin', patch: { hpDelta: 3 } });
+  assert.equal(state().present[0].defeated, false, 'healed from 0 it is back');
+  store.append(g.id, { type: 'presence_updated', presenceId: 'goblin', patch: { hpDelta: -3 } });
+  assert.equal(state().present[0].defeated, true);
+});
+
+test('a creature without HP ignores hp_delta', () => {
+  const { store, g, state } = table();
+  store.append(g.id, { type: 'presence_added', presences: newPresences([], { name: 'Priest', side: 'neutral' }, 1) });
+  store.append(g.id, { type: 'presence_updated', presenceId: 'priest', patch: { hpDelta: -3 } });
+  assert.equal(state().present[0].hp, undefined);
+  assert.equal(state().present[0].defeated, false);
+  assert.equal(healthWord(state().present[0]), undefined);
+});
