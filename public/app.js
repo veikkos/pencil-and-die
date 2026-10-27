@@ -28,6 +28,10 @@ const mod = (score) => Math.floor((score - 10) / 2);
 const level = () => cfg.complexity;
 const isBeginner = () => cfg.complexity === 'beginner';
 const isExpert = () => cfg.complexity === 'intermediate';
+/** Engine rolls (initiative, death saves) and conditions arrive in English; name them in the page's language and level. */
+const rollLabel = (purpose, fallback) => t().rollLabels[purpose]?.[level()] ?? fallback;
+const condName = (c) => t().conditionNames[c]?.[level()] ?? c;
+const condList = (cs) => cs.map((c) => esc(condName(c))).join(', ');
 
 async function api(path, body) {
   const res = await fetch(path, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
@@ -357,7 +361,7 @@ function sheetHtml(c) {
     ${statsBlock(c)}
     <div><b>${s.hp}</b> ${c.hp}/${c.maxHp}${c.tempHp ? ` (+${c.tempHp})` : ''}${isBeginner() ? '' : ` · <b>${s.ac}</b> ${c.ac} <span class="muted">(${esc(c.acNote)})</span> · <b>${s.speed}</b> ${c.speed}`} · <b>${s.gold}</b> ${c.gold}${isBeginner() ? '' : ` · <b>${s.xp}</b> ${c.xp}`}</div>
     ${visibleResources(c).length ? `<h3>${esc(s.usesLeft)}</h3><ul class="res-list">${visibleResources(c).map((r) => `<li>${resourceRow(r)}<small class="muted">${esc(s.recharge[r.recharge]?.[level()] ?? '')}</small></li>`).join('')}</ul>` : ''}
-    ${c.conditions.length ? `<h3>${s.conditions}</h3><div>${c.conditions.map(esc).join(', ')}</div>` : ''}
+    ${c.conditions.length ? `<h3>${s.conditions}</h3><div>${condList(c.conditions)}</div>` : ''}
     <h3>${s.skills}</h3><div>${c.skills.map((k) => esc(skillName(k))).join(', ')}</div>
     ${isExpert() ? `<h3>${s.saves}</h3><div>${c.saves.map((a) => s.abilityNames[a]).join(', ')}</div><div class="muted">+${c.proficiencyBonus} proficiency</div>` : ''}
     <h3>${s.inventory}</h3><ul>${c.inventory.map((i) => `<li>${esc(i.name)}${i.qty > 1 ? ` ×${i.qty}` : ''}</li>`).join('')}</ul>
@@ -432,7 +436,7 @@ function renderTimeline() {
   if (!history.length) { el.innerHTML = ''; return; }
   const idx = viewSeq === null ? history.length - 1 : history.findIndex((h) => h.seq === viewSeq);
   const h = history[idx];
-  const moment = `${s.timelineTypes[h.type] ?? ''}${h.who ? ` ${h.who}` : ''}${h.text ? `: ${h.text}` : ''}`;
+  const moment = momentText(h);
   el.innerHTML = `
     ${viewSeq !== null ? `<div class="past-banner">⏳ ${esc(s.viewingPast)}
       <button class="btn primary small" id="tl-continue">${esc(s.continueFromHere)}</button>
@@ -446,8 +450,7 @@ function renderTimeline() {
   range.oninput = () => {
     const i = Number(range.value);
     el.querySelector('.moment').textContent = i === history.length - 1 ? s.now : (() => {
-      const x = history[i];
-      return `${s.timelineTypes[x.type] ?? ''}${x.who ? ` ${x.who}` : ''}${x.text ? `: ${x.text}` : ''}`;
+      return momentText(history[i]);
     })();
   };
   range.onchange = () => scrubTo(Number(range.value));
@@ -461,6 +464,22 @@ function renderTimeline() {
       await refresh();
     } catch (err) { fail(err); }
   });
+}
+
+function momentText(x) {
+  const s = t();
+  const text = !x.purpose ? x.text
+    : x.type === 'roll' ? `${rollLabel(x.purpose, x.label)}: ${x.result}`
+    : rollLabel(x.purpose, x.text);
+  return `${s.timelineTypes[x.type] ?? ''}${x.who ? ` ${x.who}` : ''}${text ? `: ${text}` : ''}`;
+}
+
+/** sys params with engine words (roll names, conditions) swapped for the page's own. */
+function localParams({ code, params: p }) {
+  if (code === 'rolled' && p.purpose) return { ...p, label: rollLabel(p.purpose, p.label) };
+  if (code === 'updated') return { ...p, parts: p.parts.map(([k, v]) => [k, k === 'condOn' || k === 'condOff' ? condName(v) : v]) };
+  if (code === 'presenceUpdated') return { ...p, condOn: p.condOn?.map(condName), condOff: p.condOff?.map(condName) };
+  return p;
 }
 
 async function scrubTo(i) {
@@ -479,10 +498,10 @@ function logLine(l) {
   const s = t();
   const who = shown.characters.find((c) => c.id === l.characterId);
   if (l.from === 'system') {
-    if (isBeginner() && l.sys?.code === 'rolled') return `<p class="msg system">${esc(s.simpleRolled(l.sys.params))}</p>`;
+    if (isBeginner() && l.sys?.code === 'rolled') return `<p class="msg system">${esc(s.simpleRolled(localParams(l.sys)))}</p>`;
     if (isBeginner() && l.sys?.code === 'dmRolled') return '';
     const fn = l.sys && s.sys[l.sys.code];
-    return `<p class="msg system">${esc(fn ? fn(l.sys.params) : l.text)}</p>`;
+    return `<p class="msg system">${esc(fn ? fn(localParams(l.sys)) : l.text)}</p>`;
   }
   if (l.from === 'dm') {
     return `<p class="msg dm ${l.kind}"><button class="say-btn" data-speak="${l.seq}" title="${esc(s.readAloud)}">🔊</button>${l.kind === 'answer' && who ? `<span class="tag">→ ${esc(who.name)}</span>` : ''}${esc(l.text).replace(/\n/g, '<br>')}</p>`;
@@ -591,8 +610,8 @@ function buildStrip(characters, present, combat) {
       ? heroes.filter((h) => h.hero.id === entry.ref.id)
       : creatures.filter((g) => g.groupId === entry.ref.groupId);
     for (const card of found) {
-      card.turn = i + 1;
-      card.ready = entry.ready;
+      // While initiative is gathered the order is not sorted yet, so no positions to show.
+      card.turn = combat.round === 0 ? '…' : i + 1;
       card.active = combat.round > 0 && combat.turn === i;
       out.push(card);
     }
@@ -603,7 +622,7 @@ function buildStrip(characters, present, combat) {
 const HEALTH_WIDTH = { unhurt: 100, hurt: 75, bloodied: 45, nearDeath: 15, defeated: 0 };
 
 function turnBadge(card) {
-  return card.turn === undefined ? '' : `<span class="n">${card.ready === false ? '…' : card.turn}</span>`;
+  return card.turn === undefined ? '' : `<span class="n">${card.turn}</span>`;
 }
 
 function heroCardHtml(card) {
@@ -620,7 +639,7 @@ function heroCardHtml(card) {
     <div class="nums"><span>${s.hp} ${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp}` : ''}</span>${isBeginner() ? '' : `<span>${s.ac} ${c.ac}</span>`}</div>
     ${status === 'dying' ? deathSaveRows(c) : ''}
     ${status === 'dead' ? '' : visibleResources(c).map(resourceRow).join('')}
-    ${c.conditions.length ? `<div class="conds">${c.conditions.map(esc).join(', ')}</div>` : ''}
+    ${c.conditions.length ? `<div class="conds">${condList(c.conditions)}</div>` : ''}
   </button>`;
 }
 
@@ -634,7 +653,7 @@ function creatureCardHtml(card) {
     <div class="name">${esc(card.name)}${n > 1 ? ` ×${n}` : ''}</div>
     ${word ? `<div class="sub">${esc(word)}</div>
     <div class="hpbar"><i class="${card.health === 'nearDeath' || card.health === 'bloodied' ? 'low' : ''}" style="width:${HEALTH_WIDTH[card.health] ?? 0}%"></i></div>` : ''}
-    ${conds.length ? `<div class="conds">${conds.map(esc).join(', ')}</div>` : ''}
+    ${conds.length ? `<div class="conds">${condList(conds)}</div>` : ''}
   </button>`;
 }
 
@@ -660,7 +679,7 @@ function showPresence(card) {
     ${card.members.map((m) => `<div>
       ${n > 1 ? `<h3>${esc(m.name)}</h3>` : ''}
       ${m.description ? `<p>${esc(m.description)}</p>` : ''}
-      ${m.conditions?.length ? `<h3>${esc(s.conditions)}</h3><div>${m.conditions.map(esc).join(', ')}</div>` : ''}
+      ${m.conditions?.length ? `<h3>${esc(s.conditions)}</h3><div>${condList(m.conditions)}</div>` : ''}
     </div>`).join('')}
     <div class="wizard-nav"><span></span><button class="btn">OK</button></div></div>`;
   modal.onclick = (e) => { if (e.target === modal || e.target.tagName === 'BUTTON') modal.remove(); };
@@ -676,11 +695,12 @@ function diceFor(roll) {
   return roll.advantage === 'none' ? { count, sides } : { count: 2, sides: 20 };
 }
 
-/** Death saves get plain words for beginners and the rules name for everyone else. */
+/** Engine rolls get plain words for beginners and the rules name for everyone else. */
 function rollHeading(r, who) {
-  if (r.purpose !== 'death_save') return t().rollTitle(who?.name ?? '?', r.label);
   const name = who?.name ?? '?';
-  return isBeginner() ? t().deathSavePrompt(name) : t().rollTitle(name, t().deathSaveLabel[level()]);
+  if (!r.purpose) return t().rollTitle(name, r.label);
+  if (isBeginner()) return r.purpose === 'death_save' ? t().deathSavePrompt(name) : t().initiativePrompt(name);
+  return t().rollTitle(name, rollLabel(r.purpose, r.label));
 }
 
 function renderRolls() {

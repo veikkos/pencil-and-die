@@ -162,12 +162,19 @@ app.get('/api/games/:id/history', (req, res) => {
   const id = game(req);
   const s = store.state(id);
   const name = (cid?: string) => s.characters.find((c) => c.id === cid)?.name;
-  const rollLabel = new Map<string, string>();
+  const rollOf = new Map<string, { label: string; purpose?: string }>();
   const entries = store.liveEvents(id).flatMap(({ seq, at, event: e }) => {
     switch (e.type) {
       case 'message': return [{ seq, at, type: e.from === 'dm' ? 'dm' : 'player', kind: e.kind, who: e.from === 'dm' ? null : name(e.characterId), text: e.text }];
-      case 'roll_requested': rollLabel.set(e.roll.rollId, e.roll.label); return [{ seq, at, type: 'rollRequested', who: name(e.roll.characterId), text: e.roll.label }];
-      case 'roll_resolved': return [{ seq, at, type: 'roll', text: `${rollLabel.get(e.rollId) ?? ''}: ${e.faces.join(' & ')} → ${e.total}` }];
+      case 'roll_requested':
+        rollOf.set(e.roll.rollId, { label: e.roll.label, purpose: e.roll.purpose });
+        return [{ seq, at, type: 'rollRequested', who: name(e.roll.characterId), text: e.roll.label, purpose: e.roll.purpose }];
+      case 'roll_resolved': {
+        // `label` and `result` let the page name engine rolls (initiative, death saves) in its own language.
+        const r = rollOf.get(e.rollId);
+        const result = `${e.faces.join(' & ')} → ${e.total}`;
+        return [{ seq, at, type: 'roll', text: `${r?.label ?? ''}: ${result}`, label: r?.label ?? '', result, purpose: r?.purpose }];
+      }
       case 'character_created': return [{ seq, at, type: 'character', who: e.character.name, text: `${e.character.race} ${e.character.className}` }];
       case 'sketch': return [{ seq, at, type: 'sketch', text: e.caption }];
       case 'scene_set': return [{ seq, at, type: 'scene', text: e.title }];
