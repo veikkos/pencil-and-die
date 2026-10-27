@@ -1,10 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
+import { entryName } from './combat.ts';
 import type { Db } from './db.ts';
 import { parseDice, physicalDice, virtualRoll } from './dice.ts';
 import { DM_GUIDE } from './dm-guide.ts';
-import { registerSceneTools } from './mcp-scene.ts';
+import { orderText, registerSceneTools, roundText } from './mcp-scene.ts';
 import { findResource } from './resources.ts';
 import { newPresences, presenceSpec, stillPresent, toSpec, type Presence } from './roster.ts';
 import { checkModifier, type Character } from './rules.ts';
@@ -34,7 +35,10 @@ function describeEvent(s: GameState, { seq, event: e }: StoredEvent): string {
         return `[${seq}] DEATH SAVE ${who(r.characterId)}: ${face} → ${face === 20 ? 'natural 20' : face === 1 ? 'natural 1, two failures' : face >= 10 ? 'success' : 'failure'}${saves}${end}`;
       }
       const vs = r.dc !== undefined ? ` vs DC ${r.dc} → ${e.success ? 'SUCCESS' : 'FAILURE'}` : '';
-      return `[${seq}] ROLL ${who(r.characterId)} — ${r.label}: dice ${e.faces.join(', ')}${r.advantage !== 'none' ? ` (${r.advantage})` : ''} ${sign(r.modifier)} = ${e.total}${vs}`;
+      const lastInitiative = r.purpose === 'initiative' && s.combat && s.combat.round > 0
+        && s.rolls.findLast((x) => x.purpose === 'initiative') === r;
+      const order = lastInitiative ? ` Initiative order: ${orderText(s)}. ${roundText(s)}` : '';
+      return `[${seq}] ROLL ${who(r.characterId)} — ${r.label}: dice ${e.faces.join(', ')}${r.advantage !== 'none' ? ` (${r.advantage})` : ''} ${sign(r.modifier)} = ${e.total}${vs}${order}`;
     }
     case 'character_created': {
       const c = e.character;
@@ -153,6 +157,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       id: s.id, title: s.title, started: s.started, seq: s.seq, scene: s.scene,
       characters: s.characters,
       present: s.present,
+      combat: s.combat && { ...s.combat, order: s.combat.order.map((e) => ({ name: entryName(s, e), ...e })) },
       pendingRolls: s.pendingRolls,
       dmNotes: s.dmNotes,
       sketchCount: s.sketches.length,

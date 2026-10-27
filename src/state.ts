@@ -1,3 +1,4 @@
+import { addEntry, beginIfReady, entryName, nextTurn, sameRef, type Combat, type CombatEntry } from './combat.ts';
 import type { Advantage } from './dice.ts';
 import { applyDeathSave, applyHpChange, wakeUp } from './life.ts';
 import { restCharacter, useResource, withDefaults, type Recharge } from './resources.ts';
@@ -55,6 +56,7 @@ export interface GameState {
   characters: Character[];
   /** Creatures in the scene (never the heroes). */
   present: Presence[];
+  combat: Combat | null;
   log: LogEntry[];
   pendingRolls: RollRequest[];
   rolls: RollResult[];
@@ -102,6 +104,10 @@ export type GameEvent =
   | { type: 'presence_added'; presences: Presence[] }
   | { type: 'presence_updated'; presenceId: string; patch: PresencePatch; reason?: string }
   | { type: 'presence_removed'; presenceIds: string[] }
+  | { type: 'combat_started'; order: CombatEntry[] }
+  | { type: 'turn_advanced' }
+  | { type: 'combatant_added'; entry: CombatEntry }
+  | { type: 'combat_ended' }
   | { type: 'sketch'; caption: string; svg: string }
   | { type: 'dm_note'; text: string };
 
@@ -112,7 +118,7 @@ export interface StoredEvent {
 }
 
 export function emptyState(id: string): GameState {
-  return { id, title: '', seq: 0, scene: null, characters: [], present: [], log: [], pendingRolls: [], rolls: [], sketches: [], dmNotes: [], started: false };
+  return { id, title: '', seq: 0, scene: null, characters: [], present: [], combat: null, log: [], pendingRolls: [], rolls: [], sketches: [], dmNotes: [], started: false };
 }
 
 const sign = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
@@ -195,6 +201,13 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
     s.log = [...s.log, { seq, at, from: 'system', kind: 'info', text, sys: { code, params } }];
   };
   const nameOf = (id: string) => s.characters.find((c) => c.id === id)?.name ?? 'Someone';
+  /** Takes the gathering combat; once every initiative is in, fixes the order and announces it. */
+  const gathered = (c: Combat) => {
+    s.combat = beginIfReady(s, c);
+    if (s.combat.round === 0) return;
+    const names = s.combat.order.map((x) => entryName(s, x));
+    sys('combatOrder', { names }, `Turn order: ${names.join(', ')}.`);
+  };
 
   switch (e.type) {
     case 'game_created':
@@ -260,11 +273,20 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       const outcome = e.success === undefined ? '' : e.success ? ' — success' : ' — failure';
       sys('rolled', { name: nameOf(req.characterId), label: req.label, faces: e.faces, mod: req.modifier, total: e.total, success: e.success, rollSeq: seq },
         `${nameOf(req.characterId)} rolled ${req.label}: ${e.faces.join(' & ')} ${sign(req.modifier)} = ${e.total}${outcome}`);
+      if (req.purpose === 'initiative' && s.combat?.round === 0) {
+        const order = s.combat.order.map((x) => (x.initiative === null && sameRef(x.ref, { kind: 'hero', id: req.characterId }) ? { ...x, initiative: e.total } : x));
+        gathered({ ...s.combat, order });
+      }
       break;
     }
-    case 'roll_cancelled':
+    case 'roll_cancelled': {
+      const req = s.pendingRolls.find((r) => r.rollId === e.rollId);
       s.pendingRolls = s.pendingRolls.filter((r) => r.rollId !== e.rollId);
+      if (req?.purpose === 'initiative' && s.combat?.round === 0) {
+        gathered({ ...s.combat, order: s.combat.order.filter((x) => !(x.initiative === null && sameRef(x.ref, { kind: 'hero', id: req.characterId }))) });
+      }
       break;
+    }
     case 'dm_roll':
       s.rolls = [...s.rolls, { ...e.roll, requestedSeq: seq, resolvedSeq: seq }];
       if (!e.secret) {
@@ -314,6 +336,24 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       sys('left', { names }, `${names.join(', ')} ${names.length > 1 ? 'are' : 'is'} gone.`);
       break;
     }
+    case 'combat_started':
+      sys('combatStarted', {}, 'Fight!');
+      gathered({ round: 0, turn: 0, order: e.order });
+      break;
+    case 'turn_advanced': {
+      const next = nextTurn(s);
+      if (s.combat && next) s.combat = { ...s.combat, ...next };
+      break;
+    }
+    case 'combatant_added':
+      if (s.combat) s.combat = addEntry(s.combat, e.entry);
+      break;
+    case 'combat_ended':
+      if (!s.combat) break;
+      s.combat = null;
+      s.characters = s.characters.map((c) => (c.status === 'out' ? wakeUp(c, 1) : c));
+      sys('combatEnded', {}, 'The fight is over.');
+      break;
     case 'sketch':
       s.sketches = [...s.sketches, { seq, caption: e.caption, svg: e.svg }];
       break;
@@ -341,6 +381,7 @@ export function playerView(s: GameState) {
     ...s,
     dmNotes: undefined,
     present: s.present.map(publicPresence),
+    combat: s.combat && { round: s.combat.round, turn: s.combat.turn, order: s.combat.order.map((e) => ({ ref: e.ref, ready: e.initiative !== null })) },
     pendingRolls: s.pendingRolls.map(hide),
     // DM rolls can be secret; the public ones are already in the log.
     rolls: s.rolls.filter((r) => !r.byDm).map(hide),
