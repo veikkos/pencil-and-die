@@ -10,13 +10,14 @@ const SHAPES = {
   100: { points: '50,4 94,42 50,96 6,42', inner: 'M6,42 L50,58 L94,42 M50,58 L50,96' },
 };
 
-const COLORS = { 4: '#c0392b', 6: '#2c3e50', 8: '#16a085', 10: '#8e44ad', 12: '#d35400', 20: '#b8860b', 100: '#8e44ad' };
+// Colours come from CSS (--die-N) so they adapt to light/dark mode.
+const COLOR_VAR = { 4: '--die-4', 6: '--die-6', 8: '--die-8', 10: '--die-10', 12: '--die-12', 20: '--die-20', 100: '--die-10' };
 
 export function dieSvg(sides, size = 84) {
   const s = SHAPES[sides] ?? SHAPES[6];
-  const c = COLORS[sides] ?? '#333';
+  const c = 'currentColor';
   const label = sides === 100 ? '%' : sides;
-  return `<svg class="die-svg" width="${size}" height="${size}" viewBox="0 0 100 100" aria-label="d${sides}">
+  return `<svg class="die-svg" style="color: var(${COLOR_VAR[sides] ?? '--ink'})" width="${size}" height="${size}" viewBox="0 0 100 100" aria-label="d${sides}">
     <polygon points="${s.points}" fill="${c}" fill-opacity="0.14" stroke="${c}" stroke-width="4" stroke-linejoin="round"/>
     ${s.inner ? `<path d="${s.inner}" fill="none" stroke="${c}" stroke-width="1.6" stroke-opacity="0.55"/>` : ''}
     <text x="50" y="${sides === 4 ? 74 : 58}" text-anchor="middle" font-size="${sides === 100 ? 22 : 20}" font-weight="700" fill="${c}" font-family="system-ui, sans-serif">d${label}</text>
