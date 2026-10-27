@@ -8,6 +8,16 @@ export type Language = 'en' | 'fi';
 
 export const LANGUAGE_NAMES: Record<Language, string> = { en: 'English', fi: 'Finnish (suomi)' };
 
+export const VERBOSITY_LEVELS = [1, 2, 3, 4] as const;
+export type Verbosity = (typeof VERBOSITY_LEVELS)[number];
+
+export const VERBOSITY_GUIDE: Record<Verbosity, string> = {
+  1: 'VERBOSITY 1/4 (terse): 1–2 short sentences per beat. Only what changed and what the players need to act. No scenery unless asked.',
+  2: 'VERBOSITY 2/4 (brief): 2–3 sentences per beat. One telling detail, then hand the spotlight back.',
+  3: 'VERBOSITY 3/4 (normal): 2–5 vivid sentences per beat, then hand the spotlight back with a question.',
+  4: 'VERBOSITY 4/4 (rich): 4–8 sentences per beat. Paint the scene with sound, smell and light, give NPCs distinct voices and lines of dialogue, linger on dramatic moments.',
+};
+
 export const COMPLEXITY_LEVELS = ['beginner', 'casual', 'intermediate'] as const;
 export type Complexity = (typeof COMPLEXITY_LEVELS)[number];
 
@@ -86,6 +96,19 @@ export class GameStore {
     // it hears about the level that stuck with the next player input (see takeNotices).
     setSetting(this.db, 'complexity', level);
     this.changes.emit('complexity', level);
+  }
+
+  verbosity(): Verbosity {
+    const v = Number(getSetting(this.db, 'verbosity'));
+    return (VERBOSITY_LEVELS as readonly number[]).includes(v) ? (v as Verbosity) : 3;
+  }
+
+  setVerbosity(level: number): void {
+    if (!(VERBOSITY_LEVELS as readonly number[]).includes(level)) throw new Error('verbosity must be 1–4');
+    if (level === this.verbosity()) return;
+    // Like complexity, the DM learns the level that stuck with the next player input.
+    setSetting(this.db, 'verbosity', String(level));
+    this.changes.emit('verbosity', level);
   }
 
   activeGameId(): string | undefined {
@@ -188,6 +211,11 @@ export class GameStore {
     if (getSetting(this.db, `dm_complexity:${gameId}`) !== level) {
       setSetting(this.db, `dm_complexity:${gameId}`, level);
       notices.push(`COMPLEXITY is ${level}. ${COMPLEXITY_GUIDE[level]}`);
+    }
+    const verbosity = String(this.verbosity());
+    if ((getSetting(this.db, `dm_verbosity:${gameId}`) ?? '3') !== verbosity) {
+      setSetting(this.db, `dm_verbosity:${gameId}`, verbosity);
+      notices.push(VERBOSITY_GUIDE[this.verbosity()]);
     }
     return notices;
   }

@@ -47,7 +47,7 @@ const game = (req: Request) => {
 };
 
 app.get('/api/config', (_req, res) => {
-  res.json({ language: store.language(), complexity: store.complexity(), activeGameId: store.activeGameId() ?? null, games: store.listGames() });
+  res.json({ language: store.language(), complexity: store.complexity(), verbosity: store.verbosity(), activeGameId: store.activeGameId() ?? null, games: store.listGames() });
 });
 
 app.post('/api/language', (req, res) => {
@@ -66,6 +66,11 @@ app.post('/api/prefs', (req, res) => {
   const prefs = { ...JSON.parse(getSetting(db, 'prefs') ?? '{}'), ...req.body };
   setSetting(db, 'prefs', JSON.stringify(prefs));
   res.json(prefs);
+});
+
+app.post('/api/verbosity', (req, res) => {
+  store.setVerbosity(Number(req.body.verbosity));
+  res.json({ verbosity: store.verbosity() });
 });
 
 app.post('/api/complexity', (req, res) => {
@@ -183,6 +188,8 @@ app.get('/api/stream', (req, res) => {
   const onLanguage = (language: string) => send({ type: 'language', language });
   const onComplexity = (complexity: string) => send({ type: 'complexity', complexity });
   store.changes.on('complexity', onComplexity);
+  const onVerbosity = (verbosity: number) => send({ type: 'verbosity', verbosity });
+  store.changes.on('verbosity', onVerbosity);
   store.changes.on('change', onChange);
   store.changes.on('active', onActive);
   store.changes.on('language', onLanguage);
@@ -193,6 +200,7 @@ app.get('/api/stream', (req, res) => {
     store.changes.off('active', onActive);
     store.changes.off('language', onLanguage);
     store.changes.off('complexity', onComplexity);
+    store.changes.off('verbosity', onVerbosity);
   });
 });
 

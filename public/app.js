@@ -6,7 +6,7 @@ import { dieSvg } from './dice.js';
 // ---------------------------------------------------------------------------
 
 const app = document.getElementById('app');
-let cfg = { language: 'en', complexity: 'beginner', activeGameId: null, games: [] };
+let cfg = { language: 'en', complexity: 'beginner', verbosity: 3, activeGameId: null, games: [] };
 let prefs = { voice: false, voiceName: { en: null, fi: null } };
 let rules = null;
 let view = 'lobby';
@@ -61,6 +61,7 @@ async function boot() {
     if (ev.type === 'change' && ev.gameId === gameId) scheduleRefresh();
     if (ev.type === 'language') { cfg.language = ev.language; document.documentElement.lang = ev.language; render(); }
     if (ev.type === 'complexity') { cfg.complexity = ev.complexity; rerenderAll(); }
+    if (ev.type === 'verbosity') { cfg.verbosity = ev.verbosity; rerenderAll(); }
   };
 }
 
@@ -109,6 +110,13 @@ async function setComplexity(level) {
   rerenderAll();
 }
 
+async function setVerbosity(level) {
+  if (level === cfg.verbosity) return;
+  await api('/api/verbosity', { verbosity: level });
+  cfg.verbosity = level;
+  rerenderAll();
+}
+
 /** Forces every region to rebuild (language/complexity changed). */
 function rerenderAll() {
   app.dataset.lang = '';
@@ -136,7 +144,15 @@ function complexityPicker() {
   </select>`;
 }
 
+function verbosityPicker() {
+  const s = t();
+  return `<select class="input" id="verbosity" title="${esc(s.verbosityHints[cfg.verbosity])}" style="width:auto;padding:.2em .4em" aria-label="${esc(s.verbosity)}">
+    ${[1, 2, 3, 4].map((v) => `<option value="${v}" ${v === cfg.verbosity ? 'selected' : ''}>${esc(s.verbosity)}: ${v}/4 ${esc(s.verbosityLevels[v])}</option>`).join('')}
+  </select>`;
+}
+
 function bindCommon(root) {
+  root.querySelectorAll('#verbosity').forEach((sel) => sel.onchange = () => setVerbosity(Number(sel.value)).catch(fail));
   root.querySelectorAll('[data-lang]').forEach((b) => b.onclick = () => setLanguage(b.dataset.lang).catch(fail));
   root.querySelectorAll('#complexity').forEach((sel) => sel.onchange = () => setComplexity(sel.value).catch(fail));
   root.querySelectorAll('[data-go-lobby]').forEach((b) => b.onclick = async () => { view = 'lobby'; cfg = await api('/api/config'); render(); });
@@ -162,7 +178,7 @@ function renderLobby() {
   const s = t();
   const when = (iso) => new Date(iso).toLocaleString(cfg.language === 'fi' ? 'fi-FI' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' });
   app.innerHTML = `
-    <div class="topbar"><span class="brand">${esc(s.appTitle)}</span><span class="scene"></span>${complexityPicker()}${langToggle()}</div>
+    <div class="topbar"><span class="brand">${esc(s.appTitle)}</span><span class="scene"></span>${verbosityPicker()}${complexityPicker()}${langToggle()}</div>
     <div class="page">
       <div class="hero"><h1>${esc(s.appTitle)}</h1><p>${esc(s.tagline)}</p></div>
       <div class="card">
@@ -204,7 +220,7 @@ function renderSetup() {
   const s = t();
   app.innerHTML = `
     <div class="topbar"><button class="ghost" data-go-lobby>← ${esc(s.lobby)}</button>
-      <span class="scene"><b>${esc(live.title)}</b></span>${dmStatusPill()}${complexityPicker()}${langToggle()}</div>
+      <span class="scene"><b>${esc(live.title)}</b></span>${dmStatusPill()}${verbosityPicker()}${complexityPicker()}${langToggle()}</div>
     <div class="page">
       <h1>${esc(s.party)}</h1>
       <div class="party-grid">${live.characters.map((c) => `
@@ -354,7 +370,7 @@ function renderTopbar() {
     ${dmStatusPill()}
     <button class="ghost" id="voice" title="${esc(s.voice)}">${prefs.voice ? '🔊' : '🔈'} ${esc(prefs.voice ? s.voiceOn : s.voiceOff)}</button>
     ${prefs.voice ? voiceSelect() : ''}
-    ${complexityPicker()}
+    ${verbosityPicker()}${complexityPicker()}
     ${langToggle()}`;
   bindCommon(el);
   el.querySelector('#voice').onclick = () => savePrefs({ voice: !prefs.voice });

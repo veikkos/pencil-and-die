@@ -7,7 +7,7 @@ import { DM_GUIDE } from './dm-guide.ts';
 import { checkModifier } from './rules.ts';
 import { getSketchStyle, sanitizeSketch, setSketchStyle, SKETCH_HEIGHT, SKETCH_WIDTH } from './sketch.ts';
 import type { GameState, StoredEvent } from './state.ts';
-import { COMPLEXITY_GUIDE, LANGUAGE_NAMES, type GameStore } from './store.ts';
+import { COMPLEXITY_GUIDE, LANGUAGE_NAMES, VERBOSITY_GUIDE, type GameStore } from './store.ts';
 
 const text = (t: string) => ({ content: [{ type: 'text' as const, text: t }] });
 const json = (v: unknown) => text(JSON.stringify(v, null, 2));
@@ -126,6 +126,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     return json({
       language: `${LANGUAGE_NAMES[store.language()]}: write everything the players see in this language.`,
       complexity: COMPLEXITY_GUIDE[store.complexity()],
+      verbosity: VERBOSITY_GUIDE[store.verbosity()],
       id: s.id, title: s.title, started: s.started, seq: s.seq, scene: s.scene,
       characters: s.characters,
       pendingRolls: s.pendingRolls,
@@ -154,7 +155,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     const { events, notices } = await store.waitForPlayers(id, timeout_seconds * 1000, 2500, extra.signal);
     if (!events.length && !notices.length) return text('Nothing yet. The table is quiet. Call wait_for_players again.');
     const s = store.state(id);
-    const header = [...notices, `(Table language: ${LANGUAGE_NAMES[store.language()]}. Complexity: ${store.complexity()}.)`].join('\n');
+    const header = [...notices, `(Table language: ${LANGUAGE_NAMES[store.language()]}. Complexity: ${store.complexity()}. Verbosity: ${store.verbosity()}/4.)`].join('\n');
     const pending = s.pendingRolls.length
       ? `\n\nStill waiting on rolls: ${s.pendingRolls.map((r) => `${character(s, r.characterId).name} — ${r.label} (${r.rollId})`).join('; ')}`
       : '';

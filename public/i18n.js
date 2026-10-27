@@ -71,6 +71,14 @@ export const STRINGS = {
     voiceOn: 'Voice on', voiceOff: 'Voice off',
     noVoice: 'No voice for this language is installed on this computer.',
     lobby: 'Adventures',
+    verbosity: 'DM detail',
+    verbosityLevels: { 1: 'Terse', 2: 'Brief', 3: 'Normal', 4: 'Rich' },
+    verbosityHints: {
+      1: 'Just the essentials, one or two sentences.',
+      2: 'Short descriptions with one telling detail.',
+      3: 'A few vivid sentences each time.',
+      4: 'Lush descriptions, NPC voices and dialogue.',
+    },
     complexity: 'Complexity',
     levels: { beginner: 'Beginner', casual: 'Casual', intermediate: 'Intermediate' },
     levelHints: {
@@ -165,6 +173,14 @@ export const STRINGS = {
     voiceOn: 'Ääni päällä', voiceOff: 'Ääni pois',
     noVoice: 'Tälle kielelle ei ole asennettu ääntä tähän koneeseen.',
     lobby: 'Seikkailut',
+    verbosity: 'Kerronta',
+    verbosityLevels: { 1: 'Niukka', 2: 'Lyhyt', 3: 'Normaali', 4: 'Runsas' },
+    verbosityHints: {
+      1: 'Vain olennainen, lause tai kaksi.',
+      2: 'Lyhyet kuvaukset ja yksi osuva yksityiskohta.',
+      3: 'Muutama elävä lause kerrallaan.',
+      4: 'Runsaat kuvaukset, hahmojen äänet ja repliikit.',
+    },
     complexity: 'Vaikeustaso',
     levels: { beginner: 'Aloittelija', casual: 'Rento', intermediate: 'Kokeneempi' },
     levelHints: {

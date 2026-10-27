@@ -104,3 +104,15 @@ test('sketch: plain drawing allowed, scripts rejected', () => {
   assert.throws(() => sanitizeSketch('<path onload="x()"/>'));
   assert.throws(() => sanitizeSketch('<image href="http://x"/>'));
 });
+
+test('store: verbosity defaults to 3 and the DM hears where it settled', async () => {
+  const store = newStore();
+  const g = store.createGame('Test');
+  assert.equal(store.verbosity(), 3);
+  assert.equal((await store.waitForPlayers(g.id, 10, 0)).notices.filter((n) => n.startsWith('VERBOSITY')).length, 0);
+  store.setVerbosity(1);
+  store.setVerbosity(4);
+  const { notices } = await store.waitForPlayers(g.id, 10, 0);
+  assert.deepEqual(notices.filter((n) => n.startsWith('VERBOSITY')).map((n) => n.slice(0, 15)), ['VERBOSITY 4/4 (']);
+  assert.throws(() => store.setVerbosity(5));
+});
