@@ -1,5 +1,6 @@
 import { EventEmitter } from 'node:events';
 import { randomUUID } from 'node:crypto';
+import { planRoundStart } from './combat.ts';
 import { getSetting, setSetting, type Db } from './db.ts';
 import { replay, apply, type GameEvent, type GameState, type StoredEvent } from './state.ts';
 
@@ -182,6 +183,7 @@ export class GameStore {
   append(gameId: string, event: GameEvent): StoredEvent {
     this.requireGame(gameId);
     const at = new Date().toISOString();
+    const before = this.state(gameId);
     // seq keeps growing across rewinds so rewound history is never overwritten.
     const { next } = this.db.prepare('SELECT COALESCE(MAX(seq), 0) + 1 AS next FROM events WHERE game_id = ?').get(gameId) as { next: number };
     this.db.prepare('INSERT INTO events (game_id, seq, type, payload, created_at) VALUES (?, ?, ?, ?, ?)')
@@ -196,6 +198,8 @@ export class GameStore {
       const fallen = this.state(gameId).characters.find((c) => c.status === 'dying' && c.deathSaves.failures >= 3);
       if (fallen) this.append(gameId, { type: 'hero_fell', characterId: fallen.id, outcome: this.fallenHeroes() === 'death' ? 'dead' : 'knocked_out' });
     }
+    // However round 1 opens (a tool, a roll from the page, a cancel), a dying hero first up gets a death save.
+    for (const follow of planRoundStart(before, this.state(gameId))) this.append(gameId, follow);
     return stored;
   }
 

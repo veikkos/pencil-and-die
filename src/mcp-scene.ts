@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { currentActor, entryName, groupEntry, heroEntry, planNextTurn, planStartCombat, sameRef, type CombatEntry } from './combat.ts';
+import { currentActor, dyingHeroId, entryName, groupEntry, heroEntry, planNextTurn, planStartCombat, sameRef, type CombatEntry } from './combat.ts';
 import { parseDice, virtualRoll } from './dice.ts';
 import { findResource, useResource } from './resources.ts';
 import { findPresence, newPresences, presenceSpec, type PresencePatch } from './roster.ts';
@@ -17,11 +17,7 @@ function turnText(s: GameState): string {
   if (!actor) return 'No one can act.';
   const head = `Round ${s.combat!.round} — `;
   const name = entryName(s, actor);
-  if (actor.ref.kind === 'hero') {
-    const id = actor.ref.id;
-    const dying = s.characters.find((c) => c.id === id)?.status === 'dying';
-    return dying ? `${head}${name} is dying: asked for ${name}'s death save.` : `${head}${name}'s turn.`;
-  }
+  if (actor.ref.kind === 'hero') return dyingHeroId(s, actor) ? `${head}${name} is dying: asked for ${name}'s death save.` : `${head}${name}'s turn.`;
   const groupId = actor.ref.groupId;
   const members = s.present.filter((p) => p.groupId === groupId && !p.defeated).map((p) => p.id);
   return `${head}${name}${members.length > 1 ? ` (${members.join(', ')})` : ''}'s turn: act for them, then call next_turn.`;
@@ -34,7 +30,9 @@ export function orderText(s: GameState): string {
 
 export function roundText(s: GameState): string {
   const actor = currentActor(s);
-  return actor ? `Round ${s.combat!.round}: ${entryName(s, actor)}'s turn.` : 'No one can act.';
+  if (!actor) return 'No one can act.';
+  const name = entryName(s, actor);
+  return dyingHeroId(s, actor) ? `Round ${s.combat!.round}: ${name} is dying: asked for ${name}'s death save.` : `Round ${s.combat!.round}: ${name}'s turn.`;
 }
 
 const d20 = () => virtualRoll(parseDice('1d20'), 'none', 0).faces[0];

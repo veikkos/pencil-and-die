@@ -40,7 +40,8 @@ export function canAct(s: GameState, e: CombatEntry): boolean {
 
 export function currentActor(s: GameState): CombatEntry | undefined {
   if (!s.combat || s.combat.round === 0) return undefined;
-  return s.combat.order[s.combat.turn];
+  const e = s.combat.order[s.combat.turn];
+  return e && canAct(s, e) ? e : undefined;
 }
 
 export function entryName(s: GameState, e: CombatEntry): string {
@@ -98,16 +99,24 @@ export function planStartCombat(s: GameState, participants: { heroes: string[]; 
   return [{ type: 'combat_started', order: [...heroes, ...groups] }, ...asks];
 }
 
+export const dyingHeroId = (s: GameState, e: CombatEntry | undefined): string | undefined => {
+  const ref = e?.ref;
+  return ref?.kind === 'hero' && s.characters.find((c) => c.id === ref.id)?.status === 'dying' ? ref.id : undefined;
+};
+
+export const deathSaveRequest = (s: GameState, heroId: string): GameEvent =>
+  ({ type: 'roll_requested', roll: { rollId: `death-${heroId}-${s.seq}`, characterId: heroId, label: 'Death save', dice: '1d20', modifier: 0, advantage: 'none', hideDc: true, purpose: 'death_save' } });
+
 export function planNextTurn(s: GameState): GameEvent[] {
   const next = nextTurn(s);
   if (!next) return [];
-  const actor = s.combat!.order[next.turn];
-  const events: GameEvent[] = [{ type: 'turn_advanced' }];
-  if (actor.ref.kind === 'hero') {
-    const id = actor.ref.id;
-    if (s.characters.find((c) => c.id === id)?.status === 'dying') {
-      events.push({ type: 'roll_requested', roll: { rollId: `death-${id}-${s.seq}`, characterId: id, label: 'Death save', dice: '1d20', modifier: 0, advantage: 'none', hideDc: true, purpose: 'death_save' } });
-    }
-  }
-  return events;
+  const dying = dyingHeroId(s, s.combat!.order[next.turn]);
+  return dying ? [{ type: 'turn_advanced' }, deathSaveRequest(s, dying)] : [{ type: 'turn_advanced' }];
+}
+
+/** The death save owed when round 1 has just opened on a dying hero. */
+export function planRoundStart(before: GameState, after: GameState): GameEvent[] {
+  if ((before.combat?.round ?? 0) !== 0 || !after.combat || after.combat.round === 0) return [];
+  const dying = dyingHeroId(after, currentActor(after));
+  return dying ? [deathSaveRequest(after, dying)] : [];
 }

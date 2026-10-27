@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { canAct, currentActor, planNextTurn, planStartCombat, sortOrder, type CombatEntry } from '../src/combat.ts';
+import { roundText } from '../src/mcp-scene.ts';
 import { newPresences } from '../src/roster.ts';
 import { buildCharacter } from '../src/rules.ts';
 import { playerView } from '../src/state.ts';
@@ -226,4 +227,40 @@ test('end_combat during gathering withdraws pending initiative rolls', async () 
   await c.call('end_combat');
   assert.equal(state().combat, null);
   assert.equal(state().pendingRolls.length, 0);
+});
+
+test('round 1 opening on a dying hero asks for a death save', () => {
+  const { state, start, init, hurt } = fight();
+  hurt('mira', -100);
+  start();
+  init('mira', 18);
+  init('torvald', 5);
+  assert.deepEqual(currentActor(state())!.ref, { kind: 'hero', id: 'mira' });
+  const saves = state().pendingRolls.filter((r) => r.purpose === 'death_save');
+  assert.deepEqual(saves.map((r) => [r.characterId, r.dice, r.modifier, r.label]), [['mira', '1d20', 0, 'Death save']]);
+  assert.equal(roundText(state()), "Round 1: Mira is dying: asked for Mira's death save.");
+});
+
+test('round 1 opening on a dying hero via a cancelled roll asks for a death save', () => {
+  const { store, g, state, start, init, hurt, rollOf } = fight();
+  hurt('mira', -100);
+  start();
+  init('mira', 18);
+  store.append(g.id, { type: 'roll_cancelled', rollId: rollOf('torvald').rollId });
+  const saves = state().pendingRolls.filter((r) => r.purpose === 'death_save');
+  assert.deepEqual(saves.map((r) => r.characterId), ['mira']);
+});
+
+test('order completing with nobody able to act has no current actor', async () => {
+  const { store, db, g, state, start, init } = fight();
+  start();
+  for (const id of ['goblin-1', 'goblin-2']) store.append(g.id, { type: 'presence_updated', presenceId: id, patch: { defeated: true } });
+  for (const id of ['mira', 'torvald']) store.append(g.id, { type: 'hero_fell', characterId: id, outcome: 'knocked_out' });
+  const c = await mcpClient(store, db);
+  init('mira', 18);
+  init('torvald', 5);
+  assert.equal(state().combat!.round, 1);
+  assert.equal(currentActor(state()), undefined);
+  const wait = await c.call('wait_for_players', { timeout_seconds: 5 });
+  assert.match(wait.text, /Initiative order: .*\. No one can act\./);
 });
