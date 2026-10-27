@@ -1,0 +1,246 @@
+import type { Advantage } from './dice.ts';
+import type { Character } from './rules.ts';
+
+export type Speaker = 'dm' | 'player' | 'system';
+export type MessageKind = 'narration' | 'action' | 'speech' | 'question' | 'answer' | 'ooc' | 'info';
+
+export interface LogEntry {
+  seq: number;
+  at: string;
+  from: Speaker;
+  characterId?: string;
+  kind: MessageKind;
+  text: string;
+  /** System entries are structured so the page can render them in its own language. */
+  sys?: { code: string; params: Record<string, unknown> };
+}
+
+export interface RollRequest {
+  rollId: string;
+  characterId: string;
+  label: string;
+  dice: string;
+  modifier: number;
+  advantage: Advantage;
+  dc?: number;
+  /** Players don't see the DC when hidden. */
+  hideDc: boolean;
+  requestedSeq: number;
+}
+
+export interface RollResult extends RollRequest {
+  faces: number[];
+  total: number;
+  success?: boolean;
+  resolvedSeq: number;
+  /** True when the DM rolled it virtually (monsters, secret checks). */
+  byDm: boolean;
+}
+
+export interface Sketch {
+  seq: number;
+  caption: string;
+  svg: string;
+}
+
+export interface GameState {
+  id: string;
+  title: string;
+  seq: number;
+  scene: { title: string; description: string; seq: number } | null;
+  characters: Character[];
+  log: LogEntry[];
+  pendingRolls: RollRequest[];
+  rolls: RollResult[];
+  sketches: Sketch[];
+  dmNotes: { seq: number; text: string }[];
+  started: boolean;
+}
+
+export interface CharacterPatch {
+  hpDelta?: number;
+  hp?: number;
+  maxHp?: number;
+  tempHp?: number;
+  ac?: number;
+  level?: number;
+  xpDelta?: number;
+  goldDelta?: number;
+  addItems?: { name: string; qty?: number }[];
+  removeItems?: { name: string; qty?: number }[];
+  addConditions?: string[];
+  removeConditions?: string[];
+  addFeatures?: string[];
+  notes?: string;
+}
+
+export type GameEvent =
+  | { type: 'game_created'; title: string }
+  | { type: 'character_created'; character: Character }
+  | { type: 'character_updated'; characterId: string; patch: CharacterPatch; reason?: string }
+  | { type: 'game_started' }
+  | { type: 'message'; from: Speaker; characterId?: string; kind: MessageKind; text: string }
+  | { type: 'roll_requested'; roll: Omit<RollRequest, 'requestedSeq'> }
+  | { type: 'roll_resolved'; rollId: string; faces: number[]; total: number; success?: boolean; byDm?: boolean }
+  | { type: 'roll_cancelled'; rollId: string }
+  | { type: 'dm_roll'; roll: Omit<RollResult, 'requestedSeq' | 'resolvedSeq'>; secret: boolean }
+  | { type: 'scene_set'; title: string; description: string }
+  | { type: 'sketch'; caption: string; svg: string }
+  | { type: 'dm_note'; text: string };
+
+export interface StoredEvent {
+  seq: number;
+  at: string;
+  event: GameEvent;
+}
+
+export function emptyState(id: string): GameState {
+  return { id, title: '', seq: 0, scene: null, characters: [], log: [], pendingRolls: [], rolls: [], sketches: [], dmNotes: [], started: false };
+}
+
+const sign = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
+
+function applyPatch(c: Character, p: CharacterPatch): Character {
+  const next: Character = { ...c, inventory: c.inventory.map((i) => ({ ...i })), conditions: [...c.conditions], features: [...c.features] };
+  if (p.maxHp !== undefined) next.maxHp = p.maxHp;
+  if (p.hp !== undefined) next.hp = p.hp;
+  if (p.hpDelta !== undefined) {
+    let delta = p.hpDelta;
+    if (delta < 0 && next.tempHp > 0) {
+      const absorbed = Math.min(next.tempHp, -delta);
+      next.tempHp -= absorbed;
+      delta += absorbed;
+    }
+    next.hp += delta;
+  }
+  next.hp = Math.max(0, Math.min(next.maxHp, next.hp));
+  if (p.tempHp !== undefined) next.tempHp = Math.max(0, p.tempHp);
+  if (p.ac !== undefined) next.ac = p.ac;
+  if (p.level !== undefined) next.level = p.level;
+  if (p.xpDelta) next.xp += p.xpDelta;
+  if (p.goldDelta) next.gold = Math.max(0, next.gold + p.goldDelta);
+  for (const item of p.addItems ?? []) {
+    const existing = next.inventory.find((i) => i.name.toLowerCase() === item.name.toLowerCase());
+    if (existing) existing.qty += item.qty ?? 1;
+    else next.inventory.push({ name: item.name, qty: item.qty ?? 1 });
+  }
+  for (const item of p.removeItems ?? []) {
+    const existing = next.inventory.find((i) => i.name.toLowerCase() === item.name.toLowerCase());
+    if (existing) existing.qty -= item.qty ?? existing.qty;
+  }
+  next.inventory = next.inventory.filter((i) => i.qty > 0);
+  for (const cond of p.addConditions ?? []) if (!next.conditions.includes(cond)) next.conditions.push(cond);
+  next.conditions = next.conditions.filter((cnd) => !(p.removeConditions ?? []).includes(cnd));
+  for (const f of p.addFeatures ?? []) if (!next.features.includes(f)) next.features.push(f);
+  if (p.notes !== undefined) next.notes = p.notes;
+  return next;
+}
+
+type PatchPart = [code: string, value: string | number];
+
+function describePatch(before: Character, after: Character): PatchPart[] {
+  const parts: PatchPart[] = [];
+  if (after.hp !== before.hp) parts.push(['hp', `${before.hp} → ${after.hp}`]);
+  if (after.maxHp !== before.maxHp) parts.push(['maxHp', after.maxHp]);
+  if (after.tempHp !== before.tempHp) parts.push(['tempHp', after.tempHp]);
+  if (after.ac !== before.ac) parts.push(['ac', after.ac]);
+  if (after.level !== before.level) parts.push(['level', after.level]);
+  if (after.xp !== before.xp) parts.push(['xp', sign(after.xp - before.xp)]);
+  if (after.gold !== before.gold) parts.push(['gold', sign(after.gold - before.gold)]);
+  const beforeItems = new Map(before.inventory.map((i) => [i.name, i.qty]));
+  const afterItems = new Map(after.inventory.map((i) => [i.name, i.qty]));
+  for (const [n, q] of afterItems) if ((beforeItems.get(n) ?? 0) < q) parts.push(['gained', n]);
+  for (const [n, q] of beforeItems) if ((afterItems.get(n) ?? 0) < q) parts.push(['lost', n]);
+  for (const c of after.conditions) if (!before.conditions.includes(c)) parts.push(['condOn', c]);
+  for (const c of before.conditions) if (!after.conditions.includes(c)) parts.push(['condOff', c]);
+  for (const f of after.features) if (!before.features.includes(f)) parts.push(['feature', f]);
+  return parts;
+}
+
+/** Pure reducer: folding all live events in order yields the game state. */
+export function apply(state: GameState, { seq, at, event: e }: StoredEvent): GameState {
+  const s: GameState = { ...state, seq };
+  const sys = (code: string, params: Record<string, unknown>, text: string) => {
+    s.log = [...s.log, { seq, at, from: 'system', kind: 'info', text, sys: { code, params } }];
+  };
+  const nameOf = (id: string) => s.characters.find((c) => c.id === id)?.name ?? 'Someone';
+
+  switch (e.type) {
+    case 'game_created':
+      s.title = e.title;
+      break;
+    case 'character_created':
+      s.characters = [...s.characters, e.character];
+      sys('joined', { name: e.character.name, race: e.character.race, cls: e.character.className },
+        `${e.character.name} the ${e.character.race} ${e.character.className} joins the party.`);
+      break;
+    case 'character_updated': {
+      const before = s.characters.find((c) => c.id === e.characterId);
+      if (!before) break;
+      const after = applyPatch(before, e.patch);
+      s.characters = s.characters.map((c) => (c.id === e.characterId ? after : c));
+      const parts = describePatch(before, after);
+      if (parts.length) {
+        sys('updated', { name: after.name, parts, reason: e.reason },
+          `${after.name}: ${parts.map(([k, v]) => `${k} ${v}`).join(', ')}${e.reason ? ` (${e.reason})` : ''}`);
+      }
+      break;
+    }
+    case 'game_started':
+      s.started = true;
+      sys('started', {}, 'The adventure begins.');
+      break;
+    case 'message':
+      s.log = [...s.log, { seq, at, from: e.from, characterId: e.characterId, kind: e.kind, text: e.text }];
+      break;
+    case 'roll_requested':
+      s.pendingRolls = [...s.pendingRolls, { ...e.roll, requestedSeq: seq }];
+      break;
+    case 'roll_resolved': {
+      const req = s.pendingRolls.find((r) => r.rollId === e.rollId);
+      if (!req) break;
+      s.pendingRolls = s.pendingRolls.filter((r) => r.rollId !== e.rollId);
+      s.rolls = [...s.rolls, { ...req, faces: e.faces, total: e.total, success: e.success, resolvedSeq: seq, byDm: !!e.byDm }];
+      const outcome = e.success === undefined ? '' : e.success ? ' — success' : ' — failure';
+      sys('rolled', { name: nameOf(req.characterId), label: req.label, faces: e.faces, mod: req.modifier, total: e.total, success: e.success, rollSeq: seq },
+        `${nameOf(req.characterId)} rolled ${req.label}: ${e.faces.join(' & ')} ${sign(req.modifier)} = ${e.total}${outcome}`);
+      break;
+    }
+    case 'roll_cancelled':
+      s.pendingRolls = s.pendingRolls.filter((r) => r.rollId !== e.rollId);
+      break;
+    case 'dm_roll':
+      s.rolls = [...s.rolls, { ...e.roll, requestedSeq: seq, resolvedSeq: seq }];
+      if (!e.secret) {
+        sys('dmRolled', { label: e.roll.label, faces: e.roll.faces, mod: e.roll.modifier, total: e.roll.total },
+          `DM rolled ${e.roll.label}: ${e.roll.faces.join(' & ')} ${sign(e.roll.modifier)} = ${e.roll.total}`);
+      }
+      break;
+    case 'scene_set':
+      s.scene = { title: e.title, description: e.description, seq };
+      break;
+    case 'sketch':
+      s.sketches = [...s.sketches, { seq, caption: e.caption, svg: e.svg }];
+      break;
+    case 'dm_note':
+      s.dmNotes = [...s.dmNotes, { seq, text: e.text }];
+      break;
+  }
+  return s;
+}
+
+export function replay(id: string, events: StoredEvent[]): GameState {
+  return events.reduce(apply, emptyState(id));
+}
+
+/** What the table sees: no DM notes, hidden DCs stripped. */
+export function playerView(s: GameState) {
+  const hide = <T extends RollRequest>(r: T) => (r.hideDc ? { ...r, dc: undefined } : r);
+  return {
+    ...s,
+    dmNotes: undefined,
+    pendingRolls: s.pendingRolls.map(hide),
+    // DM rolls can be secret; the public ones are already in the log.
+    rolls: s.rolls.filter((r) => !r.byDm).map(hide),
+  };
+}
