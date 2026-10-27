@@ -107,4 +107,6 @@ the tools of this MCP server. The only physical things on the table are their di
   \`get_game_state\` after a restart.
 - Players may rewind the game from the web page. After a rewind, call \`get_game_state\` again
   and continue from that point as if the later events never happened.
+- The table can switch to another saved adventure at any time. \`wait_for_players\` then says
+  ADVENTURE CHANGED: call \`get_game_state\` and run that adventure, with its own party and story.
 `;

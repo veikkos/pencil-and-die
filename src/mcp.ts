@@ -98,6 +98,10 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     return id;
   };
 
+  const adventureChanged = (from: string, to: string) =>
+    `ADVENTURE CHANGED: the table switched from "${store.state(from).title}" to "${store.state(to).title}" (game ${to}). ` +
+    'Leave the previous adventure behind (its party, scene, notes and plot). Call get_game_state now, then continue this adventure from where it left off.';
+
   const character = (s: GameState, id: string) => {
     const c = s.characters.find((x) => x.id === id || x.name.toLowerCase() === id.toLowerCase());
     if (!c) throw new Error(`No character "${id}". Characters: ${s.characters.map((x) => `${x.name} (${x.id})`).join(', ') || 'none'}`);
@@ -149,6 +153,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     annotations: { readOnlyHint: true },
   }, ({ game_id, log_limit }) => {
     const id = resolve(game_id);
+    if (!game_id) store.setDmGame(id);
     const s = store.state(id);
     return json({
       language: `${LANGUAGE_NAMES[store.language()]}: write everything the players see in this language.`,
@@ -182,14 +187,23 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       await new Promise((r) => setTimeout(r, Math.min(timeout_seconds, 30) * 1000));
       return text('No game yet. The players have not created one. Call wait_for_players again.');
     }
+    // Without a game_id the DM follows whatever adventure is open on the table.
+    if (!game_id) {
+      const last = store.dmGame();
+      store.setDmGame(id);
+      if (last && last !== id && store.exists(last)) return text(adventureChanged(last, id));
+    }
     const { events, notices } = await store.waitForPlayers(id, timeout_seconds * 1000, 2500, extra.signal);
-    if (!events.length && !notices.length) return text('Nothing yet. The table is quiet. Call wait_for_players again.');
+    const now = store.activeGameId();
+    const switched = !game_id && now && now !== id ? adventureChanged(id, now) : '';
+    if (switched) store.setDmGame(now!);
+    if (!events.length && !notices.length) return text(switched || 'Nothing yet. The table is quiet. Call wait_for_players again.');
     const s = store.state(id);
     const header = [...notices, `(Table language: ${LANGUAGE_NAMES[store.language()]}. Complexity: ${store.complexity()}. Verbosity: ${store.verbosity()}/4. When a hero falls: ${store.fallenHeroes()}.)`].join('\n');
     const pending = s.pendingRolls.length
       ? `\n\nStill waiting on rolls: ${s.pendingRolls.map((r) => `${character(s, r.characterId).name} — ${r.label} (${r.rollId})`).join('; ')}`
       : '';
-    return text(`${header}\n\n${events.map((e) => describeEvent(s, e)).join('\n')}${pending}`);
+    return text(`${header}\n\n${events.map((e) => describeEvent(s, e)).join('\n')}${pending}${switched ? `\n\n${switched}` : ''}`);
   });
 
   // ---- Talking to the table -------------------------------------------------

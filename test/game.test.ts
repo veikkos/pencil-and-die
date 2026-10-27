@@ -123,3 +123,45 @@ test('dm guide: mentions the scene, combat and resource tools, and they are regi
     if (/^[a-z_]+$/.test(tool) && tool !== 'hero_fell') assert.ok(tools.includes(tool), `${tool} registered`);
   }
 });
+
+test('mcp: the DM hears when the table switches adventures while waiting', async () => {
+  const { store, db } = newTable();
+  const a = store.createGame('Cave World');
+  const mcp = await mcpClient(store, db);
+  await mcp.call('get_game_state');
+  const b = store.createGame('Sky Isles');
+  store.setActiveGame(a.id);
+  const started = Date.now();
+  const waiting = mcp.call('wait_for_players', { timeout_seconds: 5 });
+  setTimeout(() => store.setActiveGame(b.id), 20);
+  const { text } = await waiting;
+  assert.ok(Date.now() - started < 2000, 'the switch ends the wait right away');
+  assert.match(text, /ADVENTURE CHANGED/);
+  assert.match(text, /Sky Isles/);
+  assert.match(text, /get_game_state/);
+});
+
+test('mcp: a switch between waits is reported once, on the next wait', async () => {
+  const { store, db } = newTable();
+  store.createGame('Cave World');
+  const mcp = await mcpClient(store, db);
+  await mcp.call('get_game_state');
+  const b = store.createGame('Sky Isles');
+  store.append(b.id, { type: 'message', from: 'player', kind: 'ooc', text: 'hi' });
+  const first = await mcp.call('wait_for_players', { timeout_seconds: 5 });
+  assert.match(first.text, /ADVENTURE CHANGED/);
+  assert.match(first.text, /Sky Isles/);
+  const second = await mcp.call('wait_for_players', { timeout_seconds: 5 });
+  assert.doesNotMatch(second.text, /ADVENTURE CHANGED/);
+  assert.match(second.text, /hi/);
+});
+
+test('mcp: no switch notice when the adventure stays the same', async () => {
+  const { store, db } = newTable();
+  const a = store.createGame('Cave World');
+  const mcp = await mcpClient(store, db);
+  await mcp.call('get_game_state');
+  store.append(a.id, { type: 'message', from: 'player', kind: 'ooc', text: 'hello' });
+  const { text } = await mcp.call('wait_for_players', { timeout_seconds: 5 });
+  assert.doesNotMatch(text, /ADVENTURE CHANGED/);
+});

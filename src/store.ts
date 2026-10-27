@@ -150,6 +150,15 @@ export class GameStore {
     this.changes.emit('active', id);
   }
 
+  /** The adventure the DM last knew it was running, to tell it when the table switched. */
+  dmGame(): string | undefined {
+    return getSetting(this.db, 'dm_game');
+  }
+
+  setDmGame(id: string): void {
+    setSetting(this.db, 'dm_game', id);
+  }
+
   exists(id: string): boolean {
     return !!this.db.prepare('SELECT 1 FROM games WHERE id = ?').get(id);
   }
@@ -305,14 +314,18 @@ export class GameStore {
             clearTimeout(timer);
             this.changes.off('change', onChange);
             this.changes.off('notice', onNotice);
+            this.changes.off('active', onActive);
             signal?.removeEventListener('abort', done);
             resolve();
           };
           const onChange = (id: string, ev: StoredEvent | null) => { if (id === gameId && ev && isPlayerEvent(ev.event)) done(); };
           const onNotice = (id: string) => { if (id === gameId) done(); };
+          // The table opened another adventure: stop waiting on this one.
+          const onActive = (id: string) => { if (id !== gameId) done(); };
           const timer = setTimeout(done, timeoutMs);
           this.changes.on('change', onChange);
           this.changes.on('notice', onNotice);
+          this.changes.on('active', onActive);
           signal?.addEventListener('abort', done);
         });
         if (this.hasNews(gameId) && settleMs > 0 && !signal?.aborted) {
