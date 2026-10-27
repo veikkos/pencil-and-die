@@ -660,7 +660,7 @@ function showPresence(card) {
     ${card.members.map((m) => `<div>
       ${n > 1 ? `<h3>${esc(m.name)}</h3>` : ''}
       ${m.description ? `<p>${esc(m.description)}</p>` : ''}
-      ${m.conditions?.length ? `<h3>${s.conditions}</h3><div>${m.conditions.map(esc).join(', ')}</div>` : ''}
+      ${m.conditions?.length ? `<h3>${esc(s.conditions)}</h3><div>${m.conditions.map(esc).join(', ')}</div>` : ''}
     </div>`).join('')}
     <div class="wizard-nav"><span></span><button class="btn">OK</button></div></div>`;
   modal.onclick = (e) => { if (e.target === modal || e.target.tagName === 'BUTTON') modal.remove(); };

@@ -191,16 +191,15 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 .5em; }
 .caption { display: flex; align-items: center; gap: 8px; padding: 6px 2px 0; font-family: var(--hand); font-size: 1.35em; color: var(--ink-soft); }
 .caption .text { flex: 1; text-align: center; }
 
-.party { display: flex; gap: 10px; padding: 0 16px 10px; overflow-x: auto; }
+.party { display: flex; gap: 10px; padding: 10px 16px 10px; overflow-x: auto; }
 .pc {
-  flex: 1 1 200px; min-width: 180px; max-width: 320px; background: var(--panel); border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 12px; text-align: left;
+  position: relative; flex: 1 1 200px; min-width: 180px; max-width: 320px; background: var(--panel); border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 12px; text-align: left;
 }
 .pc.hero { border-color: var(--side-hero); }
 .pc.dying { border-color: var(--bad); background: var(--bad-bg); }
 .pc.out, .pc.dead, .pc.stable { opacity: .75; }
 .pc.out, .pc.dead { filter: grayscale(.6); }
 .pc.dead .name { text-decoration: line-through; }
-.pc { position: relative; }
 .pc.creature { flex: 0 0 auto; min-width: 110px; max-width: 200px; }
 .pc.creature.enemy { border-color: var(--side-enemy); background: color-mix(in srgb, var(--side-enemy) 10%, var(--panel)); }
 .pc.creature.neutral { border-color: var(--side-neutral); background: color-mix(in srgb, var(--side-neutral) 12%, var(--panel)); }
