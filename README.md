@@ -67,6 +67,7 @@ in `.claude/settings.local.json`).
 npm run dev          # restart on change
 npm test             # node:test
 npm run typecheck
+npm run storybook    # the page's screens and overlays at http://localhost:6006
 ```
 
 Node runs the TypeScript directly (type stripping), so there is no build step. Environment:
@@ -83,3 +84,4 @@ Node runs the TypeScript directly (type stripping), so there is no build step. E
 | `src/sketch.ts` | Sketch style guide and SVG sanitizing |
 | `src/dm-guide.ts` | Instructions Claude follows as DM |
 | `public/` | The page (vanilla JS modules, no build) |
+| `stories/` | Storybook: the real page in a frame, fed by `stories/fixtures/data.json`. After engine or API changes, `npm run storybook:fixtures` replays the scenes on a throwaway server and rewrites it |

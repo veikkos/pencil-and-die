@@ -1,0 +1,4033 @@
+{
+ "config": {
+  "language": "en",
+  "complexity": "beginner",
+  "verbosity": 3,
+  "fallenHeroes": "knockout",
+  "activeGameId": null,
+  "games": [
+   {
+    "id": "3304125b",
+    "title": "The Drowned Lantern",
+    "createdAt": "2026-10-27T20:47:35.684Z",
+    "updatedAt": "2026-10-27T20:47:35.753Z"
+   },
+   {
+    "id": "b6b43f55",
+    "title": "Fresh start",
+    "createdAt": "2026-10-27T20:47:35.681Z",
+    "updatedAt": "2026-10-27T20:47:35.682Z"
+   },
+   {
+    "id": "41a866a2",
+    "title": "The Sunken Bell",
+    "createdAt": "2026-10-27T20:47:35.674Z",
+    "updatedAt": "2026-10-27T20:47:35.679Z"
+   }
+  ]
+ },
+ "rules": {
+  "races": [
+   {
+    "id": "human",
+    "name": "Human",
+    "blurb": "Adaptable and ambitious; a little good at everything.",
+    "bonuses": {
+     "str": 1,
+     "dex": 1,
+     "con": 1,
+     "int": 1,
+     "wis": 1,
+     "cha": 1
+    },
+    "speed": 30,
+    "traits": [
+     "Extra language"
+    ]
+   },
+   {
+    "id": "elf",
+    "name": "Elf (High)",
+    "blurb": "Graceful, keen-eyed and long-lived, with a touch of magic.",
+    "bonuses": {
+     "dex": 2,
+     "int": 1
+    },
+    "speed": 30,
+    "traits": [
+     "Darkvision 60 ft",
+     "Keen Senses (Perception)",
+     "Fey Ancestry",
+     "Trance",
+     "One wizard cantrip"
+    ]
+   },
+   {
+    "id": "dwarf",
+    "name": "Dwarf (Hill)",
+    "blurb": "Stout, stubborn and hard to kill.",
+    "bonuses": {
+     "con": 2,
+     "wis": 1
+    },
+    "speed": 25,
+    "traits": [
+     "Darkvision 60 ft",
+     "Dwarven Resilience (poison)",
+     "Stonecunning",
+     "Dwarven Toughness (+1 HP/level)"
+    ]
+   },
+   {
+    "id": "halfling",
+    "name": "Halfling (Lightfoot)",
+    "blurb": "Small, cheerful and uncannily lucky.",
+    "bonuses": {
+     "dex": 2,
+     "cha": 1
+    },
+    "speed": 25,
+    "traits": [
+     "Lucky (reroll natural 1s)",
+     "Brave",
+     "Halfling Nimbleness",
+     "Naturally Stealthy"
+    ]
+   },
+   {
+    "id": "gnome",
+    "name": "Gnome (Rock)",
+    "blurb": "Curious tinkerers with quick minds.",
+    "bonuses": {
+     "int": 2,
+     "con": 1
+    },
+    "speed": 25,
+    "traits": [
+     "Darkvision 60 ft",
+     "Gnome Cunning",
+     "Artificer's Lore",
+     "Tinker"
+    ]
+   },
+   {
+    "id": "half-elf",
+    "name": "Half-Elf",
+    "blurb": "At home in two worlds and charming in both.",
+    "bonuses": {
+     "cha": 2
+    },
+    "speed": 30,
+    "traits": [
+     "Darkvision 60 ft",
+     "Fey Ancestry",
+     "+1 to two other abilities",
+     "Two extra skills"
+    ]
+   },
+   {
+    "id": "half-orc",
+    "name": "Half-Orc",
+    "blurb": "Fierce and enduring; hard to put down.",
+    "bonuses": {
+     "str": 2,
+     "con": 1
+    },
+    "speed": 30,
+    "traits": [
+     "Darkvision 60 ft",
+     "Menacing (Intimidation)",
+     "Relentless Endurance",
+     "Savage Attacks"
+    ]
+   },
+   {
+    "id": "dragonborn",
+    "name": "Dragonborn",
+    "blurb": "Proud draconic folk who breathe elemental fire.",
+    "bonuses": {
+     "str": 2,
+     "cha": 1
+    },
+    "speed": 30,
+    "traits": [
+     "Draconic Ancestry (red: fire)",
+     "Breath Weapon 2d6",
+     "Damage Resistance (fire)"
+    ]
+   },
+   {
+    "id": "tiefling",
+    "name": "Tiefling",
+    "blurb": "Touched by the infernal; clever, magnetic, distrusted.",
+    "bonuses": {
+     "cha": 2,
+     "int": 1
+    },
+    "speed": 30,
+    "traits": [
+     "Darkvision 60 ft",
+     "Hellish Resistance (fire)",
+     "Infernal Legacy (Thaumaturgy)"
+    ]
+   }
+  ],
+  "classes": [
+   {
+    "id": "fighter",
+    "name": "Fighter",
+    "blurb": "Master of weapons and armour. Simple, sturdy, reliable.",
+    "hitDie": 10,
+    "primary": "str"
+   },
+   {
+    "id": "barbarian",
+    "name": "Barbarian",
+    "blurb": "Furious warrior who shrugs off blows.",
+    "hitDie": 12,
+    "primary": "str"
+   },
+   {
+    "id": "rogue",
+    "name": "Rogue",
+    "blurb": "Sneaky, skilled and deadly from the shadows.",
+    "hitDie": 8,
+    "primary": "dex"
+   },
+   {
+    "id": "ranger",
+    "name": "Ranger",
+    "blurb": "Hunter and tracker of the wild places.",
+    "hitDie": 10,
+    "primary": "dex"
+   },
+   {
+    "id": "wizard",
+    "name": "Wizard",
+    "blurb": "Scholar of arcane magic. Fragile but powerful.",
+    "hitDie": 6,
+    "primary": "int"
+   },
+   {
+    "id": "sorcerer",
+    "name": "Sorcerer",
+    "blurb": "Born with raw magic in the blood.",
+    "hitDie": 6,
+    "primary": "cha"
+   },
+   {
+    "id": "warlock",
+    "name": "Warlock",
+    "blurb": "Gained magic through a pact with something powerful.",
+    "hitDie": 8,
+    "primary": "cha"
+   },
+   {
+    "id": "cleric",
+    "name": "Cleric",
+    "blurb": "Divine healer and warrior of a god.",
+    "hitDie": 8,
+    "primary": "wis"
+   },
+   {
+    "id": "paladin",
+    "name": "Paladin",
+    "blurb": "Holy knight bound by an oath.",
+    "hitDie": 10,
+    "primary": "str"
+   },
+   {
+    "id": "monk",
+    "name": "Monk",
+    "blurb": "Martial artist who fights with fists and focus.",
+    "hitDie": 8,
+    "primary": "dex"
+   },
+   {
+    "id": "druid",
+    "name": "Druid",
+    "blurb": "Keeper of nature, wielding its magic.",
+    "hitDie": 8,
+    "primary": "wis"
+   },
+   {
+    "id": "bard",
+    "name": "Bard",
+    "blurb": "Performer whose words and music carry magic.",
+    "hitDie": 8,
+    "primary": "cha"
+   }
+  ],
+  "presets": [
+   {
+    "id": "specialist",
+    "name": "Specialist",
+    "blurb": "Great at what your class does best, weak elsewhere."
+   },
+   {
+    "id": "sturdy",
+    "name": "Sturdy",
+    "blurb": "Your main stat plus lots of toughness. Hard to knock down."
+   },
+   {
+    "id": "charming",
+    "name": "Silver-tongued",
+    "blurb": "Your main stat plus a winning personality."
+   },
+   {
+    "id": "balanced",
+    "name": "Well-rounded",
+    "blurb": "No real weaknesses, no huge strengths."
+   }
+  ],
+  "skills": {
+   "Acrobatics": "dex",
+   "Animal Handling": "wis",
+   "Arcana": "int",
+   "Athletics": "str",
+   "Deception": "cha",
+   "History": "int",
+   "Insight": "wis",
+   "Intimidation": "cha",
+   "Investigation": "int",
+   "Medicine": "wis",
+   "Nature": "int",
+   "Perception": "wis",
+   "Performance": "cha",
+   "Persuasion": "cha",
+   "Religion": "int",
+   "Sleight of Hand": "dex",
+   "Stealth": "dex",
+   "Survival": "wis"
+  }
+ },
+ "games": {
+  "setup": {
+   "id": "41a866a2",
+   "state": {
+    "id": "41a866a2",
+    "title": "The Sunken Bell",
+    "seq": 3,
+    "scene": null,
+    "characters": [
+     {
+      "id": "2ae4aa",
+      "name": "Mira",
+      "player": "Veikko",
+      "raceId": "halfling",
+      "race": "Halfling (Lightfoot)",
+      "classId": "rogue",
+      "className": "Rogue",
+      "level": 1,
+      "abilities": {
+       "dex": 17,
+       "con": 14,
+       "int": 13,
+       "wis": 12,
+       "cha": 11,
+       "str": 8
+      },
+      "maxHp": 10,
+      "hp": 10,
+      "tempHp": 0,
+      "ac": 14,
+      "acNote": "Leather armour",
+      "speed": 25,
+      "proficiencyBonus": 2,
+      "saves": [
+       "dex",
+       "int"
+      ],
+      "skills": [
+       "Stealth",
+       "Sleight of Hand",
+       "Perception",
+       "Acrobatics"
+      ],
+      "inventory": [
+       {
+        "name": "Leather armour",
+        "qty": 1
+       },
+       {
+        "name": "Rapier",
+        "qty": 1
+       },
+       {
+        "name": "Shortbow + 20 arrows",
+        "qty": 1
+       },
+       {
+        "name": "Thieves' tools",
+        "qty": 1
+       },
+       {
+        "name": "Burglar's pack",
+        "qty": 1
+       },
+       {
+        "name": "2 Daggers",
+        "qty": 1
+       }
+      ],
+      "gold": 10,
+      "xp": 0,
+      "conditions": [],
+      "features": [
+       "Lucky (reroll natural 1s)",
+       "Brave",
+       "Halfling Nimbleness",
+       "Naturally Stealthy",
+       "Sneak Attack (1d6)",
+       "Expertise (Stealth, Thieves' tools)",
+       "Thieves' Cant"
+      ],
+      "notes": "",
+      "resources": [
+       {
+        "id": "hit-dice",
+        "name": "Hit dice (d8)",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       }
+      ],
+      "status": "up",
+      "deathSaves": {
+       "successes": 0,
+       "failures": 0
+      }
+     },
+     {
+      "id": "14af3d",
+      "name": "Torvald",
+      "player": "Ann",
+      "raceId": "dwarf",
+      "race": "Dwarf (Hill)",
+      "classId": "fighter",
+      "className": "Fighter",
+      "level": 1,
+      "abilities": {
+       "str": 15,
+       "con": 16,
+       "dex": 13,
+       "wis": 13,
+       "cha": 10,
+       "int": 8
+      },
+      "maxHp": 14,
+      "hp": 14,
+      "tempHp": 0,
+      "ac": 18,
+      "acNote": "Chain mail + shield",
+      "speed": 25,
+      "proficiencyBonus": 2,
+      "saves": [
+       "str",
+       "con"
+      ],
+      "skills": [
+       "Athletics",
+       "Perception"
+      ],
+      "inventory": [
+       {
+        "name": "Chain mail",
+        "qty": 1
+       },
+       {
+        "name": "Shield",
+        "qty": 1
+       },
+       {
+        "name": "Longsword",
+        "qty": 1
+       },
+       {
+        "name": "2 Handaxes",
+        "qty": 1
+       },
+       {
+        "name": "Explorer's pack",
+        "qty": 1
+       }
+      ],
+      "gold": 10,
+      "xp": 0,
+      "conditions": [],
+      "features": [
+       "Darkvision 60 ft",
+       "Dwarven Resilience (poison)",
+       "Stonecunning",
+       "Dwarven Toughness (+1 HP/level)",
+       "Fighting Style: Defense",
+       "Second Wind (bonus action: heal 1d10 + level, once per rest)"
+      ],
+      "notes": "",
+      "resources": [
+       {
+        "id": "second-wind",
+        "name": "Second Wind",
+        "max": 1,
+        "used": 0,
+        "recharge": "short"
+       },
+       {
+        "id": "hit-dice",
+        "name": "Hit dice (d10)",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       }
+      ],
+      "status": "up",
+      "deathSaves": {
+       "successes": 0,
+       "failures": 0
+      }
+     }
+    ],
+    "present": [],
+    "combat": null,
+    "log": [
+     {
+      "seq": 2,
+      "at": "2026-10-27T20:47:35.677Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
+      "sys": {
+       "code": "joined",
+       "params": {
+        "name": "Mira",
+        "race": "Halfling (Lightfoot)",
+        "cls": "Rogue"
+       }
+      }
+     },
+     {
+      "seq": 3,
+      "at": "2026-10-27T20:47:35.679Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
+      "sys": {
+       "code": "joined",
+       "params": {
+        "name": "Torvald",
+        "race": "Dwarf (Hill)",
+        "cls": "Fighter"
+       }
+      }
+     }
+    ],
+    "pendingRolls": [],
+    "rolls": [],
+    "sketches": [],
+    "started": false,
+    "complexity": "beginner",
+    "latestSeq": 3,
+    "dmStatus": "offline",
+    "language": "en"
+   },
+   "history": [
+    {
+     "seq": 2,
+     "at": "2026-10-27T20:47:35.677Z",
+     "type": "character",
+     "who": "Mira",
+     "text": "Halfling (Lightfoot) Rogue"
+    },
+    {
+     "seq": 3,
+     "at": "2026-10-27T20:47:35.679Z",
+     "type": "character",
+     "who": "Torvald",
+     "text": "Dwarf (Hill) Fighter"
+    }
+   ]
+  },
+  "setupEmpty": {
+   "id": "b6b43f55",
+   "state": {
+    "id": "b6b43f55",
+    "title": "Fresh start",
+    "seq": 1,
+    "scene": null,
+    "characters": [],
+    "present": [],
+    "combat": null,
+    "log": [],
+    "pendingRolls": [],
+    "rolls": [],
+    "sketches": [],
+    "started": false,
+    "complexity": "beginner",
+    "latestSeq": 1,
+    "dmStatus": "offline",
+    "language": "en"
+   },
+   "history": []
+  },
+  "exploring": {
+   "id": "3304125b",
+   "state": {
+    "id": "3304125b",
+    "title": "The Drowned Lantern",
+    "seq": 17,
+    "scene": {
+     "title": "The Drowned Lantern — taproom",
+     "description": "A low-beamed harbour inn, half sunk into the mud.",
+     "seq": 6
+    },
+    "characters": [
+     {
+      "id": "bf0370",
+      "name": "Mira",
+      "player": "Veikko",
+      "raceId": "halfling",
+      "race": "Halfling (Lightfoot)",
+      "classId": "rogue",
+      "className": "Rogue",
+      "level": 1,
+      "abilities": {
+       "dex": 17,
+       "con": 14,
+       "int": 13,
+       "wis": 12,
+       "cha": 11,
+       "str": 8
+      },
+      "maxHp": 10,
+      "hp": 10,
+      "tempHp": 0,
+      "ac": 14,
+      "acNote": "Leather armour",
+      "speed": 25,
+      "proficiencyBonus": 2,
+      "saves": [
+       "dex",
+       "int"
+      ],
+      "skills": [
+       "Stealth",
+       "Sleight of Hand",
+       "Perception",
+       "Acrobatics"
+      ],
+      "inventory": [
+       {
+        "name": "Leather armour",
+        "qty": 1
+       },
+       {
+        "name": "Rapier",
+        "qty": 1
+       },
+       {
+        "name": "Shortbow + 20 arrows",
+        "qty": 1
+       },
+       {
+        "name": "Thieves' tools",
+        "qty": 1
+       },
+       {
+        "name": "Burglar's pack",
+        "qty": 1
+       },
+       {
+        "name": "2 Daggers",
+        "qty": 1
+       }
+      ],
+      "gold": 10,
+      "xp": 0,
+      "conditions": [],
+      "features": [
+       "Lucky (reroll natural 1s)",
+       "Brave",
+       "Halfling Nimbleness",
+       "Naturally Stealthy",
+       "Sneak Attack (1d6)",
+       "Expertise (Stealth, Thieves' tools)",
+       "Thieves' Cant"
+      ],
+      "notes": "",
+      "resources": [
+       {
+        "id": "hit-dice",
+        "name": "Hit dice (d8)",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       }
+      ],
+      "status": "up",
+      "deathSaves": {
+       "successes": 0,
+       "failures": 0
+      }
+     },
+     {
+      "id": "5e81b5",
+      "name": "Torvald",
+      "player": "Ann",
+      "raceId": "dwarf",
+      "race": "Dwarf (Hill)",
+      "classId": "fighter",
+      "className": "Fighter",
+      "level": 1,
+      "abilities": {
+       "str": 15,
+       "con": 16,
+       "dex": 13,
+       "wis": 13,
+       "cha": 10,
+       "int": 8
+      },
+      "maxHp": 14,
+      "hp": 14,
+      "tempHp": 0,
+      "ac": 18,
+      "acNote": "Chain mail + shield",
+      "speed": 25,
+      "proficiencyBonus": 2,
+      "saves": [
+       "str",
+       "con"
+      ],
+      "skills": [
+       "Athletics",
+       "Perception"
+      ],
+      "inventory": [
+       {
+        "name": "Chain mail",
+        "qty": 1
+       },
+       {
+        "name": "Shield",
+        "qty": 1
+       },
+       {
+        "name": "Longsword",
+        "qty": 1
+       },
+       {
+        "name": "2 Handaxes",
+        "qty": 1
+       },
+       {
+        "name": "Explorer's pack",
+        "qty": 1
+       }
+      ],
+      "gold": 10,
+      "xp": 0,
+      "conditions": [],
+      "features": [
+       "Darkvision 60 ft",
+       "Dwarven Resilience (poison)",
+       "Stonecunning",
+       "Dwarven Toughness (+1 HP/level)",
+       "Fighting Style: Defense",
+       "Second Wind (bonus action: heal 1d10 + level, once per rest)"
+      ],
+      "notes": "",
+      "resources": [
+       {
+        "id": "second-wind",
+        "name": "Second Wind",
+        "max": 1,
+        "used": 0,
+        "recharge": "short"
+       },
+       {
+        "id": "hit-dice",
+        "name": "Hit dice (d10)",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       }
+      ],
+      "status": "up",
+      "deathSaves": {
+       "successes": 0,
+       "failures": 0
+      }
+     },
+     {
+      "id": "4f4da7",
+      "name": "Elowen",
+      "player": "Sam",
+      "raceId": "elf",
+      "race": "Elf (High)",
+      "classId": "wizard",
+      "className": "Wizard",
+      "level": 1,
+      "abilities": {
+       "int": 16,
+       "con": 14,
+       "dex": 15,
+       "wis": 12,
+       "cha": 10,
+       "str": 8
+      },
+      "maxHp": 8,
+      "hp": 8,
+      "tempHp": 0,
+      "ac": 12,
+      "acNote": "No armour (Mage Armor spell: 13 + DEX)",
+      "speed": 30,
+      "proficiencyBonus": 2,
+      "saves": [
+       "int",
+       "wis"
+      ],
+      "skills": [
+       "Arcana",
+       "History",
+       "Perception"
+      ],
+      "inventory": [
+       {
+        "name": "Quarterstaff",
+        "qty": 1
+       },
+       {
+        "name": "Component pouch",
+        "qty": 1
+       },
+       {
+        "name": "Spellbook",
+        "qty": 1
+       },
+       {
+        "name": "Scholar's pack",
+        "qty": 1
+       }
+      ],
+      "gold": 10,
+      "xp": 0,
+      "conditions": [],
+      "features": [
+       "Darkvision 60 ft",
+       "Keen Senses (Perception)",
+       "Fey Ancestry",
+       "Trance",
+       "One wizard cantrip",
+       "Spellcasting (INT): cantrips Fire Bolt, Mage Hand, Light; prepared from Magic Missile, Shield, Sleep, Burning Hands, Detect Magic, Mage Armor; 2 first-level slots",
+       "Arcane Recovery"
+      ],
+      "notes": "",
+      "resources": [
+       {
+        "id": "spell-slots-1",
+        "name": "Spell slots (1st)",
+        "max": 2,
+        "used": 0,
+        "recharge": "long"
+       },
+       {
+        "id": "arcane-recovery",
+        "name": "Arcane Recovery",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       },
+       {
+        "id": "hit-dice",
+        "name": "Hit dice (d6)",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       }
+      ],
+      "status": "up",
+      "deathSaves": {
+       "successes": 0,
+       "failures": 0
+      }
+     }
+    ],
+    "present": [
+     {
+      "id": "old-brannock",
+      "name": "Old Brannock",
+      "groupId": "old-brannock",
+      "side": "neutral",
+      "description": "The innkeeper. One eye, many opinions.",
+      "conditions": [],
+      "defeated": false
+     }
+    ],
+    "combat": null,
+    "log": [
+     {
+      "seq": 2,
+      "at": "2026-10-27T20:47:35.686Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
+      "sys": {
+       "code": "joined",
+       "params": {
+        "name": "Mira",
+        "race": "Halfling (Lightfoot)",
+        "cls": "Rogue"
+       }
+      }
+     },
+     {
+      "seq": 3,
+      "at": "2026-10-27T20:47:35.687Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
+      "sys": {
+       "code": "joined",
+       "params": {
+        "name": "Torvald",
+        "race": "Dwarf (Hill)",
+        "cls": "Fighter"
+       }
+      }
+     },
+     {
+      "seq": 4,
+      "at": "2026-10-27T20:47:35.688Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Elowen the Elf (High) Wizard joins the party.",
+      "sys": {
+       "code": "joined",
+       "params": {
+        "name": "Elowen",
+        "race": "Elf (High)",
+        "cls": "Wizard"
+       }
+      }
+     },
+     {
+      "seq": 5,
+      "at": "2026-10-27T20:47:35.689Z",
+      "from": "system",
+      "kind": "info",
+      "text": "The adventure begins.",
+      "sys": {
+       "code": "started",
+       "params": {}
+      }
+     },
+     {
+      "seq": 8,
+      "at": "2026-10-27T20:47:35.699Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
+     },
+     {
+      "seq": 9,
+      "at": "2026-10-27T20:47:35.700Z",
+      "from": "player",
+      "characterId": "bf0370",
+      "kind": "action",
+      "text": "I slide onto a stool at the bar and order whatever is warm."
+     },
+     {
+      "seq": 10,
+      "at": "2026-10-27T20:47:35.701Z",
+      "from": "player",
+      "characterId": "5e81b5",
+      "kind": "speech",
+      "text": "\"Who rings a bell under the sea, old man?\""
+     },
+     {
+      "seq": 11,
+      "at": "2026-10-27T20:47:35.703Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
+     },
+     {
+      "seq": 12,
+      "at": "2026-10-27T20:47:35.704Z",
+      "from": "player",
+      "characterId": "4f4da7",
+      "kind": "question",
+      "text": "Can I tell if the dripping comes from a cellar?"
+     },
+     {
+      "seq": 13,
+      "at": "2026-10-27T20:47:35.706Z",
+      "from": "dm",
+      "characterId": "4f4da7",
+      "kind": "answer",
+      "text": "You can try. Listen closely to where it comes from."
+     },
+     {
+      "seq": 15,
+      "at": "2026-10-27T20:47:35.710Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Elowen rolled Wisdom (Perception) check: 14 +3 = 17 — success",
+      "sys": {
+       "code": "rolled",
+       "params": {
+        "name": "Elowen",
+        "label": "Wisdom (Perception) check",
+        "faces": [
+         14
+        ],
+        "mod": 3,
+        "total": 17,
+        "success": true,
+        "rollSeq": 15
+       }
+      }
+     },
+     {
+      "seq": 16,
+      "at": "2026-10-27T20:47:35.712Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
+     }
+    ],
+    "pendingRolls": [
+     {
+      "rollId": "863f8fb5",
+      "characterId": "bf0370",
+      "label": "Dexterity (Stealth) check",
+      "dice": "1d20",
+      "modifier": 5,
+      "advantage": "advantage",
+      "hideDc": true,
+      "requestedSeq": 17
+     }
+    ],
+    "rolls": [
+     {
+      "rollId": "1344eb89",
+      "characterId": "4f4da7",
+      "label": "Wisdom (Perception) check",
+      "dice": "1d20",
+      "modifier": 3,
+      "advantage": "none",
+      "hideDc": true,
+      "requestedSeq": 14,
+      "faces": [
+       14
+      ],
+      "total": 17,
+      "success": true,
+      "resolvedSeq": 15,
+      "byDm": false
+     }
+    ],
+    "sketches": [
+     {
+      "seq": 7,
+      "caption": "The taproom of the Drowned Lantern",
+      "svg": "<rect x=\"60\" y=\"60\" width=\"680\" height=\"380\"/>\n    <line x1=\"60\" y1=\"150\" x2=\"740\" y2=\"150\"/><line x1=\"60\" y1=\"300\" x2=\"740\" y2=\"300\" stroke-dasharray=\"6 8\"/>\n    <rect x=\"120\" y=\"180\" width=\"160\" height=\"50\" rx=\"6\"/><rect x=\"480\" y=\"200\" width=\"180\" height=\"60\" rx=\"6\"/>\n    <circle cx=\"200\" cy=\"350\" r=\"30\"/><circle cx=\"560\" cy=\"370\" r=\"26\"/>\n    <path d=\"M600 60 L600 20 L650 20 L650 60\"/><path d=\"M90 440 q30 -30 60 0 t60 0\"/>\n    <polyline points=\"680,90 700,110 680,130\"/>\n    <text x=\"130\" y=\"210\" font-family=\"Caveat\" font-size=\"22\" fill=\"#2b2b2b\" stroke=\"none\">bar</text>\n    <text x=\"500\" y=\"236\" font-family=\"Caveat\" font-size=\"22\" fill=\"#2b2b2b\" stroke=\"none\">long table</text>\n    <text x=\"610\" y=\"50\" font-family=\"Caveat\" font-size=\"20\" fill=\"#2b2b2b\" stroke=\"none\">stairs</text>"
+     }
+    ],
+    "started": true,
+    "complexity": "beginner",
+    "latestSeq": 17,
+    "dmStatus": "thinking",
+    "language": "en"
+   },
+   "history": [
+    {
+     "seq": 2,
+     "at": "2026-10-27T20:47:35.686Z",
+     "type": "character",
+     "who": "Mira",
+     "text": "Halfling (Lightfoot) Rogue"
+    },
+    {
+     "seq": 3,
+     "at": "2026-10-27T20:47:35.687Z",
+     "type": "character",
+     "who": "Torvald",
+     "text": "Dwarf (Hill) Fighter"
+    },
+    {
+     "seq": 4,
+     "at": "2026-10-27T20:47:35.688Z",
+     "type": "character",
+     "who": "Elowen",
+     "text": "Elf (High) Wizard"
+    },
+    {
+     "seq": 5,
+     "at": "2026-10-27T20:47:35.689Z",
+     "type": "started",
+     "text": ""
+    },
+    {
+     "seq": 6,
+     "at": "2026-10-27T20:47:35.692Z",
+     "type": "scene",
+     "text": "The Drowned Lantern — taproom"
+    },
+    {
+     "seq": 7,
+     "at": "2026-10-27T20:47:35.696Z",
+     "type": "sketch",
+     "text": "The taproom of the Drowned Lantern"
+    },
+    {
+     "seq": 8,
+     "at": "2026-10-27T20:47:35.699Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
+    },
+    {
+     "seq": 9,
+     "at": "2026-10-27T20:47:35.700Z",
+     "type": "player",
+     "kind": "action",
+     "who": "Mira",
+     "text": "I slide onto a stool at the bar and order whatever is warm."
+    },
+    {
+     "seq": 10,
+     "at": "2026-10-27T20:47:35.701Z",
+     "type": "player",
+     "kind": "speech",
+     "who": "Torvald",
+     "text": "\"Who rings a bell under the sea, old man?\""
+    },
+    {
+     "seq": 11,
+     "at": "2026-10-27T20:47:35.703Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
+    },
+    {
+     "seq": 12,
+     "at": "2026-10-27T20:47:35.704Z",
+     "type": "player",
+     "kind": "question",
+     "who": "Elowen",
+     "text": "Can I tell if the dripping comes from a cellar?"
+    },
+    {
+     "seq": 13,
+     "at": "2026-10-27T20:47:35.706Z",
+     "type": "dm",
+     "kind": "answer",
+     "who": null,
+     "text": "You can try. Listen closely to where it comes from."
+    },
+    {
+     "seq": 14,
+     "at": "2026-10-27T20:47:35.708Z",
+     "type": "rollRequested",
+     "who": "Elowen",
+     "text": "Wisdom (Perception) check"
+    },
+    {
+     "seq": 15,
+     "at": "2026-10-27T20:47:35.710Z",
+     "type": "roll",
+     "text": "Wisdom (Perception) check: 14 → 17",
+     "label": "Wisdom (Perception) check",
+     "result": "14 → 17"
+    },
+    {
+     "seq": 16,
+     "at": "2026-10-27T20:47:35.712Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
+    },
+    {
+     "seq": 17,
+     "at": "2026-10-27T20:47:35.715Z",
+     "type": "rollRequested",
+     "who": "Mira",
+     "text": "Dexterity (Stealth) check"
+    }
+   ]
+  },
+  "initiative": {
+   "id": "3304125b",
+   "state": {
+    "id": "3304125b",
+    "title": "The Drowned Lantern",
+    "seq": 24,
+    "scene": {
+     "title": "The Drowned Lantern — taproom",
+     "description": "A low-beamed harbour inn, half sunk into the mud.",
+     "seq": 6
+    },
+    "characters": [
+     {
+      "id": "bf0370",
+      "name": "Mira",
+      "player": "Veikko",
+      "raceId": "halfling",
+      "race": "Halfling (Lightfoot)",
+      "classId": "rogue",
+      "className": "Rogue",
+      "level": 1,
+      "abilities": {
+       "dex": 17,
+       "con": 14,
+       "int": 13,
+       "wis": 12,
+       "cha": 11,
+       "str": 8
+      },
+      "maxHp": 10,
+      "hp": 10,
+      "tempHp": 0,
+      "ac": 14,
+      "acNote": "Leather armour",
+      "speed": 25,
+      "proficiencyBonus": 2,
+      "saves": [
+       "dex",
+       "int"
+      ],
+      "skills": [
+       "Stealth",
+       "Sleight of Hand",
+       "Perception",
+       "Acrobatics"
+      ],
+      "inventory": [
+       {
+        "name": "Leather armour",
+        "qty": 1
+       },
+       {
+        "name": "Rapier",
+        "qty": 1
+       },
+       {
+        "name": "Shortbow + 20 arrows",
+        "qty": 1
+       },
+       {
+        "name": "Thieves' tools",
+        "qty": 1
+       },
+       {
+        "name": "Burglar's pack",
+        "qty": 1
+       },
+       {
+        "name": "2 Daggers",
+        "qty": 1
+       }
+      ],
+      "gold": 10,
+      "xp": 0,
+      "conditions": [],
+      "features": [
+       "Lucky (reroll natural 1s)",
+       "Brave",
+       "Halfling Nimbleness",
+       "Naturally Stealthy",
+       "Sneak Attack (1d6)",
+       "Expertise (Stealth, Thieves' tools)",
+       "Thieves' Cant"
+      ],
+      "notes": "",
+      "resources": [
+       {
+        "id": "hit-dice",
+        "name": "Hit dice (d8)",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       }
+      ],
+      "status": "up",
+      "deathSaves": {
+       "successes": 0,
+       "failures": 0
+      }
+     },
+     {
+      "id": "5e81b5",
+      "name": "Torvald",
+      "player": "Ann",
+      "raceId": "dwarf",
+      "race": "Dwarf (Hill)",
+      "classId": "fighter",
+      "className": "Fighter",
+      "level": 1,
+      "abilities": {
+       "str": 15,
+       "con": 16,
+       "dex": 13,
+       "wis": 13,
+       "cha": 10,
+       "int": 8
+      },
+      "maxHp": 14,
+      "hp": 14,
+      "tempHp": 0,
+      "ac": 18,
+      "acNote": "Chain mail + shield",
+      "speed": 25,
+      "proficiencyBonus": 2,
+      "saves": [
+       "str",
+       "con"
+      ],
+      "skills": [
+       "Athletics",
+       "Perception"
+      ],
+      "inventory": [
+       {
+        "name": "Chain mail",
+        "qty": 1
+       },
+       {
+        "name": "Shield",
+        "qty": 1
+       },
+       {
+        "name": "Longsword",
+        "qty": 1
+       },
+       {
+        "name": "2 Handaxes",
+        "qty": 1
+       },
+       {
+        "name": "Explorer's pack",
+        "qty": 1
+       }
+      ],
+      "gold": 10,
+      "xp": 0,
+      "conditions": [],
+      "features": [
+       "Darkvision 60 ft",
+       "Dwarven Resilience (poison)",
+       "Stonecunning",
+       "Dwarven Toughness (+1 HP/level)",
+       "Fighting Style: Defense",
+       "Second Wind (bonus action: heal 1d10 + level, once per rest)"
+      ],
+      "notes": "",
+      "resources": [
+       {
+        "id": "second-wind",
+        "name": "Second Wind",
+        "max": 1,
+        "used": 0,
+        "recharge": "short"
+       },
+       {
+        "id": "hit-dice",
+        "name": "Hit dice (d10)",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       }
+      ],
+      "status": "up",
+      "deathSaves": {
+       "successes": 0,
+       "failures": 0
+      }
+     },
+     {
+      "id": "4f4da7",
+      "name": "Elowen",
+      "player": "Sam",
+      "raceId": "elf",
+      "race": "Elf (High)",
+      "classId": "wizard",
+      "className": "Wizard",
+      "level": 1,
+      "abilities": {
+       "int": 16,
+       "con": 14,
+       "dex": 15,
+       "wis": 12,
+       "cha": 10,
+       "str": 8
+      },
+      "maxHp": 8,
+      "hp": 8,
+      "tempHp": 0,
+      "ac": 12,
+      "acNote": "No armour (Mage Armor spell: 13 + DEX)",
+      "speed": 30,
+      "proficiencyBonus": 2,
+      "saves": [
+       "int",
+       "wis"
+      ],
+      "skills": [
+       "Arcana",
+       "History",
+       "Perception"
+      ],
+      "inventory": [
+       {
+        "name": "Quarterstaff",
+        "qty": 1
+       },
+       {
+        "name": "Component pouch",
+        "qty": 1
+       },
+       {
+        "name": "Spellbook",
+        "qty": 1
+       },
+       {
+        "name": "Scholar's pack",
+        "qty": 1
+       }
+      ],
+      "gold": 10,
+      "xp": 0,
+      "conditions": [],
+      "features": [
+       "Darkvision 60 ft",
+       "Keen Senses (Perception)",
+       "Fey Ancestry",
+       "Trance",
+       "One wizard cantrip",
+       "Spellcasting (INT): cantrips Fire Bolt, Mage Hand, Light; prepared from Magic Missile, Shield, Sleep, Burning Hands, Detect Magic, Mage Armor; 2 first-level slots",
+       "Arcane Recovery"
+      ],
+      "notes": "",
+      "resources": [
+       {
+        "id": "spell-slots-1",
+        "name": "Spell slots (1st)",
+        "max": 2,
+        "used": 0,
+        "recharge": "long"
+       },
+       {
+        "id": "arcane-recovery",
+        "name": "Arcane Recovery",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       },
+       {
+        "id": "hit-dice",
+        "name": "Hit dice (d6)",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       }
+      ],
+      "status": "up",
+      "deathSaves": {
+       "successes": 0,
+       "failures": 0
+      }
+     }
+    ],
+    "present": [
+     {
+      "id": "old-brannock",
+      "name": "Old Brannock",
+      "groupId": "old-brannock",
+      "side": "neutral",
+      "description": "The innkeeper. One eye, many opinions.",
+      "conditions": [],
+      "defeated": false
+     },
+     {
+      "id": "goblin-1",
+      "name": "Goblin",
+      "groupId": "goblin-1",
+      "side": "enemy",
+      "description": "Small, wet and furious.",
+      "conditions": [],
+      "defeated": false,
+      "health": "unhurt"
+     },
+     {
+      "id": "goblin-2",
+      "name": "Goblin",
+      "groupId": "goblin-1",
+      "side": "enemy",
+      "description": "Small, wet and furious.",
+      "conditions": [],
+      "defeated": false,
+      "health": "unhurt"
+     },
+     {
+      "id": "goblin-3",
+      "name": "Goblin",
+      "groupId": "goblin-1",
+      "side": "enemy",
+      "description": "Small, wet and furious.",
+      "conditions": [],
+      "defeated": false,
+      "health": "unhurt"
+     }
+    ],
+    "combat": {
+     "round": 0,
+     "turn": 0,
+     "order": [
+      {
+       "ref": {
+        "kind": "hero",
+        "id": "bf0370"
+       },
+       "ready": false
+      },
+      {
+       "ref": {
+        "kind": "hero",
+        "id": "5e81b5"
+       },
+       "ready": false
+      },
+      {
+       "ref": {
+        "kind": "hero",
+        "id": "4f4da7"
+       },
+       "ready": false
+      },
+      {
+       "ref": {
+        "kind": "group",
+        "groupId": "goblin-1"
+       },
+       "ready": true
+      }
+     ]
+    },
+    "log": [
+     {
+      "seq": 2,
+      "at": "2026-10-27T20:47:35.686Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
+      "sys": {
+       "code": "joined",
+       "params": {
+        "name": "Mira",
+        "race": "Halfling (Lightfoot)",
+        "cls": "Rogue"
+       }
+      }
+     },
+     {
+      "seq": 3,
+      "at": "2026-10-27T20:47:35.687Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
+      "sys": {
+       "code": "joined",
+       "params": {
+        "name": "Torvald",
+        "race": "Dwarf (Hill)",
+        "cls": "Fighter"
+       }
+      }
+     },
+     {
+      "seq": 4,
+      "at": "2026-10-27T20:47:35.688Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Elowen the Elf (High) Wizard joins the party.",
+      "sys": {
+       "code": "joined",
+       "params": {
+        "name": "Elowen",
+        "race": "Elf (High)",
+        "cls": "Wizard"
+       }
+      }
+     },
+     {
+      "seq": 5,
+      "at": "2026-10-27T20:47:35.689Z",
+      "from": "system",
+      "kind": "info",
+      "text": "The adventure begins.",
+      "sys": {
+       "code": "started",
+       "params": {}
+      }
+     },
+     {
+      "seq": 8,
+      "at": "2026-10-27T20:47:35.699Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
+     },
+     {
+      "seq": 9,
+      "at": "2026-10-27T20:47:35.700Z",
+      "from": "player",
+      "characterId": "bf0370",
+      "kind": "action",
+      "text": "I slide onto a stool at the bar and order whatever is warm."
+     },
+     {
+      "seq": 10,
+      "at": "2026-10-27T20:47:35.701Z",
+      "from": "player",
+      "characterId": "5e81b5",
+      "kind": "speech",
+      "text": "\"Who rings a bell under the sea, old man?\""
+     },
+     {
+      "seq": 11,
+      "at": "2026-10-27T20:47:35.703Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
+     },
+     {
+      "seq": 12,
+      "at": "2026-10-27T20:47:35.704Z",
+      "from": "player",
+      "characterId": "4f4da7",
+      "kind": "question",
+      "text": "Can I tell if the dripping comes from a cellar?"
+     },
+     {
+      "seq": 13,
+      "at": "2026-10-27T20:47:35.706Z",
+      "from": "dm",
+      "characterId": "4f4da7",
+      "kind": "answer",
+      "text": "You can try. Listen closely to where it comes from."
+     },
+     {
+      "seq": 15,
+      "at": "2026-10-27T20:47:35.710Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Elowen rolled Wisdom (Perception) check: 14 +3 = 17 — success",
+      "sys": {
+       "code": "rolled",
+       "params": {
+        "name": "Elowen",
+        "label": "Wisdom (Perception) check",
+        "faces": [
+         14
+        ],
+        "mod": 3,
+        "total": 17,
+        "success": true,
+        "rollSeq": 15
+       }
+      }
+     },
+     {
+      "seq": 16,
+      "at": "2026-10-27T20:47:35.712Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
+     },
+     {
+      "seq": 18,
+      "at": "2026-10-27T20:47:35.717Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Mira rolled Dexterity (Stealth) check: 6 & 17 +5 = 22",
+      "sys": {
+       "code": "rolled",
+       "params": {
+        "name": "Mira",
+        "label": "Dexterity (Stealth) check",
+        "faces": [
+         6,
+         17
+        ],
+        "mod": 5,
+        "total": 22,
+        "rollSeq": 18
+       }
+      }
+     },
+     {
+      "seq": 19,
+      "at": "2026-10-27T20:47:35.719Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "The trapdoor bursts open. Three goblins, dripping with harbour water, scramble up with knives drawn!"
+     },
+     {
+      "seq": 20,
+      "at": "2026-10-27T20:47:35.721Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Goblin is here.",
+      "sys": {
+       "code": "arrived",
+       "params": {
+        "names": [
+         "Goblin"
+        ]
+       }
+      }
+     },
+     {
+      "seq": 21,
+      "at": "2026-10-27T20:47:35.724Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Fight!",
+      "sys": {
+       "code": "combatStarted",
+       "params": {}
+      }
+     }
+    ],
+    "pendingRolls": [
+     {
+      "rollId": "init-bf0370-20",
+      "characterId": "bf0370",
+      "label": "Initiative",
+      "dice": "1d20",
+      "modifier": 3,
+      "advantage": "none",
+      "hideDc": true,
+      "purpose": "initiative",
+      "requestedSeq": 22
+     },
+     {
+      "rollId": "init-5e81b5-20",
+      "characterId": "5e81b5",
+      "label": "Initiative",
+      "dice": "1d20",
+      "modifier": 1,
+      "advantage": "none",
+      "hideDc": true,
+      "purpose": "initiative",
+      "requestedSeq": 23
+     },
+     {
+      "rollId": "init-4f4da7-20",
+      "characterId": "4f4da7",
+      "label": "Initiative",
+      "dice": "1d20",
+      "modifier": 2,
+      "advantage": "none",
+      "hideDc": true,
+      "purpose": "initiative",
+      "requestedSeq": 24
+     }
+    ],
+    "rolls": [
+     {
+      "rollId": "1344eb89",
+      "characterId": "4f4da7",
+      "label": "Wisdom (Perception) check",
+      "dice": "1d20",
+      "modifier": 3,
+      "advantage": "none",
+      "hideDc": true,
+      "requestedSeq": 14,
+      "faces": [
+       14
+      ],
+      "total": 17,
+      "success": true,
+      "resolvedSeq": 15,
+      "byDm": false
+     },
+     {
+      "rollId": "863f8fb5",
+      "characterId": "bf0370",
+      "label": "Dexterity (Stealth) check",
+      "dice": "1d20",
+      "modifier": 5,
+      "advantage": "advantage",
+      "hideDc": true,
+      "requestedSeq": 17,
+      "faces": [
+       6,
+       17
+      ],
+      "total": 22,
+      "resolvedSeq": 18,
+      "byDm": false
+     }
+    ],
+    "sketches": [
+     {
+      "seq": 7,
+      "caption": "The taproom of the Drowned Lantern",
+      "svg": "<rect x=\"60\" y=\"60\" width=\"680\" height=\"380\"/>\n    <line x1=\"60\" y1=\"150\" x2=\"740\" y2=\"150\"/><line x1=\"60\" y1=\"300\" x2=\"740\" y2=\"300\" stroke-dasharray=\"6 8\"/>\n    <rect x=\"120\" y=\"180\" width=\"160\" height=\"50\" rx=\"6\"/><rect x=\"480\" y=\"200\" width=\"180\" height=\"60\" rx=\"6\"/>\n    <circle cx=\"200\" cy=\"350\" r=\"30\"/><circle cx=\"560\" cy=\"370\" r=\"26\"/>\n    <path d=\"M600 60 L600 20 L650 20 L650 60\"/><path d=\"M90 440 q30 -30 60 0 t60 0\"/>\n    <polyline points=\"680,90 700,110 680,130\"/>\n    <text x=\"130\" y=\"210\" font-family=\"Caveat\" font-size=\"22\" fill=\"#2b2b2b\" stroke=\"none\">bar</text>\n    <text x=\"500\" y=\"236\" font-family=\"Caveat\" font-size=\"22\" fill=\"#2b2b2b\" stroke=\"none\">long table</text>\n    <text x=\"610\" y=\"50\" font-family=\"Caveat\" font-size=\"20\" fill=\"#2b2b2b\" stroke=\"none\">stairs</text>"
+     }
+    ],
+    "started": true,
+    "complexity": "beginner",
+    "latestSeq": 24,
+    "dmStatus": "thinking",
+    "language": "en"
+   },
+   "history": [
+    {
+     "seq": 2,
+     "at": "2026-10-27T20:47:35.686Z",
+     "type": "character",
+     "who": "Mira",
+     "text": "Halfling (Lightfoot) Rogue"
+    },
+    {
+     "seq": 3,
+     "at": "2026-10-27T20:47:35.687Z",
+     "type": "character",
+     "who": "Torvald",
+     "text": "Dwarf (Hill) Fighter"
+    },
+    {
+     "seq": 4,
+     "at": "2026-10-27T20:47:35.688Z",
+     "type": "character",
+     "who": "Elowen",
+     "text": "Elf (High) Wizard"
+    },
+    {
+     "seq": 5,
+     "at": "2026-10-27T20:47:35.689Z",
+     "type": "started",
+     "text": ""
+    },
+    {
+     "seq": 6,
+     "at": "2026-10-27T20:47:35.692Z",
+     "type": "scene",
+     "text": "The Drowned Lantern — taproom"
+    },
+    {
+     "seq": 7,
+     "at": "2026-10-27T20:47:35.696Z",
+     "type": "sketch",
+     "text": "The taproom of the Drowned Lantern"
+    },
+    {
+     "seq": 8,
+     "at": "2026-10-27T20:47:35.699Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
+    },
+    {
+     "seq": 9,
+     "at": "2026-10-27T20:47:35.700Z",
+     "type": "player",
+     "kind": "action",
+     "who": "Mira",
+     "text": "I slide onto a stool at the bar and order whatever is warm."
+    },
+    {
+     "seq": 10,
+     "at": "2026-10-27T20:47:35.701Z",
+     "type": "player",
+     "kind": "speech",
+     "who": "Torvald",
+     "text": "\"Who rings a bell under the sea, old man?\""
+    },
+    {
+     "seq": 11,
+     "at": "2026-10-27T20:47:35.703Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
+    },
+    {
+     "seq": 12,
+     "at": "2026-10-27T20:47:35.704Z",
+     "type": "player",
+     "kind": "question",
+     "who": "Elowen",
+     "text": "Can I tell if the dripping comes from a cellar?"
+    },
+    {
+     "seq": 13,
+     "at": "2026-10-27T20:47:35.706Z",
+     "type": "dm",
+     "kind": "answer",
+     "who": null,
+     "text": "You can try. Listen closely to where it comes from."
+    },
+    {
+     "seq": 14,
+     "at": "2026-10-27T20:47:35.708Z",
+     "type": "rollRequested",
+     "who": "Elowen",
+     "text": "Wisdom (Perception) check"
+    },
+    {
+     "seq": 15,
+     "at": "2026-10-27T20:47:35.710Z",
+     "type": "roll",
+     "text": "Wisdom (Perception) check: 14 → 17",
+     "label": "Wisdom (Perception) check",
+     "result": "14 → 17"
+    },
+    {
+     "seq": 16,
+     "at": "2026-10-27T20:47:35.712Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
+    },
+    {
+     "seq": 17,
+     "at": "2026-10-27T20:47:35.715Z",
+     "type": "rollRequested",
+     "who": "Mira",
+     "text": "Dexterity (Stealth) check"
+    },
+    {
+     "seq": 18,
+     "at": "2026-10-27T20:47:35.717Z",
+     "type": "roll",
+     "text": "Dexterity (Stealth) check: 6 & 17 → 22",
+     "label": "Dexterity (Stealth) check",
+     "result": "6 & 17 → 22"
+    },
+    {
+     "seq": 19,
+     "at": "2026-10-27T20:47:35.719Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "The trapdoor bursts open. Three goblins, dripping with harbour water, scramble up with knives drawn!"
+    },
+    {
+     "seq": 22,
+     "at": "2026-10-27T20:47:35.724Z",
+     "type": "rollRequested",
+     "who": "Mira",
+     "text": "Initiative",
+     "purpose": "initiative"
+    },
+    {
+     "seq": 23,
+     "at": "2026-10-27T20:47:35.724Z",
+     "type": "rollRequested",
+     "who": "Torvald",
+     "text": "Initiative",
+     "purpose": "initiative"
+    },
+    {
+     "seq": 24,
+     "at": "2026-10-27T20:47:35.724Z",
+     "type": "rollRequested",
+     "who": "Elowen",
+     "text": "Initiative",
+     "purpose": "initiative"
+    }
+   ]
+  },
+  "combat": {
+   "id": "3304125b",
+   "state": {
+    "id": "3304125b",
+    "title": "The Drowned Lantern",
+    "seq": 32,
+    "scene": {
+     "title": "The Drowned Lantern — taproom",
+     "description": "A low-beamed harbour inn, half sunk into the mud.",
+     "seq": 6
+    },
+    "characters": [
+     {
+      "id": "bf0370",
+      "name": "Mira",
+      "player": "Veikko",
+      "raceId": "halfling",
+      "race": "Halfling (Lightfoot)",
+      "classId": "rogue",
+      "className": "Rogue",
+      "level": 1,
+      "abilities": {
+       "dex": 17,
+       "con": 14,
+       "int": 13,
+       "wis": 12,
+       "cha": 11,
+       "str": 8
+      },
+      "maxHp": 10,
+      "hp": 10,
+      "tempHp": 0,
+      "ac": 14,
+      "acNote": "Leather armour",
+      "speed": 25,
+      "proficiencyBonus": 2,
+      "saves": [
+       "dex",
+       "int"
+      ],
+      "skills": [
+       "Stealth",
+       "Sleight of Hand",
+       "Perception",
+       "Acrobatics"
+      ],
+      "inventory": [
+       {
+        "name": "Leather armour",
+        "qty": 1
+       },
+       {
+        "name": "Rapier",
+        "qty": 1
+       },
+       {
+        "name": "Shortbow + 20 arrows",
+        "qty": 1
+       },
+       {
+        "name": "Thieves' tools",
+        "qty": 1
+       },
+       {
+        "name": "Burglar's pack",
+        "qty": 1
+       },
+       {
+        "name": "2 Daggers",
+        "qty": 1
+       }
+      ],
+      "gold": 10,
+      "xp": 0,
+      "conditions": [],
+      "features": [
+       "Lucky (reroll natural 1s)",
+       "Brave",
+       "Halfling Nimbleness",
+       "Naturally Stealthy",
+       "Sneak Attack (1d6)",
+       "Expertise (Stealth, Thieves' tools)",
+       "Thieves' Cant"
+      ],
+      "notes": "",
+      "resources": [
+       {
+        "id": "hit-dice",
+        "name": "Hit dice (d8)",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       }
+      ],
+      "status": "up",
+      "deathSaves": {
+       "successes": 0,
+       "failures": 0
+      }
+     },
+     {
+      "id": "5e81b5",
+      "name": "Torvald",
+      "player": "Ann",
+      "raceId": "dwarf",
+      "race": "Dwarf (Hill)",
+      "classId": "fighter",
+      "className": "Fighter",
+      "level": 1,
+      "abilities": {
+       "str": 15,
+       "con": 16,
+       "dex": 13,
+       "wis": 13,
+       "cha": 10,
+       "int": 8
+      },
+      "maxHp": 14,
+      "hp": 8,
+      "tempHp": 0,
+      "ac": 18,
+      "acNote": "Chain mail + shield",
+      "speed": 25,
+      "proficiencyBonus": 2,
+      "saves": [
+       "str",
+       "con"
+      ],
+      "skills": [
+       "Athletics",
+       "Perception"
+      ],
+      "inventory": [
+       {
+        "name": "Chain mail",
+        "qty": 1
+       },
+       {
+        "name": "Shield",
+        "qty": 1
+       },
+       {
+        "name": "Longsword",
+        "qty": 1
+       },
+       {
+        "name": "2 Handaxes",
+        "qty": 1
+       },
+       {
+        "name": "Explorer's pack",
+        "qty": 1
+       }
+      ],
+      "gold": 10,
+      "xp": 0,
+      "conditions": [],
+      "features": [
+       "Darkvision 60 ft",
+       "Dwarven Resilience (poison)",
+       "Stonecunning",
+       "Dwarven Toughness (+1 HP/level)",
+       "Fighting Style: Defense",
+       "Second Wind (bonus action: heal 1d10 + level, once per rest)"
+      ],
+      "notes": "",
+      "resources": [
+       {
+        "id": "second-wind",
+        "name": "Second Wind",
+        "max": 1,
+        "used": 0,
+        "recharge": "short"
+       },
+       {
+        "id": "hit-dice",
+        "name": "Hit dice (d10)",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       }
+      ],
+      "status": "up",
+      "deathSaves": {
+       "successes": 0,
+       "failures": 0
+      }
+     },
+     {
+      "id": "4f4da7",
+      "name": "Elowen",
+      "player": "Sam",
+      "raceId": "elf",
+      "race": "Elf (High)",
+      "classId": "wizard",
+      "className": "Wizard",
+      "level": 1,
+      "abilities": {
+       "int": 16,
+       "con": 14,
+       "dex": 15,
+       "wis": 12,
+       "cha": 10,
+       "str": 8
+      },
+      "maxHp": 8,
+      "hp": 8,
+      "tempHp": 0,
+      "ac": 12,
+      "acNote": "No armour (Mage Armor spell: 13 + DEX)",
+      "speed": 30,
+      "proficiencyBonus": 2,
+      "saves": [
+       "int",
+       "wis"
+      ],
+      "skills": [
+       "Arcana",
+       "History",
+       "Perception"
+      ],
+      "inventory": [
+       {
+        "name": "Quarterstaff",
+        "qty": 1
+       },
+       {
+        "name": "Component pouch",
+        "qty": 1
+       },
+       {
+        "name": "Spellbook",
+        "qty": 1
+       },
+       {
+        "name": "Scholar's pack",
+        "qty": 1
+       }
+      ],
+      "gold": 10,
+      "xp": 0,
+      "conditions": [
+       "Frightened"
+      ],
+      "features": [
+       "Darkvision 60 ft",
+       "Keen Senses (Perception)",
+       "Fey Ancestry",
+       "Trance",
+       "One wizard cantrip",
+       "Spellcasting (INT): cantrips Fire Bolt, Mage Hand, Light; prepared from Magic Missile, Shield, Sleep, Burning Hands, Detect Magic, Mage Armor; 2 first-level slots",
+       "Arcane Recovery"
+      ],
+      "notes": "",
+      "resources": [
+       {
+        "id": "spell-slots-1",
+        "name": "Spell slots (1st)",
+        "max": 2,
+        "used": 0,
+        "recharge": "long"
+       },
+       {
+        "id": "arcane-recovery",
+        "name": "Arcane Recovery",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       },
+       {
+        "id": "hit-dice",
+        "name": "Hit dice (d6)",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       }
+      ],
+      "status": "up",
+      "deathSaves": {
+       "successes": 0,
+       "failures": 0
+      }
+     }
+    ],
+    "present": [
+     {
+      "id": "old-brannock",
+      "name": "Old Brannock",
+      "groupId": "old-brannock",
+      "side": "neutral",
+      "description": "The innkeeper. One eye, many opinions.",
+      "conditions": [],
+      "defeated": false
+     },
+     {
+      "id": "goblin-1",
+      "name": "Goblin",
+      "groupId": "goblin-1",
+      "side": "enemy",
+      "description": "Small, wet and furious.",
+      "conditions": [],
+      "defeated": false,
+      "health": "bloodied"
+     },
+     {
+      "id": "goblin-2",
+      "name": "Goblin",
+      "groupId": "goblin-1",
+      "side": "enemy",
+      "description": "Small, wet and furious.",
+      "conditions": [],
+      "defeated": true,
+      "health": "defeated"
+     },
+     {
+      "id": "goblin-3",
+      "name": "Goblin",
+      "groupId": "goblin-1",
+      "side": "enemy",
+      "description": "Small, wet and furious.",
+      "conditions": [],
+      "defeated": false,
+      "health": "unhurt"
+     }
+    ],
+    "combat": {
+     "round": 1,
+     "turn": 0,
+     "order": [
+      {
+       "ref": {
+        "kind": "hero",
+        "id": "bf0370"
+       },
+       "ready": true
+      },
+      {
+       "ref": {
+        "kind": "group",
+        "groupId": "goblin-1"
+       },
+       "ready": true
+      },
+      {
+       "ref": {
+        "kind": "hero",
+        "id": "4f4da7"
+       },
+       "ready": true
+      },
+      {
+       "ref": {
+        "kind": "hero",
+        "id": "5e81b5"
+       },
+       "ready": true
+      }
+     ]
+    },
+    "log": [
+     {
+      "seq": 2,
+      "at": "2026-10-27T20:47:35.686Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
+      "sys": {
+       "code": "joined",
+       "params": {
+        "name": "Mira",
+        "race": "Halfling (Lightfoot)",
+        "cls": "Rogue"
+       }
+      }
+     },
+     {
+      "seq": 3,
+      "at": "2026-10-27T20:47:35.687Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
+      "sys": {
+       "code": "joined",
+       "params": {
+        "name": "Torvald",
+        "race": "Dwarf (Hill)",
+        "cls": "Fighter"
+       }
+      }
+     },
+     {
+      "seq": 4,
+      "at": "2026-10-27T20:47:35.688Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Elowen the Elf (High) Wizard joins the party.",
+      "sys": {
+       "code": "joined",
+       "params": {
+        "name": "Elowen",
+        "race": "Elf (High)",
+        "cls": "Wizard"
+       }
+      }
+     },
+     {
+      "seq": 5,
+      "at": "2026-10-27T20:47:35.689Z",
+      "from": "system",
+      "kind": "info",
+      "text": "The adventure begins.",
+      "sys": {
+       "code": "started",
+       "params": {}
+      }
+     },
+     {
+      "seq": 8,
+      "at": "2026-10-27T20:47:35.699Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
+     },
+     {
+      "seq": 9,
+      "at": "2026-10-27T20:47:35.700Z",
+      "from": "player",
+      "characterId": "bf0370",
+      "kind": "action",
+      "text": "I slide onto a stool at the bar and order whatever is warm."
+     },
+     {
+      "seq": 10,
+      "at": "2026-10-27T20:47:35.701Z",
+      "from": "player",
+      "characterId": "5e81b5",
+      "kind": "speech",
+      "text": "\"Who rings a bell under the sea, old man?\""
+     },
+     {
+      "seq": 11,
+      "at": "2026-10-27T20:47:35.703Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
+     },
+     {
+      "seq": 12,
+      "at": "2026-10-27T20:47:35.704Z",
+      "from": "player",
+      "characterId": "4f4da7",
+      "kind": "question",
+      "text": "Can I tell if the dripping comes from a cellar?"
+     },
+     {
+      "seq": 13,
+      "at": "2026-10-27T20:47:35.706Z",
+      "from": "dm",
+      "characterId": "4f4da7",
+      "kind": "answer",
+      "text": "You can try. Listen closely to where it comes from."
+     },
+     {
+      "seq": 15,
+      "at": "2026-10-27T20:47:35.710Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Elowen rolled Wisdom (Perception) check: 14 +3 = 17 — success",
+      "sys": {
+       "code": "rolled",
+       "params": {
+        "name": "Elowen",
+        "label": "Wisdom (Perception) check",
+        "faces": [
+         14
+        ],
+        "mod": 3,
+        "total": 17,
+        "success": true,
+        "rollSeq": 15
+       }
+      }
+     },
+     {
+      "seq": 16,
+      "at": "2026-10-27T20:47:35.712Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
+     },
+     {
+      "seq": 18,
+      "at": "2026-10-27T20:47:35.717Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Mira rolled Dexterity (Stealth) check: 6 & 17 +5 = 22",
+      "sys": {
+       "code": "rolled",
+       "params": {
+        "name": "Mira",
+        "label": "Dexterity (Stealth) check",
+        "faces": [
+         6,
+         17
+        ],
+        "mod": 5,
+        "total": 22,
+        "rollSeq": 18
+       }
+      }
+     },
+     {
+      "seq": 19,
+      "at": "2026-10-27T20:47:35.719Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "The trapdoor bursts open. Three goblins, dripping with harbour water, scramble up with knives drawn!"
+     },
+     {
+      "seq": 20,
+      "at": "2026-10-27T20:47:35.721Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Goblin is here.",
+      "sys": {
+       "code": "arrived",
+       "params": {
+        "names": [
+         "Goblin"
+        ]
+       }
+      }
+     },
+     {
+      "seq": 21,
+      "at": "2026-10-27T20:47:35.724Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Fight!",
+      "sys": {
+       "code": "combatStarted",
+       "params": {}
+      }
+     },
+     {
+      "seq": 25,
+      "at": "2026-10-27T20:47:35.727Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Mira rolled Initiative: 18 +3 = 21",
+      "sys": {
+       "code": "rolled",
+       "params": {
+        "name": "Mira",
+        "label": "Initiative",
+        "purpose": "initiative",
+        "faces": [
+         18
+        ],
+        "mod": 3,
+        "total": 21,
+        "rollSeq": 25
+       }
+      }
+     },
+     {
+      "seq": 26,
+      "at": "2026-10-27T20:47:35.728Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Torvald rolled Initiative: 4 +1 = 5",
+      "sys": {
+       "code": "rolled",
+       "params": {
+        "name": "Torvald",
+        "label": "Initiative",
+        "purpose": "initiative",
+        "faces": [
+         4
+        ],
+        "mod": 1,
+        "total": 5,
+        "rollSeq": 26
+       }
+      }
+     },
+     {
+      "seq": 27,
+      "at": "2026-10-27T20:47:35.728Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Elowen rolled Initiative: 11 +2 = 13",
+      "sys": {
+       "code": "rolled",
+       "params": {
+        "name": "Elowen",
+        "label": "Initiative",
+        "purpose": "initiative",
+        "faces": [
+         11
+        ],
+        "mod": 2,
+        "total": 13,
+        "rollSeq": 27
+       }
+      }
+     },
+     {
+      "seq": 27,
+      "at": "2026-10-27T20:47:35.728Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Turn order: Mira, Goblin, Elowen, Torvald.",
+      "sys": {
+       "code": "combatOrder",
+       "params": {
+        "names": [
+         "Mira",
+         "Goblin",
+         "Elowen",
+         "Torvald"
+        ]
+       }
+      }
+     },
+     {
+      "seq": 28,
+      "at": "2026-10-27T20:47:35.731Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Goblin: now bloodied",
+      "sys": {
+       "code": "presenceUpdated",
+       "params": {
+        "name": "Goblin",
+        "health": "bloodied"
+       }
+      }
+     },
+     {
+      "seq": 29,
+      "at": "2026-10-27T20:47:35.733Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Goblin is defeated.",
+      "sys": {
+       "code": "defeated",
+       "params": {
+        "name": "Goblin"
+       }
+      }
+     },
+     {
+      "seq": 30,
+      "at": "2026-10-27T20:47:35.735Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Torvald: hp 14 → 8 (goblin knife)",
+      "sys": {
+       "code": "updated",
+       "params": {
+        "name": "Torvald",
+        "parts": [
+         [
+          "hp",
+          "14 → 8"
+         ]
+        ],
+        "reason": "goblin knife"
+       }
+      }
+     },
+     {
+      "seq": 31,
+      "at": "2026-10-27T20:47:35.737Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Elowen: condOn Frightened (a goblin shriek)",
+      "sys": {
+       "code": "updated",
+       "params": {
+        "name": "Elowen",
+        "parts": [
+         [
+          "condOn",
+          "Frightened"
+         ]
+        ],
+        "reason": "a goblin shriek"
+       }
+      }
+     }
+    ],
+    "pendingRolls": [
+     {
+      "rollId": "e1664e6d",
+      "characterId": "5e81b5",
+      "label": "Battleaxe attack",
+      "dice": "1d20",
+      "modifier": 5,
+      "advantage": "none",
+      "hideDc": true,
+      "requestedSeq": 32
+     }
+    ],
+    "rolls": [
+     {
+      "rollId": "1344eb89",
+      "characterId": "4f4da7",
+      "label": "Wisdom (Perception) check",
+      "dice": "1d20",
+      "modifier": 3,
+      "advantage": "none",
+      "hideDc": true,
+      "requestedSeq": 14,
+      "faces": [
+       14
+      ],
+      "total": 17,
+      "success": true,
+      "resolvedSeq": 15,
+      "byDm": false
+     },
+     {
+      "rollId": "863f8fb5",
+      "characterId": "bf0370",
+      "label": "Dexterity (Stealth) check",
+      "dice": "1d20",
+      "modifier": 5,
+      "advantage": "advantage",
+      "hideDc": true,
+      "requestedSeq": 17,
+      "faces": [
+       6,
+       17
+      ],
+      "total": 22,
+      "resolvedSeq": 18,
+      "byDm": false
+     },
+     {
+      "rollId": "init-bf0370-20",
+      "characterId": "bf0370",
+      "label": "Initiative",
+      "dice": "1d20",
+      "modifier": 3,
+      "advantage": "none",
+      "hideDc": true,
+      "purpose": "initiative",
+      "requestedSeq": 22,
+      "faces": [
+       18
+      ],
+      "total": 21,
+      "resolvedSeq": 25,
+      "byDm": false
+     },
+     {
+      "rollId": "init-5e81b5-20",
+      "characterId": "5e81b5",
+      "label": "Initiative",
+      "dice": "1d20",
+      "modifier": 1,
+      "advantage": "none",
+      "hideDc": true,
+      "purpose": "initiative",
+      "requestedSeq": 23,
+      "faces": [
+       4
+      ],
+      "total": 5,
+      "resolvedSeq": 26,
+      "byDm": false
+     },
+     {
+      "rollId": "init-4f4da7-20",
+      "characterId": "4f4da7",
+      "label": "Initiative",
+      "dice": "1d20",
+      "modifier": 2,
+      "advantage": "none",
+      "hideDc": true,
+      "purpose": "initiative",
+      "requestedSeq": 24,
+      "faces": [
+       11
+      ],
+      "total": 13,
+      "resolvedSeq": 27,
+      "byDm": false
+     }
+    ],
+    "sketches": [
+     {
+      "seq": 7,
+      "caption": "The taproom of the Drowned Lantern",
+      "svg": "<rect x=\"60\" y=\"60\" width=\"680\" height=\"380\"/>\n    <line x1=\"60\" y1=\"150\" x2=\"740\" y2=\"150\"/><line x1=\"60\" y1=\"300\" x2=\"740\" y2=\"300\" stroke-dasharray=\"6 8\"/>\n    <rect x=\"120\" y=\"180\" width=\"160\" height=\"50\" rx=\"6\"/><rect x=\"480\" y=\"200\" width=\"180\" height=\"60\" rx=\"6\"/>\n    <circle cx=\"200\" cy=\"350\" r=\"30\"/><circle cx=\"560\" cy=\"370\" r=\"26\"/>\n    <path d=\"M600 60 L600 20 L650 20 L650 60\"/><path d=\"M90 440 q30 -30 60 0 t60 0\"/>\n    <polyline points=\"680,90 700,110 680,130\"/>\n    <text x=\"130\" y=\"210\" font-family=\"Caveat\" font-size=\"22\" fill=\"#2b2b2b\" stroke=\"none\">bar</text>\n    <text x=\"500\" y=\"236\" font-family=\"Caveat\" font-size=\"22\" fill=\"#2b2b2b\" stroke=\"none\">long table</text>\n    <text x=\"610\" y=\"50\" font-family=\"Caveat\" font-size=\"20\" fill=\"#2b2b2b\" stroke=\"none\">stairs</text>"
+     }
+    ],
+    "started": true,
+    "complexity": "beginner",
+    "latestSeq": 32,
+    "dmStatus": "thinking",
+    "language": "en"
+   },
+   "history": [
+    {
+     "seq": 2,
+     "at": "2026-10-27T20:47:35.686Z",
+     "type": "character",
+     "who": "Mira",
+     "text": "Halfling (Lightfoot) Rogue"
+    },
+    {
+     "seq": 3,
+     "at": "2026-10-27T20:47:35.687Z",
+     "type": "character",
+     "who": "Torvald",
+     "text": "Dwarf (Hill) Fighter"
+    },
+    {
+     "seq": 4,
+     "at": "2026-10-27T20:47:35.688Z",
+     "type": "character",
+     "who": "Elowen",
+     "text": "Elf (High) Wizard"
+    },
+    {
+     "seq": 5,
+     "at": "2026-10-27T20:47:35.689Z",
+     "type": "started",
+     "text": ""
+    },
+    {
+     "seq": 6,
+     "at": "2026-10-27T20:47:35.692Z",
+     "type": "scene",
+     "text": "The Drowned Lantern — taproom"
+    },
+    {
+     "seq": 7,
+     "at": "2026-10-27T20:47:35.696Z",
+     "type": "sketch",
+     "text": "The taproom of the Drowned Lantern"
+    },
+    {
+     "seq": 8,
+     "at": "2026-10-27T20:47:35.699Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
+    },
+    {
+     "seq": 9,
+     "at": "2026-10-27T20:47:35.700Z",
+     "type": "player",
+     "kind": "action",
+     "who": "Mira",
+     "text": "I slide onto a stool at the bar and order whatever is warm."
+    },
+    {
+     "seq": 10,
+     "at": "2026-10-27T20:47:35.701Z",
+     "type": "player",
+     "kind": "speech",
+     "who": "Torvald",
+     "text": "\"Who rings a bell under the sea, old man?\""
+    },
+    {
+     "seq": 11,
+     "at": "2026-10-27T20:47:35.703Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
+    },
+    {
+     "seq": 12,
+     "at": "2026-10-27T20:47:35.704Z",
+     "type": "player",
+     "kind": "question",
+     "who": "Elowen",
+     "text": "Can I tell if the dripping comes from a cellar?"
+    },
+    {
+     "seq": 13,
+     "at": "2026-10-27T20:47:35.706Z",
+     "type": "dm",
+     "kind": "answer",
+     "who": null,
+     "text": "You can try. Listen closely to where it comes from."
+    },
+    {
+     "seq": 14,
+     "at": "2026-10-27T20:47:35.708Z",
+     "type": "rollRequested",
+     "who": "Elowen",
+     "text": "Wisdom (Perception) check"
+    },
+    {
+     "seq": 15,
+     "at": "2026-10-27T20:47:35.710Z",
+     "type": "roll",
+     "text": "Wisdom (Perception) check: 14 → 17",
+     "label": "Wisdom (Perception) check",
+     "result": "14 → 17"
+    },
+    {
+     "seq": 16,
+     "at": "2026-10-27T20:47:35.712Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
+    },
+    {
+     "seq": 17,
+     "at": "2026-10-27T20:47:35.715Z",
+     "type": "rollRequested",
+     "who": "Mira",
+     "text": "Dexterity (Stealth) check"
+    },
+    {
+     "seq": 18,
+     "at": "2026-10-27T20:47:35.717Z",
+     "type": "roll",
+     "text": "Dexterity (Stealth) check: 6 & 17 → 22",
+     "label": "Dexterity (Stealth) check",
+     "result": "6 & 17 → 22"
+    },
+    {
+     "seq": 19,
+     "at": "2026-10-27T20:47:35.719Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "The trapdoor bursts open. Three goblins, dripping with harbour water, scramble up with knives drawn!"
+    },
+    {
+     "seq": 22,
+     "at": "2026-10-27T20:47:35.724Z",
+     "type": "rollRequested",
+     "who": "Mira",
+     "text": "Initiative",
+     "purpose": "initiative"
+    },
+    {
+     "seq": 23,
+     "at": "2026-10-27T20:47:35.724Z",
+     "type": "rollRequested",
+     "who": "Torvald",
+     "text": "Initiative",
+     "purpose": "initiative"
+    },
+    {
+     "seq": 24,
+     "at": "2026-10-27T20:47:35.724Z",
+     "type": "rollRequested",
+     "who": "Elowen",
+     "text": "Initiative",
+     "purpose": "initiative"
+    },
+    {
+     "seq": 25,
+     "at": "2026-10-27T20:47:35.727Z",
+     "type": "roll",
+     "text": "Initiative: 18 → 21",
+     "label": "Initiative",
+     "result": "18 → 21",
+     "purpose": "initiative"
+    },
+    {
+     "seq": 26,
+     "at": "2026-10-27T20:47:35.728Z",
+     "type": "roll",
+     "text": "Initiative: 4 → 5",
+     "label": "Initiative",
+     "result": "4 → 5",
+     "purpose": "initiative"
+    },
+    {
+     "seq": 27,
+     "at": "2026-10-27T20:47:35.728Z",
+     "type": "roll",
+     "text": "Initiative: 11 → 13",
+     "label": "Initiative",
+     "result": "11 → 13",
+     "purpose": "initiative"
+    },
+    {
+     "seq": 32,
+     "at": "2026-10-27T20:47:35.739Z",
+     "type": "rollRequested",
+     "who": "Torvald",
+     "text": "Battleaxe attack"
+    }
+   ]
+  },
+  "dying": {
+   "id": "3304125b",
+   "state": {
+    "id": "3304125b",
+    "title": "The Drowned Lantern",
+    "seq": 39,
+    "scene": {
+     "title": "The Drowned Lantern — taproom",
+     "description": "A low-beamed harbour inn, half sunk into the mud.",
+     "seq": 6
+    },
+    "characters": [
+     {
+      "id": "bf0370",
+      "name": "Mira",
+      "player": "Veikko",
+      "raceId": "halfling",
+      "race": "Halfling (Lightfoot)",
+      "classId": "rogue",
+      "className": "Rogue",
+      "level": 1,
+      "abilities": {
+       "dex": 17,
+       "con": 14,
+       "int": 13,
+       "wis": 12,
+       "cha": 11,
+       "str": 8
+      },
+      "maxHp": 10,
+      "hp": 0,
+      "tempHp": 0,
+      "ac": 14,
+      "acNote": "Leather armour",
+      "speed": 25,
+      "proficiencyBonus": 2,
+      "saves": [
+       "dex",
+       "int"
+      ],
+      "skills": [
+       "Stealth",
+       "Sleight of Hand",
+       "Perception",
+       "Acrobatics"
+      ],
+      "inventory": [
+       {
+        "name": "Leather armour",
+        "qty": 1
+       },
+       {
+        "name": "Rapier",
+        "qty": 1
+       },
+       {
+        "name": "Shortbow + 20 arrows",
+        "qty": 1
+       },
+       {
+        "name": "Thieves' tools",
+        "qty": 1
+       },
+       {
+        "name": "Burglar's pack",
+        "qty": 1
+       },
+       {
+        "name": "2 Daggers",
+        "qty": 1
+       }
+      ],
+      "gold": 10,
+      "xp": 0,
+      "conditions": [
+       "Unconscious"
+      ],
+      "features": [
+       "Lucky (reroll natural 1s)",
+       "Brave",
+       "Halfling Nimbleness",
+       "Naturally Stealthy",
+       "Sneak Attack (1d6)",
+       "Expertise (Stealth, Thieves' tools)",
+       "Thieves' Cant"
+      ],
+      "notes": "",
+      "resources": [
+       {
+        "id": "hit-dice",
+        "name": "Hit dice (d8)",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       }
+      ],
+      "status": "dying",
+      "deathSaves": {
+       "successes": 0,
+       "failures": 0
+      }
+     },
+     {
+      "id": "5e81b5",
+      "name": "Torvald",
+      "player": "Ann",
+      "raceId": "dwarf",
+      "race": "Dwarf (Hill)",
+      "classId": "fighter",
+      "className": "Fighter",
+      "level": 1,
+      "abilities": {
+       "str": 15,
+       "con": 16,
+       "dex": 13,
+       "wis": 13,
+       "cha": 10,
+       "int": 8
+      },
+      "maxHp": 14,
+      "hp": 8,
+      "tempHp": 0,
+      "ac": 18,
+      "acNote": "Chain mail + shield",
+      "speed": 25,
+      "proficiencyBonus": 2,
+      "saves": [
+       "str",
+       "con"
+      ],
+      "skills": [
+       "Athletics",
+       "Perception"
+      ],
+      "inventory": [
+       {
+        "name": "Chain mail",
+        "qty": 1
+       },
+       {
+        "name": "Shield",
+        "qty": 1
+       },
+       {
+        "name": "Longsword",
+        "qty": 1
+       },
+       {
+        "name": "2 Handaxes",
+        "qty": 1
+       },
+       {
+        "name": "Explorer's pack",
+        "qty": 1
+       }
+      ],
+      "gold": 10,
+      "xp": 0,
+      "conditions": [],
+      "features": [
+       "Darkvision 60 ft",
+       "Dwarven Resilience (poison)",
+       "Stonecunning",
+       "Dwarven Toughness (+1 HP/level)",
+       "Fighting Style: Defense",
+       "Second Wind (bonus action: heal 1d10 + level, once per rest)"
+      ],
+      "notes": "",
+      "resources": [
+       {
+        "id": "second-wind",
+        "name": "Second Wind",
+        "max": 1,
+        "used": 0,
+        "recharge": "short"
+       },
+       {
+        "id": "hit-dice",
+        "name": "Hit dice (d10)",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       }
+      ],
+      "status": "up",
+      "deathSaves": {
+       "successes": 0,
+       "failures": 0
+      }
+     },
+     {
+      "id": "4f4da7",
+      "name": "Elowen",
+      "player": "Sam",
+      "raceId": "elf",
+      "race": "Elf (High)",
+      "classId": "wizard",
+      "className": "Wizard",
+      "level": 1,
+      "abilities": {
+       "int": 16,
+       "con": 14,
+       "dex": 15,
+       "wis": 12,
+       "cha": 10,
+       "str": 8
+      },
+      "maxHp": 8,
+      "hp": 8,
+      "tempHp": 0,
+      "ac": 12,
+      "acNote": "No armour (Mage Armor spell: 13 + DEX)",
+      "speed": 30,
+      "proficiencyBonus": 2,
+      "saves": [
+       "int",
+       "wis"
+      ],
+      "skills": [
+       "Arcana",
+       "History",
+       "Perception"
+      ],
+      "inventory": [
+       {
+        "name": "Quarterstaff",
+        "qty": 1
+       },
+       {
+        "name": "Component pouch",
+        "qty": 1
+       },
+       {
+        "name": "Spellbook",
+        "qty": 1
+       },
+       {
+        "name": "Scholar's pack",
+        "qty": 1
+       }
+      ],
+      "gold": 10,
+      "xp": 0,
+      "conditions": [
+       "Frightened"
+      ],
+      "features": [
+       "Darkvision 60 ft",
+       "Keen Senses (Perception)",
+       "Fey Ancestry",
+       "Trance",
+       "One wizard cantrip",
+       "Spellcasting (INT): cantrips Fire Bolt, Mage Hand, Light; prepared from Magic Missile, Shield, Sleep, Burning Hands, Detect Magic, Mage Armor; 2 first-level slots",
+       "Arcane Recovery"
+      ],
+      "notes": "",
+      "resources": [
+       {
+        "id": "spell-slots-1",
+        "name": "Spell slots (1st)",
+        "max": 2,
+        "used": 0,
+        "recharge": "long"
+       },
+       {
+        "id": "arcane-recovery",
+        "name": "Arcane Recovery",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       },
+       {
+        "id": "hit-dice",
+        "name": "Hit dice (d6)",
+        "max": 1,
+        "used": 0,
+        "recharge": "long"
+       }
+      ],
+      "status": "up",
+      "deathSaves": {
+       "successes": 0,
+       "failures": 0
+      }
+     }
+    ],
+    "present": [
+     {
+      "id": "old-brannock",
+      "name": "Old Brannock",
+      "groupId": "old-brannock",
+      "side": "neutral",
+      "description": "The innkeeper. One eye, many opinions.",
+      "conditions": [],
+      "defeated": false
+     },
+     {
+      "id": "goblin-1",
+      "name": "Goblin",
+      "groupId": "goblin-1",
+      "side": "enemy",
+      "description": "Small, wet and furious.",
+      "conditions": [],
+      "defeated": false,
+      "health": "bloodied"
+     },
+     {
+      "id": "goblin-2",
+      "name": "Goblin",
+      "groupId": "goblin-1",
+      "side": "enemy",
+      "description": "Small, wet and furious.",
+      "conditions": [],
+      "defeated": true,
+      "health": "defeated"
+     },
+     {
+      "id": "goblin-3",
+      "name": "Goblin",
+      "groupId": "goblin-1",
+      "side": "enemy",
+      "description": "Small, wet and furious.",
+      "conditions": [],
+      "defeated": false,
+      "health": "unhurt"
+     }
+    ],
+    "combat": {
+     "round": 2,
+     "turn": 0,
+     "order": [
+      {
+       "ref": {
+        "kind": "hero",
+        "id": "bf0370"
+       },
+       "ready": true
+      },
+      {
+       "ref": {
+        "kind": "group",
+        "groupId": "goblin-1"
+       },
+       "ready": true
+      },
+      {
+       "ref": {
+        "kind": "hero",
+        "id": "4f4da7"
+       },
+       "ready": true
+      },
+      {
+       "ref": {
+        "kind": "hero",
+        "id": "5e81b5"
+       },
+       "ready": true
+      }
+     ]
+    },
+    "log": [
+     {
+      "seq": 2,
+      "at": "2026-10-27T20:47:35.686Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
+      "sys": {
+       "code": "joined",
+       "params": {
+        "name": "Mira",
+        "race": "Halfling (Lightfoot)",
+        "cls": "Rogue"
+       }
+      }
+     },
+     {
+      "seq": 3,
+      "at": "2026-10-27T20:47:35.687Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
+      "sys": {
+       "code": "joined",
+       "params": {
+        "name": "Torvald",
+        "race": "Dwarf (Hill)",
+        "cls": "Fighter"
+       }
+      }
+     },
+     {
+      "seq": 4,
+      "at": "2026-10-27T20:47:35.688Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Elowen the Elf (High) Wizard joins the party.",
+      "sys": {
+       "code": "joined",
+       "params": {
+        "name": "Elowen",
+        "race": "Elf (High)",
+        "cls": "Wizard"
+       }
+      }
+     },
+     {
+      "seq": 5,
+      "at": "2026-10-27T20:47:35.689Z",
+      "from": "system",
+      "kind": "info",
+      "text": "The adventure begins.",
+      "sys": {
+       "code": "started",
+       "params": {}
+      }
+     },
+     {
+      "seq": 8,
+      "at": "2026-10-27T20:47:35.699Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
+     },
+     {
+      "seq": 9,
+      "at": "2026-10-27T20:47:35.700Z",
+      "from": "player",
+      "characterId": "bf0370",
+      "kind": "action",
+      "text": "I slide onto a stool at the bar and order whatever is warm."
+     },
+     {
+      "seq": 10,
+      "at": "2026-10-27T20:47:35.701Z",
+      "from": "player",
+      "characterId": "5e81b5",
+      "kind": "speech",
+      "text": "\"Who rings a bell under the sea, old man?\""
+     },
+     {
+      "seq": 11,
+      "at": "2026-10-27T20:47:35.703Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
+     },
+     {
+      "seq": 12,
+      "at": "2026-10-27T20:47:35.704Z",
+      "from": "player",
+      "characterId": "4f4da7",
+      "kind": "question",
+      "text": "Can I tell if the dripping comes from a cellar?"
+     },
+     {
+      "seq": 13,
+      "at": "2026-10-27T20:47:35.706Z",
+      "from": "dm",
+      "characterId": "4f4da7",
+      "kind": "answer",
+      "text": "You can try. Listen closely to where it comes from."
+     },
+     {
+      "seq": 15,
+      "at": "2026-10-27T20:47:35.710Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Elowen rolled Wisdom (Perception) check: 14 +3 = 17 — success",
+      "sys": {
+       "code": "rolled",
+       "params": {
+        "name": "Elowen",
+        "label": "Wisdom (Perception) check",
+        "faces": [
+         14
+        ],
+        "mod": 3,
+        "total": 17,
+        "success": true,
+        "rollSeq": 15
+       }
+      }
+     },
+     {
+      "seq": 16,
+      "at": "2026-10-27T20:47:35.712Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
+     },
+     {
+      "seq": 18,
+      "at": "2026-10-27T20:47:35.717Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Mira rolled Dexterity (Stealth) check: 6 & 17 +5 = 22",
+      "sys": {
+       "code": "rolled",
+       "params": {
+        "name": "Mira",
+        "label": "Dexterity (Stealth) check",
+        "faces": [
+         6,
+         17
+        ],
+        "mod": 5,
+        "total": 22,
+        "rollSeq": 18
+       }
+      }
+     },
+     {
+      "seq": 19,
+      "at": "2026-10-27T20:47:35.719Z",
+      "from": "dm",
+      "kind": "narration",
+      "text": "The trapdoor bursts open. Three goblins, dripping with harbour water, scramble up with knives drawn!"
+     },
+     {
+      "seq": 20,
+      "at": "2026-10-27T20:47:35.721Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Goblin is here.",
+      "sys": {
+       "code": "arrived",
+       "params": {
+        "names": [
+         "Goblin"
+        ]
+       }
+      }
+     },
+     {
+      "seq": 21,
+      "at": "2026-10-27T20:47:35.724Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Fight!",
+      "sys": {
+       "code": "combatStarted",
+       "params": {}
+      }
+     },
+     {
+      "seq": 25,
+      "at": "2026-10-27T20:47:35.727Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Mira rolled Initiative: 18 +3 = 21",
+      "sys": {
+       "code": "rolled",
+       "params": {
+        "name": "Mira",
+        "label": "Initiative",
+        "purpose": "initiative",
+        "faces": [
+         18
+        ],
+        "mod": 3,
+        "total": 21,
+        "rollSeq": 25
+       }
+      }
+     },
+     {
+      "seq": 26,
+      "at": "2026-10-27T20:47:35.728Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Torvald rolled Initiative: 4 +1 = 5",
+      "sys": {
+       "code": "rolled",
+       "params": {
+        "name": "Torvald",
+        "label": "Initiative",
+        "purpose": "initiative",
+        "faces": [
+         4
+        ],
+        "mod": 1,
+        "total": 5,
+        "rollSeq": 26
+       }
+      }
+     },
+     {
+      "seq": 27,
+      "at": "2026-10-27T20:47:35.728Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Elowen rolled Initiative: 11 +2 = 13",
+      "sys": {
+       "code": "rolled",
+       "params": {
+        "name": "Elowen",
+        "label": "Initiative",
+        "purpose": "initiative",
+        "faces": [
+         11
+        ],
+        "mod": 2,
+        "total": 13,
+        "rollSeq": 27
+       }
+      }
+     },
+     {
+      "seq": 27,
+      "at": "2026-10-27T20:47:35.728Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Turn order: Mira, Goblin, Elowen, Torvald.",
+      "sys": {
+       "code": "combatOrder",
+       "params": {
+        "names": [
+         "Mira",
+         "Goblin",
+         "Elowen",
+         "Torvald"
+        ]
+       }
+      }
+     },
+     {
+      "seq": 28,
+      "at": "2026-10-27T20:47:35.731Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Goblin: now bloodied",
+      "sys": {
+       "code": "presenceUpdated",
+       "params": {
+        "name": "Goblin",
+        "health": "bloodied"
+       }
+      }
+     },
+     {
+      "seq": 29,
+      "at": "2026-10-27T20:47:35.733Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Goblin is defeated.",
+      "sys": {
+       "code": "defeated",
+       "params": {
+        "name": "Goblin"
+       }
+      }
+     },
+     {
+      "seq": 30,
+      "at": "2026-10-27T20:47:35.735Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Torvald: hp 14 → 8 (goblin knife)",
+      "sys": {
+       "code": "updated",
+       "params": {
+        "name": "Torvald",
+        "parts": [
+         [
+          "hp",
+          "14 → 8"
+         ]
+        ],
+        "reason": "goblin knife"
+       }
+      }
+     },
+     {
+      "seq": 31,
+      "at": "2026-10-27T20:47:35.737Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Elowen: condOn Frightened (a goblin shriek)",
+      "sys": {
+       "code": "updated",
+       "params": {
+        "name": "Elowen",
+        "parts": [
+         [
+          "condOn",
+          "Frightened"
+         ]
+        ],
+        "reason": "a goblin shriek"
+       }
+      }
+     },
+     {
+      "seq": 33,
+      "at": "2026-10-27T20:47:35.742Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Torvald rolled Battleaxe attack: 3 +5 = 8 — failure",
+      "sys": {
+       "code": "rolled",
+       "params": {
+        "name": "Torvald",
+        "label": "Battleaxe attack",
+        "faces": [
+         3
+        ],
+        "mod": 5,
+        "total": 8,
+        "success": false,
+        "rollSeq": 33
+       }
+      }
+     },
+     {
+      "seq": 34,
+      "at": "2026-10-27T20:47:35.744Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Mira: hp 10 → 0, status dying, condOn Unconscious (goblin ambush)",
+      "sys": {
+       "code": "updated",
+       "params": {
+        "name": "Mira",
+        "parts": [
+         [
+          "hp",
+          "10 → 0"
+         ],
+         [
+          "status",
+          "dying"
+         ],
+         [
+          "condOn",
+          "Unconscious"
+         ]
+        ],
+        "reason": "goblin ambush"
+       }
+      }
+     }
+    ],
+    "pendingRolls": [
+     {
+      "rollId": "death-bf0370-37",
+      "characterId": "bf0370",
+      "label": "Death save",
+      "dice": "1d20",
+      "modifier": 0,
+      "advantage": "none",
+      "hideDc": true,
+      "purpose": "death_save",
+      "requestedSeq": 39
+     }
+    ],
+    "rolls": [
+     {
+      "rollId": "1344eb89",
+      "characterId": "4f4da7",
+      "label": "Wisdom (Perception) check",
+      "dice": "1d20",
+      "modifier": 3,
+      "advantage": "none",
+      "hideDc": true,
+      "requestedSeq": 14,
+      "faces": [
+       14
+      ],
+      "total": 17,
+      "success": true,
+      "resolvedSeq": 15,
+      "byDm": false
+     },
+     {
+      "rollId": "863f8fb5",
+      "characterId": "bf0370",
+      "label": "Dexterity (Stealth) check",
+      "dice": "1d20",
+      "modifier": 5,
+      "advantage": "advantage",
+      "hideDc": true,
+      "requestedSeq": 17,
+      "faces": [
+       6,
+       17
+      ],
+      "total": 22,
+      "resolvedSeq": 18,
+      "byDm": false
+     },
+     {
+      "rollId": "init-bf0370-20",
+      "characterId": "bf0370",
+      "label": "Initiative",
+      "dice": "1d20",
+      "modifier": 3,
+      "advantage": "none",
+      "hideDc": true,
+      "purpose": "initiative",
+      "requestedSeq": 22,
+      "faces": [
+       18
+      ],
+      "total": 21,
+      "resolvedSeq": 25,
+      "byDm": false
+     },
+     {
+      "rollId": "init-5e81b5-20",
+      "characterId": "5e81b5",
+      "label": "Initiative",
+      "dice": "1d20",
+      "modifier": 1,
+      "advantage": "none",
+      "hideDc": true,
+      "purpose": "initiative",
+      "requestedSeq": 23,
+      "faces": [
+       4
+      ],
+      "total": 5,
+      "resolvedSeq": 26,
+      "byDm": false
+     },
+     {
+      "rollId": "init-4f4da7-20",
+      "characterId": "4f4da7",
+      "label": "Initiative",
+      "dice": "1d20",
+      "modifier": 2,
+      "advantage": "none",
+      "hideDc": true,
+      "purpose": "initiative",
+      "requestedSeq": 24,
+      "faces": [
+       11
+      ],
+      "total": 13,
+      "resolvedSeq": 27,
+      "byDm": false
+     },
+     {
+      "rollId": "e1664e6d",
+      "characterId": "5e81b5",
+      "label": "Battleaxe attack",
+      "dice": "1d20",
+      "modifier": 5,
+      "advantage": "none",
+      "hideDc": true,
+      "requestedSeq": 32,
+      "faces": [
+       3
+      ],
+      "total": 8,
+      "success": false,
+      "resolvedSeq": 33,
+      "byDm": false
+     }
+    ],
+    "sketches": [
+     {
+      "seq": 7,
+      "caption": "The taproom of the Drowned Lantern",
+      "svg": "<rect x=\"60\" y=\"60\" width=\"680\" height=\"380\"/>\n    <line x1=\"60\" y1=\"150\" x2=\"740\" y2=\"150\"/><line x1=\"60\" y1=\"300\" x2=\"740\" y2=\"300\" stroke-dasharray=\"6 8\"/>\n    <rect x=\"120\" y=\"180\" width=\"160\" height=\"50\" rx=\"6\"/><rect x=\"480\" y=\"200\" width=\"180\" height=\"60\" rx=\"6\"/>\n    <circle cx=\"200\" cy=\"350\" r=\"30\"/><circle cx=\"560\" cy=\"370\" r=\"26\"/>\n    <path d=\"M600 60 L600 20 L650 20 L650 60\"/><path d=\"M90 440 q30 -30 60 0 t60 0\"/>\n    <polyline points=\"680,90 700,110 680,130\"/>\n    <text x=\"130\" y=\"210\" font-family=\"Caveat\" font-size=\"22\" fill=\"#2b2b2b\" stroke=\"none\">bar</text>\n    <text x=\"500\" y=\"236\" font-family=\"Caveat\" font-size=\"22\" fill=\"#2b2b2b\" stroke=\"none\">long table</text>\n    <text x=\"610\" y=\"50\" font-family=\"Caveat\" font-size=\"20\" fill=\"#2b2b2b\" stroke=\"none\">stairs</text>"
+     }
+    ],
+    "started": true,
+    "complexity": "beginner",
+    "latestSeq": 39,
+    "dmStatus": "thinking",
+    "language": "en"
+   },
+   "history": [
+    {
+     "seq": 2,
+     "at": "2026-10-27T20:47:35.686Z",
+     "type": "character",
+     "who": "Mira",
+     "text": "Halfling (Lightfoot) Rogue"
+    },
+    {
+     "seq": 3,
+     "at": "2026-10-27T20:47:35.687Z",
+     "type": "character",
+     "who": "Torvald",
+     "text": "Dwarf (Hill) Fighter"
+    },
+    {
+     "seq": 4,
+     "at": "2026-10-27T20:47:35.688Z",
+     "type": "character",
+     "who": "Elowen",
+     "text": "Elf (High) Wizard"
+    },
+    {
+     "seq": 5,
+     "at": "2026-10-27T20:47:35.689Z",
+     "type": "started",
+     "text": ""
+    },
+    {
+     "seq": 6,
+     "at": "2026-10-27T20:47:35.692Z",
+     "type": "scene",
+     "text": "The Drowned Lantern — taproom"
+    },
+    {
+     "seq": 7,
+     "at": "2026-10-27T20:47:35.696Z",
+     "type": "sketch",
+     "text": "The taproom of the Drowned Lantern"
+    },
+    {
+     "seq": 8,
+     "at": "2026-10-27T20:47:35.699Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
+    },
+    {
+     "seq": 9,
+     "at": "2026-10-27T20:47:35.700Z",
+     "type": "player",
+     "kind": "action",
+     "who": "Mira",
+     "text": "I slide onto a stool at the bar and order whatever is warm."
+    },
+    {
+     "seq": 10,
+     "at": "2026-10-27T20:47:35.701Z",
+     "type": "player",
+     "kind": "speech",
+     "who": "Torvald",
+     "text": "\"Who rings a bell under the sea, old man?\""
+    },
+    {
+     "seq": 11,
+     "at": "2026-10-27T20:47:35.703Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
+    },
+    {
+     "seq": 12,
+     "at": "2026-10-27T20:47:35.704Z",
+     "type": "player",
+     "kind": "question",
+     "who": "Elowen",
+     "text": "Can I tell if the dripping comes from a cellar?"
+    },
+    {
+     "seq": 13,
+     "at": "2026-10-27T20:47:35.706Z",
+     "type": "dm",
+     "kind": "answer",
+     "who": null,
+     "text": "You can try. Listen closely to where it comes from."
+    },
+    {
+     "seq": 14,
+     "at": "2026-10-27T20:47:35.708Z",
+     "type": "rollRequested",
+     "who": "Elowen",
+     "text": "Wisdom (Perception) check"
+    },
+    {
+     "seq": 15,
+     "at": "2026-10-27T20:47:35.710Z",
+     "type": "roll",
+     "text": "Wisdom (Perception) check: 14 → 17",
+     "label": "Wisdom (Perception) check",
+     "result": "14 → 17"
+    },
+    {
+     "seq": 16,
+     "at": "2026-10-27T20:47:35.712Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
+    },
+    {
+     "seq": 17,
+     "at": "2026-10-27T20:47:35.715Z",
+     "type": "rollRequested",
+     "who": "Mira",
+     "text": "Dexterity (Stealth) check"
+    },
+    {
+     "seq": 18,
+     "at": "2026-10-27T20:47:35.717Z",
+     "type": "roll",
+     "text": "Dexterity (Stealth) check: 6 & 17 → 22",
+     "label": "Dexterity (Stealth) check",
+     "result": "6 & 17 → 22"
+    },
+    {
+     "seq": 19,
+     "at": "2026-10-27T20:47:35.719Z",
+     "type": "dm",
+     "kind": "narration",
+     "who": null,
+     "text": "The trapdoor bursts open. Three goblins, dripping with harbour water, scramble up with knives drawn!"
+    },
+    {
+     "seq": 22,
+     "at": "2026-10-27T20:47:35.724Z",
+     "type": "rollRequested",
+     "who": "Mira",
+     "text": "Initiative",
+     "purpose": "initiative"
+    },
+    {
+     "seq": 23,
+     "at": "2026-10-27T20:47:35.724Z",
+     "type": "rollRequested",
+     "who": "Torvald",
+     "text": "Initiative",
+     "purpose": "initiative"
+    },
+    {
+     "seq": 24,
+     "at": "2026-10-27T20:47:35.724Z",
+     "type": "rollRequested",
+     "who": "Elowen",
+     "text": "Initiative",
+     "purpose": "initiative"
+    },
+    {
+     "seq": 25,
+     "at": "2026-10-27T20:47:35.727Z",
+     "type": "roll",
+     "text": "Initiative: 18 → 21",
+     "label": "Initiative",
+     "result": "18 → 21",
+     "purpose": "initiative"
+    },
+    {
+     "seq": 26,
+     "at": "2026-10-27T20:47:35.728Z",
+     "type": "roll",
+     "text": "Initiative: 4 → 5",
+     "label": "Initiative",
+     "result": "4 → 5",
+     "purpose": "initiative"
+    },
+    {
+     "seq": 27,
+     "at": "2026-10-27T20:47:35.728Z",
+     "type": "roll",
+     "text": "Initiative: 11 → 13",
+     "label": "Initiative",
+     "result": "11 → 13",
+     "purpose": "initiative"
+    },
+    {
+     "seq": 32,
+     "at": "2026-10-27T20:47:35.739Z",
+     "type": "rollRequested",
+     "who": "Torvald",
+     "text": "Battleaxe attack"
+    },
+    {
+     "seq": 33,
+     "at": "2026-10-27T20:47:35.742Z",
+     "type": "roll",
+     "text": "Battleaxe attack: 3 → 8",
+     "label": "Battleaxe attack",
+     "result": "3 → 8"
+    },
+    {
+     "seq": 39,
+     "at": "2026-10-27T20:47:35.753Z",
+     "type": "rollRequested",
+     "who": "Mira",
+     "text": "Death save",
+     "purpose": "death_save"
+    }
+   ]
+  }
+ }
+}
