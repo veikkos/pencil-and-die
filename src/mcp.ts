@@ -6,7 +6,7 @@ import { parseDice, physicalDice, virtualRoll } from './dice.ts';
 import { DM_GUIDE } from './dm-guide.ts';
 import { registerSceneTools } from './mcp-scene.ts';
 import { findResource } from './resources.ts';
-import { checkModifier } from './rules.ts';
+import { checkModifier, type Character } from './rules.ts';
 import { getSketchStyle, sanitizeSketch, setSketchStyle, SKETCH_HEIGHT, SKETCH_WIDTH } from './sketch.ts';
 import type { GameState, StoredEvent } from './state.ts';
 import { COMPLEXITY_GUIDE, LANGUAGE_NAMES, VERBOSITY_GUIDE, type GameStore } from './store.ts';
@@ -25,6 +25,13 @@ function describeEvent(s: GameState, { seq, event: e }: StoredEvent): string {
     case 'roll_resolved': {
       const r = s.rolls.find((x) => x.rollId === e.rollId);
       if (!r) return `[${seq}] Roll ${e.rollId} resolved: ${e.total}`;
+      if (r.purpose === 'death_save') {
+        const c = s.characters.find((x) => x.id === r.characterId);
+        const face = e.faces[0];
+        const saves = c ? ` (saves ${c.deathSaves.successes}, fails ${c.deathSaves.failures})` : '';
+        const end = c?.status === 'stable' ? ` ${c.name} is stable.` : face === 20 ? ` ${who(r.characterId)} is back up with 1 HP!` : '';
+        return `[${seq}] DEATH SAVE ${who(r.characterId)}: ${face} → ${face === 20 ? 'natural 20' : face === 1 ? 'natural 1, two failures' : face >= 10 ? 'success' : 'failure'}${saves}${end}`;
+      }
       const vs = r.dc !== undefined ? ` vs DC ${r.dc} → ${e.success ? 'SUCCESS' : 'FAILURE'}` : '';
       return `[${seq}] ROLL ${who(r.characterId)} — ${r.label}: dice ${e.faces.join(', ')}${r.advantage !== 'none' ? ` (${r.advantage})` : ''} ${sign(r.modifier)} = ${e.total}${vs}`;
     }
@@ -37,6 +44,14 @@ function describeEvent(s: GameState, { seq, event: e }: StoredEvent): string {
     default:
       return `[${seq}] ${e.type}`;
   }
+}
+
+function lifeNote(c: Character): string {
+  const saves = `saves ${c.deathSaves.successes}, fails ${c.deathSaves.failures}`;
+  if (c.status === 'dying') return `. ${c.name} is dying (${saves}). Death saves are asked automatically on her turn in combat; outside combat use request_roll with check "death save".`;
+  if (c.status === 'stable') return `. ${c.name} is stable at 0 HP (unconscious).`;
+  if (c.status === 'dead') return `. ${c.name} is dead.`;
+  return '';
 }
 
 /** Nudges the DM to keep the canvas in step with the story. */
@@ -219,15 +234,17 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     const c = character(store.state(id), character_id);
     const spec = parseDice(dice);
     physicalDice(spec, advantage);
-    const computed = check ? checkModifier(c, check, store.language()) : undefined;
-    const finalLabel = label ?? computed?.label;
+    const deathSave = !!check && /^(death sav|kuolemanpelast)/i.test(check.trim());
+    if (deathSave && c.status !== 'dying') throw new Error(`${c.name} is not dying (status ${c.status}); no death save needed.`);
+    const computed = check && !deathSave ? checkModifier(c, check, store.language()) : undefined;
+    const finalLabel = deathSave ? 'Death save' : label ?? computed?.label;
     if (!finalLabel) throw new Error('Give either a `check` or a `label`.');
     const rollId = randomUUID().slice(0, 8);
-    store.append(id, {
-      type: 'roll_requested',
-      roll: { rollId, characterId: c.id, label: finalLabel, dice, modifier: modifier ?? computed?.modifier ?? 0, advantage, dc, hideDc: hide_dc },
-    });
-    return text(`Asked ${c.name} to roll ${finalLabel}: ${dice}${advantage !== 'none' ? ` with ${advantage}` : ''} ${sign(modifier ?? computed?.modifier ?? 0)} (roll id ${rollId}). The result arrives via wait_for_players.`);
+    const roll = deathSave
+      ? { rollId, characterId: c.id, label: finalLabel, dice: '1d20', modifier: 0, advantage, dc: undefined, hideDc: true, purpose: 'death_save' as const }
+      : { rollId, characterId: c.id, label: finalLabel, dice, modifier: modifier ?? computed?.modifier ?? 0, advantage, dc, hideDc: hide_dc };
+    store.append(id, { type: 'roll_requested', roll });
+    return text(`Asked ${c.name} to roll ${finalLabel}: ${roll.dice}${advantage !== 'none' ? ` with ${advantage}` : ''} ${sign(roll.modifier)} (roll id ${rollId}). The result arrives via wait_for_players.`);
   });
 
   server.registerTool('cancel_roll', {
@@ -283,6 +300,8 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       add_features: z.array(z.string()).optional(),
       notes: z.string().optional().describe('Replaces the sheet notes.'),
       resource_max: z.array(z.object({ resource: z.string(), max: z.number().int().min(0) })).optional().describe('Change a resource maximum, e.g. more spell slots after levelling.'),
+      critical: z.boolean().optional().describe('The damage was a critical hit: a dying hero takes two death save failures.'),
+      revive: z.boolean().optional().describe('Raise a dead hero (needs positive hp_delta or hp).'),
       reason: z.string().optional().describe('Shown in the log, e.g. "goblin arrow".'),
       game_id: gameIdArg,
     },
@@ -294,12 +313,12 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       patch: {
         hpDelta: a.hp_delta, hp: a.hp, maxHp: a.max_hp, tempHp: a.temp_hp, ac: a.ac, level: a.level,
         xpDelta: a.xp_delta, goldDelta: a.gold_delta, addItems: a.add_items, removeItems: a.remove_items,
-        addConditions: a.add_conditions, removeConditions: a.remove_conditions, addFeatures: a.add_features, notes: a.notes,
+        addConditions: a.add_conditions, removeConditions: a.remove_conditions, addFeatures: a.add_features, notes: a.notes, critical: a.critical, revive: a.revive,
         resourceMax: a.resource_max?.map((m) => ({ resourceId: findResource(c, m.resource).id, max: m.max })),
       },
     });
     const after = character(store.state(id), c.id);
-    return text(`${after.name}: HP ${after.hp}/${after.maxHp}${after.tempHp ? ` (+${after.tempHp} temp)` : ''}, AC ${after.ac}, conditions: ${after.conditions.join(', ') || 'none'}${after.hp === 0 ? '. At 0 HP: unconscious, start death saves.' : ''}`);
+    return text(`${after.name}: HP ${after.hp}/${after.maxHp}${after.tempHp ? ` (+${after.tempHp} temp)` : ''}, AC ${after.ac}, conditions: ${after.conditions.join(', ') || 'none'}${lifeNote(after)}`);
   });
 
   // ---- Sketches ------------------------------------------------------------

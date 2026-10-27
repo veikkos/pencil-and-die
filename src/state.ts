@@ -1,4 +1,5 @@
 import type { Advantage } from './dice.ts';
+import { applyDeathSave, applyHpChange, wakeUp } from './life.ts';
 import { restCharacter, useResource, withDefaults, type Recharge } from './resources.ts';
 import type { Character } from './rules.ts';
 
@@ -26,6 +27,7 @@ export interface RollRequest {
   dc?: number;
   /** Players don't see the DC when hidden. */
   hideDc: boolean;
+  purpose?: 'initiative' | 'death_save';
   requestedSeq: number;
 }
 
@@ -74,6 +76,10 @@ export interface CharacterPatch {
   addFeatures?: string[];
   notes?: string;
   resourceMax?: { resourceId: string; max: number }[];
+  /** Damage was a critical hit: a dying hero takes two death save failures. */
+  critical?: boolean;
+  /** Lets healing raise the dead. */
+  revive?: boolean;
 }
 
 export type GameEvent =
@@ -118,6 +124,11 @@ function applyPatch(c: Character, p: CharacterPatch): Character {
     next.hp += delta;
   }
   next.hp = Math.max(0, Math.min(next.maxHp, next.hp));
+  const lived = applyHpChange(c, next, p);
+  next.hp = lived.hp;
+  next.status = lived.status;
+  next.deathSaves = lived.deathSaves;
+  next.conditions = lived.conditions;
   if (p.tempHp !== undefined) next.tempHp = Math.max(0, p.tempHp);
   if (p.ac !== undefined) next.ac = p.ac;
   if (p.level !== undefined) next.level = p.level;
@@ -149,6 +160,7 @@ type PatchPart = [code: string, value: string | number];
 function describePatch(before: Character, after: Character): PatchPart[] {
   const parts: PatchPart[] = [];
   if (after.hp !== before.hp) parts.push(['hp', `${before.hp} → ${after.hp}`]);
+  if (after.status !== before.status) parts.push(['status', after.status]);
   if (after.maxHp !== before.maxHp) parts.push(['maxHp', after.maxHp]);
   if (after.tempHp !== before.tempHp) parts.push(['tempHp', after.tempHp]);
   if (after.ac !== before.ac) parts.push(['ac', after.ac]);
@@ -209,7 +221,7 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       break;
     }
     case 'rest':
-      s.characters = s.characters.map((c) => (e.characterIds.includes(c.id) ? restCharacter(c, e.kind) : c));
+      s.characters = s.characters.map((c) => (e.characterIds.includes(c.id) ? longRest(c, e.kind) : c));
       sys('rest', { kind: e.kind, names: e.characterIds.map(nameOf) }, `${e.characterIds.map(nameOf).join(', ')} take a ${e.kind} rest.`);
       break;
     case 'game_started':
@@ -227,6 +239,9 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       if (!req) break;
       s.pendingRolls = s.pendingRolls.filter((r) => r.rollId !== e.rollId);
       s.rolls = [...s.rolls, { ...req, faces: e.faces, total: e.total, success: e.success, resolvedSeq: seq, byDm: !!e.byDm }];
+      if (req.purpose === 'death_save') {
+        s.characters = s.characters.map((c) => (c.id === req.characterId ? applyDeathSave(c, e.faces[0]) : c));
+      }
       const outcome = e.success === undefined ? '' : e.success ? ' — success' : ' — failure';
       sys('rolled', { name: nameOf(req.characterId), label: req.label, faces: e.faces, mod: req.modifier, total: e.total, success: e.success, rollSeq: seq },
         `${nameOf(req.characterId)} rolled ${req.label}: ${e.faces.join(' & ')} ${sign(req.modifier)} = ${e.total}${outcome}`);
@@ -253,6 +268,12 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       break;
   }
   return s;
+}
+
+function longRest(c: Character, kind: Recharge): Character {
+  const rested = restCharacter(c, kind);
+  if (kind === 'short') return rested;
+  return c.status === 'dead' ? { ...rested, hp: c.hp } : wakeUp(rested, rested.hp);
 }
 
 export function replay(id: string, events: StoredEvent[]): GameState {
