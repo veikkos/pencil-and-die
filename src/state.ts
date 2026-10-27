@@ -88,6 +88,7 @@ export type GameEvent =
   | { type: 'character_updated'; characterId: string; patch: CharacterPatch; reason?: string }
   | { type: 'resource_used'; characterId: string; resourceId: string; amount: number }
   | { type: 'rest'; kind: Recharge; characterIds: string[] }
+  | { type: 'hero_fell'; characterId: string; outcome: 'dead' | 'knocked_out' }
   | { type: 'game_started' }
   | { type: 'message'; from: Speaker; characterId?: string; kind: MessageKind; text: string }
   | { type: 'roll_requested'; roll: Omit<RollRequest, 'requestedSeq'> }
@@ -224,6 +225,14 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       s.characters = s.characters.map((c) => (e.characterIds.includes(c.id) ? longRest(c, e.kind) : c));
       sys('rest', { kind: e.kind, names: e.characterIds.map(nameOf) }, `${e.characterIds.map(nameOf).join(', ')} take a ${e.kind} rest.`);
       break;
+    case 'hero_fell': {
+      const hero = s.characters.find((c) => c.id === e.characterId);
+      if (!hero) break;
+      s.characters = s.characters.map((c) => (c.id === e.characterId ? { ...c, hp: 0, status: e.outcome === 'dead' ? 'dead' : 'out' } : c));
+      sys('fell', { name: hero.name, outcome: e.outcome },
+        e.outcome === 'dead' ? `${hero.name} has died.` : `${hero.name} is knocked out.`);
+      break;
+    }
     case 'game_started':
       s.started = true;
       sys('started', {}, 'The adventure begins.');

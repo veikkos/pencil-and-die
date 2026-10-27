@@ -38,11 +38,23 @@ export interface GameSummary {
   updatedAt: string;
 }
 
+export const FALLEN_MODES = ['knockout', 'death'] as const;
+export type FallenMode = (typeof FALLEN_MODES)[number];
+
+export const FALLEN_GUIDE: Record<FallenMode, string> = {
+  knockout: 'WHEN A HERO FALLS: knocked out, not killed. When the fight is over, the hero wakes with 1 HP. ' +
+    'Narrate a cost that fits the story: captured, robbed of an item, a lasting injury, the enemy escapes or gains ground. ' +
+    'Record it with update_character or a DM note.',
+  death: 'WHEN A HERO FALLS: a hero who fails three death saves dies. Narrate the death with care and weight, and give the table a moment. ' +
+    'Healing no longer helps the dead; only story magic does, and that is your call (update_character with revive).',
+};
+
 /** Events the DM needs to react to. Everything else originates from the DM itself. */
 export function isPlayerEvent(e: GameEvent): boolean {
   return (e.type === 'message' && e.from === 'player')
     || (e.type === 'roll_resolved' && !e.byDm)
     || e.type === 'character_created'
+    || e.type === 'hero_fell'
     || e.type === 'game_started';
 }
 
@@ -111,6 +123,20 @@ export class GameStore {
     this.changes.emit('verbosity', level);
   }
 
+  fallenHeroes(): FallenMode {
+    const m = getSetting(this.db, 'fallen_heroes');
+    return (FALLEN_MODES as readonly string[]).includes(m ?? '') ? (m as FallenMode) : 'knockout';
+  }
+
+  setFallenHeroes(mode: FallenMode): void {
+    if (!FALLEN_MODES.includes(mode)) throw new Error(`fallenHeroes must be one of ${FALLEN_MODES.join(', ')}`);
+    if (mode === this.fallenHeroes()) return;
+    setSetting(this.db, 'fallen_heroes', mode);
+    const active = this.activeGameId();
+    if (active) this.notifyDm(active, FALLEN_GUIDE[mode]);
+    this.changes.emit('fallenHeroes', mode);
+  }
+
   activeGameId(): string | undefined {
     const id = getSetting(this.db, 'active_game');
     if (id && this.exists(id)) return id;
@@ -165,6 +191,11 @@ export class GameStore {
     const cached = this.cache.get(gameId);
     if (cached) this.cache.set(gameId, apply(cached, stored));
     this.changes.emit('change', gameId, stored);
+    // The reducer may not read settings, so the outcome of a third failed save is recorded as its own event.
+    if (event.type !== 'hero_fell') {
+      const fallen = this.state(gameId).characters.find((c) => c.status === 'dying' && c.deathSaves.failures >= 3);
+      if (fallen) this.append(gameId, { type: 'hero_fell', characterId: fallen.id, outcome: this.fallenHeroes() === 'death' ? 'dead' : 'knocked_out' });
+    }
     return stored;
   }
 

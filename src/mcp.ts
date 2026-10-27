@@ -9,7 +9,7 @@ import { findResource } from './resources.ts';
 import { checkModifier, type Character } from './rules.ts';
 import { getSketchStyle, sanitizeSketch, setSketchStyle, SKETCH_HEIGHT, SKETCH_WIDTH } from './sketch.ts';
 import type { GameState, StoredEvent } from './state.ts';
-import { COMPLEXITY_GUIDE, LANGUAGE_NAMES, VERBOSITY_GUIDE, type GameStore } from './store.ts';
+import { COMPLEXITY_GUIDE, FALLEN_GUIDE, LANGUAGE_NAMES, VERBOSITY_GUIDE, type GameStore } from './store.ts';
 
 const text = (t: string) => ({ content: [{ type: 'text' as const, text: t }] });
 const json = (v: unknown) => text(JSON.stringify(v, null, 2));
@@ -39,6 +39,10 @@ function describeEvent(s: GameState, { seq, event: e }: StoredEvent): string {
       const c = e.character;
       return `[${seq}] NEW CHARACTER ${c.name} (id ${c.id}), played by ${c.player || '?'}: level ${c.level} ${c.race} ${c.className}, HP ${c.maxHp}, AC ${c.ac}`;
     }
+    case 'hero_fell':
+      return e.outcome === 'dead'
+        ? `[${seq}] ${who(e.characterId)} has DIED. ${FALLEN_GUIDE.death}`
+        : `[${seq}] ${who(e.characterId)} has FALLEN — knocked out, not killed. ${FALLEN_GUIDE.knockout}`;
     case 'game_started':
       return `[${seq}] The players pressed "Begin the adventure". Open the story: set the scene, narrate an opening and sketch it.`;
     default:
@@ -48,7 +52,7 @@ function describeEvent(s: GameState, { seq, event: e }: StoredEvent): string {
 
 function lifeNote(c: Character): string {
   const saves = `saves ${c.deathSaves.successes}, fails ${c.deathSaves.failures}`;
-  if (c.status === 'dying') return `. ${c.name} is dying (${saves}). Death saves are asked automatically on her turn in combat; outside combat use request_roll with check "death save".`;
+  if (c.status === 'dying') return `. ${c.name} is dying (${saves}). Death saves are asked automatically on ${c.name}'s turn in combat; outside combat use request_roll with check "death save".`;
   if (c.status === 'stable') return `. ${c.name} is stable at 0 HP (unconscious).`;
   if (c.status === 'dead') return `. ${c.name} is dead.`;
   return '';
@@ -144,6 +148,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       language: `${LANGUAGE_NAMES[store.language()]}: write everything the players see in this language.`,
       complexity: COMPLEXITY_GUIDE[store.complexity()],
       verbosity: VERBOSITY_GUIDE[store.verbosity()],
+      fallenHeroes: FALLEN_GUIDE[store.fallenHeroes()],
       id: s.id, title: s.title, started: s.started, seq: s.seq, scene: s.scene,
       characters: s.characters,
       pendingRolls: s.pendingRolls,
@@ -172,7 +177,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     const { events, notices } = await store.waitForPlayers(id, timeout_seconds * 1000, 2500, extra.signal);
     if (!events.length && !notices.length) return text('Nothing yet. The table is quiet. Call wait_for_players again.');
     const s = store.state(id);
-    const header = [...notices, `(Table language: ${LANGUAGE_NAMES[store.language()]}. Complexity: ${store.complexity()}. Verbosity: ${store.verbosity()}/4.)`].join('\n');
+    const header = [...notices, `(Table language: ${LANGUAGE_NAMES[store.language()]}. Complexity: ${store.complexity()}. Verbosity: ${store.verbosity()}/4. When a hero falls: ${store.fallenHeroes()}.)`].join('\n');
     const pending = s.pendingRolls.length
       ? `\n\nStill waiting on rolls: ${s.pendingRolls.map((r) => `${character(s, r.characterId).name} — ${r.label} (${r.rollId})`).join('; ')}`
       : '';
@@ -241,10 +246,10 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     if (!finalLabel) throw new Error('Give either a `check` or a `label`.');
     const rollId = randomUUID().slice(0, 8);
     const roll = deathSave
-      ? { rollId, characterId: c.id, label: finalLabel, dice: '1d20', modifier: 0, advantage, dc: undefined, hideDc: true, purpose: 'death_save' as const }
+      ? { rollId, characterId: c.id, label: finalLabel, dice: '1d20', modifier: 0, advantage: 'none' as const, dc: undefined, hideDc: true, purpose: 'death_save' as const }
       : { rollId, characterId: c.id, label: finalLabel, dice, modifier: modifier ?? computed?.modifier ?? 0, advantage, dc, hideDc: hide_dc };
     store.append(id, { type: 'roll_requested', roll });
-    return text(`Asked ${c.name} to roll ${finalLabel}: ${roll.dice}${advantage !== 'none' ? ` with ${advantage}` : ''} ${sign(roll.modifier)} (roll id ${rollId}). The result arrives via wait_for_players.`);
+    return text(`Asked ${c.name} to roll ${finalLabel}: ${roll.dice}${roll.advantage !== 'none' ? ` with ${roll.advantage}` : ''} ${sign(roll.modifier)} (roll id ${rollId}). The result arrives via wait_for_players.`);
   });
 
   server.registerTool('cancel_roll', {
