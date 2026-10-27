@@ -113,9 +113,9 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 .5em; }
 
 /* ---- Lobby & setup ---- */
 .page { max-width: 880px; margin: 0 auto; padding: 32px 16px 64px; }
-.hero { text-align: center; margin: 24px 0 36px; }
-.hero h1 { font-size: 2.6em; }
-.hero p { color: var(--ink-soft); font-family: var(--serif); font-size: 1.15em; }
+.welcome { text-align: center; margin: 24px 0 36px; }
+.welcome h1 { font-size: 2.6em; }
+.welcome p { color: var(--ink-soft); font-family: var(--serif); font-size: 1.15em; }
 .card { background: var(--panel); border: 1.5px solid var(--line); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); margin-bottom: 18px; }
 .row { display: flex; gap: 10px; align-items: center; }
 .games { list-style: none; padding: 0; margin: 0; }

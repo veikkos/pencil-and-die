@@ -295,7 +295,7 @@ function renderLobby() {
   app.innerHTML = `
     <div class="topbar"><span class="brand">${esc(s.appTitle)}</span><span class="scene"></span>${settingsButton()}</div>
     <div class="page">
-      <div class="hero"><h1>${esc(s.appTitle)}</h1><p>${esc(s.tagline)}</p></div>
+      <div class="welcome"><h1>${esc(s.appTitle)}</h1><p>${esc(s.tagline)}</p></div>
       <div class="card">
         <h2>${esc(s.newGame)}</h2>
         <form class="row" id="new-game">
