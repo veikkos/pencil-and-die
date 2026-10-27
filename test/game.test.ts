@@ -1,13 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { openDb } from '../src/db.ts';
 import { parseDice, scoreRoll } from '../src/dice.ts';
-import { buildCharacter, checkModifier } from '../src/rules.ts';
+import { checkModifier } from '../src/rules.ts';
 import { sanitizeSketch } from '../src/sketch.ts';
-import { GameStore } from '../src/store.ts';
+import { mira, newStore } from './helpers.ts';
 
-const newStore = () => new GameStore(openDb(':memory:'));
-const mira = () => buildCharacter('mira', { name: 'Mira', player: 'Veikko', race: 'halfling', className: 'rogue', preset: 'specialist' });
 
 test('dice: advantage keeps the higher d20 and validates faces', () => {
   const d20 = parseDice('1d20');

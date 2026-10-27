@@ -1,4 +1,5 @@
 import type { Advantage } from './dice.ts';
+import { restCharacter, useResource, withDefaults, type Recharge } from './resources.ts';
 import type { Character } from './rules.ts';
 
 export type Speaker = 'dm' | 'player' | 'system';
@@ -72,12 +73,15 @@ export interface CharacterPatch {
   removeConditions?: string[];
   addFeatures?: string[];
   notes?: string;
+  resourceMax?: { resourceId: string; max: number }[];
 }
 
 export type GameEvent =
   | { type: 'game_created'; title: string }
   | { type: 'character_created'; character: Character }
   | { type: 'character_updated'; characterId: string; patch: CharacterPatch; reason?: string }
+  | { type: 'resource_used'; characterId: string; resourceId: string; amount: number }
+  | { type: 'rest'; kind: Recharge; characterIds: string[] }
   | { type: 'game_started' }
   | { type: 'message'; from: Speaker; characterId?: string; kind: MessageKind; text: string }
   | { type: 'roll_requested'; roll: Omit<RollRequest, 'requestedSeq'> }
@@ -101,7 +105,7 @@ export function emptyState(id: string): GameState {
 const sign = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
 
 function applyPatch(c: Character, p: CharacterPatch): Character {
-  const next: Character = { ...c, inventory: c.inventory.map((i) => ({ ...i })), conditions: [...c.conditions], features: [...c.features] };
+  const next: Character = { ...c, inventory: c.inventory.map((i) => ({ ...i })), conditions: [...c.conditions], features: [...c.features], resources: c.resources.map((r) => ({ ...r })) };
   if (p.maxHp !== undefined) next.maxHp = p.maxHp;
   if (p.hp !== undefined) next.hp = p.hp;
   if (p.hpDelta !== undefined) {
@@ -133,6 +137,10 @@ function applyPatch(c: Character, p: CharacterPatch): Character {
   next.conditions = next.conditions.filter((cnd) => !(p.removeConditions ?? []).includes(cnd));
   for (const f of p.addFeatures ?? []) if (!next.features.includes(f)) next.features.push(f);
   if (p.notes !== undefined) next.notes = p.notes;
+  for (const m of p.resourceMax ?? []) {
+    const r = next.resources.find((x) => x.id === m.resourceId);
+    if (r) { r.max = Math.max(0, m.max); r.used = Math.min(r.used, r.max); }
+  }
   return next;
 }
 
@@ -154,6 +162,10 @@ function describePatch(before: Character, after: Character): PatchPart[] {
   for (const c of after.conditions) if (!before.conditions.includes(c)) parts.push(['condOn', c]);
   for (const c of before.conditions) if (!after.conditions.includes(c)) parts.push(['condOff', c]);
   for (const f of after.features) if (!before.features.includes(f)) parts.push(['feature', f]);
+  for (const r of after.resources) {
+    const old = before.resources.find((x) => x.id === r.id);
+    if (old && (old.used !== r.used || old.max !== r.max)) parts.push(['resource', `${r.name} ${r.max - r.used}/${r.max}`]);
+  }
   return parts;
 }
 
@@ -170,9 +182,10 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       s.title = e.title;
       break;
     case 'character_created':
-      s.characters = [...s.characters, e.character];
-      sys('joined', { name: e.character.name, race: e.character.race, cls: e.character.className },
-        `${e.character.name} the ${e.character.race} ${e.character.className} joins the party.`);
+      const created = withDefaults(e.character);
+      s.characters = [...s.characters, created];
+      sys('joined', { name: created.name, race: created.race, cls: created.className },
+        `${created.name} the ${created.race} ${created.className} joins the party.`);
       break;
     case 'character_updated': {
       const before = s.characters.find((c) => c.id === e.characterId);
@@ -186,6 +199,19 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       }
       break;
     }
+    case 'resource_used': {
+      const before = s.characters.find((c) => c.id === e.characterId);
+      if (!before) break;
+      const after = useResource(before, e.resourceId, e.amount);
+      s.characters = s.characters.map((c) => (c.id === e.characterId ? after : c));
+      const parts = describePatch(before, after);
+      sys('updated', { name: after.name, parts }, `${after.name}: ${parts.map(([k, v]) => `${k} ${v}`).join(', ')}`);
+      break;
+    }
+    case 'rest':
+      s.characters = s.characters.map((c) => (e.characterIds.includes(c.id) ? restCharacter(c, e.kind) : c));
+      sys('rest', { kind: e.kind, names: e.characterIds.map(nameOf) }, `${e.characterIds.map(nameOf).join(', ')} take a ${e.kind} rest.`);
+      break;
     case 'game_started':
       s.started = true;
       sys('started', {}, 'The adventure begins.');

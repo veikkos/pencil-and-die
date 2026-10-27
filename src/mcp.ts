@@ -4,6 +4,8 @@ import { z } from 'zod';
 import type { Db } from './db.ts';
 import { parseDice, physicalDice, virtualRoll } from './dice.ts';
 import { DM_GUIDE } from './dm-guide.ts';
+import { registerSceneTools } from './mcp-scene.ts';
+import { findResource } from './resources.ts';
 import { checkModifier } from './rules.ts';
 import { getSketchStyle, sanitizeSketch, setSketchStyle, SKETCH_HEIGHT, SKETCH_WIDTH } from './sketch.ts';
 import type { GameState, StoredEvent } from './state.ts';
@@ -279,7 +281,8 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       add_conditions: z.array(z.string()).optional(),
       remove_conditions: z.array(z.string()).optional(),
       add_features: z.array(z.string()).optional(),
-      notes: z.string().optional().describe('Replaces the sheet notes (spell slots used, etc.).'),
+      notes: z.string().optional().describe('Replaces the sheet notes.'),
+      resource_max: z.array(z.object({ resource: z.string(), max: z.number().int().min(0) })).optional().describe('Change a resource maximum, e.g. more spell slots after levelling.'),
       reason: z.string().optional().describe('Shown in the log, e.g. "goblin arrow".'),
       game_id: gameIdArg,
     },
@@ -292,6 +295,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
         hpDelta: a.hp_delta, hp: a.hp, maxHp: a.max_hp, tempHp: a.temp_hp, ac: a.ac, level: a.level,
         xpDelta: a.xp_delta, goldDelta: a.gold_delta, addItems: a.add_items, removeItems: a.remove_items,
         addConditions: a.add_conditions, removeConditions: a.remove_conditions, addFeatures: a.add_features, notes: a.notes,
+        resourceMax: a.resource_max?.map((m) => ({ resourceId: findResource(c, m.resource).id, max: m.max })),
       },
     });
     const after = character(store.state(id), c.id);
@@ -349,6 +353,8 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     const s = store.rewind(id, to_seq);
     return text(`Rewound to seq ${s.seq}. Call get_game_state to re-read the situation.`);
   });
+
+  registerSceneTools(server, store, { resolve, character });
 
   return server;
 }

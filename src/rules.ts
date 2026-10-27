@@ -1,6 +1,8 @@
 // A small slice of D&D 5e (SRD) — enough to build a level-1 character from three
 // simple choices. The DM (Claude) handles everything beyond that.
 
+import { defaultResources, type Resource } from './resources.ts';
+
 export const ABILITIES = ['str', 'dex', 'con', 'int', 'wis', 'cha'] as const;
 export type Ability = (typeof ABILITIES)[number];
 export type Abilities = Record<Ability, number>;
@@ -158,6 +160,8 @@ export const PRESETS: Preset[] = [
     scores: (c) => assign(c.priority, [13, 13, 13, 12, 12, 12]) },
 ];
 
+export type LifeStatus = 'up' | 'dying' | 'stable' | 'out' | 'dead';
+
 export const mod = (score: number) => Math.floor((score - 10) / 2);
 
 export interface Character {
@@ -185,6 +189,9 @@ export interface Character {
   conditions: string[];
   features: string[];
   notes: string;
+  resources: Resource[];
+  status: LifeStatus;
+  deathSaves: { successes: number; failures: number };
 }
 
 export interface CharacterChoices {
@@ -246,6 +253,9 @@ export function buildCharacter(id: string, choice: CharacterChoices): Character 
     conditions: [],
     features: [...race.traits, ...cls.features],
     notes: '',
+    resources: defaultResources(cls.id, abilities),
+    status: 'up',
+    deathSaves: { successes: 0, failures: 0 },
   };
 }
 
