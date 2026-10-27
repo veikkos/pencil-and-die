@@ -84,7 +84,7 @@ export const STRINGS = {
     },
     bonusAdded: 'Your character\'s skill is added for you.',
     goodAt: 'Good at',
-    simpleRolled: (p) => `${p.name} rolled ${p.total}${p.success === undefined ? '' : p.success ? ' — it works!' : ' — not this time.'}`,
+    simpleRolled: (p) => `${p.name} rolled ${rollMath(p)}${p.success === undefined ? '' : p.success ? ' — it works!' : ' — not this time.'}`,
     sketchEmpty: 'The DM has not drawn anything yet.',
     sketchOf: (i, n) => `${i} / ${n}`,
     sys: {
@@ -178,7 +178,7 @@ export const STRINGS = {
     },
     bonusAdded: 'Hahmosi taito lisätään automaattisesti.',
     goodAt: 'Hyvä tässä',
-    simpleRolled: (p) => `${p.name} heitti ${p.total}${p.success === undefined ? '' : p.success ? ' — se onnistuu!' : ' — ei tällä kertaa.'}`,
+    simpleRolled: (p) => `${p.name} heitti ${rollMath(p)}${p.success === undefined ? '' : p.success ? ' — se onnistuu!' : ' — ei tällä kertaa.'}`,
     sketchEmpty: 'Pelinjohtaja ei ole vielä piirtänyt mitään.',
     sketchOf: (i, n) => `${i} / ${n}`,
     sys: {
@@ -193,6 +193,13 @@ export const STRINGS = {
 };
 
 export function sign(n) { return n >= 0 ? `+${n}` : `${n}`; }
+
+/** "8 + 2 = 10": the die that counted, the bonus, and the total. */
+function rollMath(p) {
+  if (!p.mod) return `${p.total}`;
+  const die = p.total - p.mod;
+  return `${die} ${p.mod > 0 ? '+' : '−'} ${Math.abs(p.mod)} = ${p.total}`;
+}
 
 const PART_EN = {
   hp: (v) => `HP ${v}`, maxHp: (v) => `max HP ${v}`, tempHp: (v) => `temp HP ${v}`, ac: (v) => `AC ${v}`,
