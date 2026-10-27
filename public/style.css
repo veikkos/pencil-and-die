@@ -99,11 +99,11 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 .5em; }
 
 /* ---- Top bar ---- */
 .topbar {
-  display: flex; align-items: center; gap: 12px; padding: 8px 16px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 16px;
   border-bottom: 1.5px solid var(--line); background: var(--topbar-bg);
 }
 .topbar .brand { font-family: var(--serif); font-weight: 700; font-size: 1.15em; }
-.topbar .scene { flex: 1; min-width: 0; color: var(--ink-soft); font-family: var(--serif); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar .scene { flex: 1 1 200px; min-width: 0; color: var(--ink-soft); font-family: var(--serif); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .topbar .scene b { color: var(--ink); }
 .lang { display: inline-flex; border: 1.5px solid var(--line); border-radius: 8px; overflow: hidden; }
 .lang button { border: none; background: none; padding: .3em .65em; font-weight: 600; color: var(--ink-faint); }
@@ -149,7 +149,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 .5em; }
 .stats em { display: block; font-style: normal; font-size: .75em; color: var(--ink-soft); }
 
 /* ---- Table ---- */
-.table-view { display: grid; grid-template-rows: auto auto minmax(240px, 1fr) auto auto; height: 100vh; }
+.table-view { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(240px, 1fr) auto auto; height: 100vh; }
 .timeline-bar {
   display: flex; align-items: center; gap: 12px; padding: 6px 16px; border-bottom: 1px solid var(--line); font-size: .85em; color: var(--ink-soft);
 }
@@ -191,7 +191,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 .5em; }
 .caption { display: flex; align-items: center; gap: 8px; padding: 6px 2px 0; font-family: var(--hand); font-size: 1.35em; color: var(--ink-soft); }
 .caption .text { flex: 1; text-align: center; }
 
-.party { display: flex; gap: 10px; padding: 10px 16px 10px; overflow-x: auto; }
+.party { display: flex; align-items: flex-start; gap: 10px; padding: 10px 16px 10px; overflow-x: auto; }
 .pc {
   position: relative; flex: 1 1 200px; min-width: 180px; max-width: 320px; background: var(--panel); border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 12px; text-align: left;
 }
