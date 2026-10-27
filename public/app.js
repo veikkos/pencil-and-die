@@ -138,46 +138,112 @@ function rerenderAll() {
 }
 
 function render() {
-  if (view === 'lobby' || !gameId || !live) return renderLobby();
-  if (view === 'setup') return renderSetup();
-  return renderTable();
+  if (view === 'lobby' || !gameId || !live) renderLobby();
+  else if (view === 'setup') renderSetup();
+  else renderTable();
+  drawSettings();
 }
 
 // ---------------------------------------------------------------------------
 // Shared bits
 // ---------------------------------------------------------------------------
 
-function langToggle() {
-  return `<span class="lang">${['en', 'fi'].map((l) => `<button data-lang="${l}" class="${cfg.language === l ? 'on' : ''}">${l.toUpperCase()}</button>`).join('')}</span>`;
-}
-
-function complexityPicker() {
-  const s = t();
-  return `<select class="input" id="complexity" title="${esc(s.levelHints[level()])}" style="width:auto;padding:.2em .4em" aria-label="${esc(s.complexity)}">
-    ${Object.keys(s.levels).map((l) => `<option value="${l}" ${l === level() ? 'selected' : ''}>${esc(s.complexity)}: ${esc(s.levels[l])}</option>`).join('')}
-  </select>`;
-}
-
-function verbosityPicker() {
-  const s = t();
-  return `<select class="input" id="verbosity" title="${esc(s.verbosityHints[cfg.verbosity])}" style="width:auto;padding:.2em .4em" aria-label="${esc(s.verbosity)}">
-    ${[1, 2, 3, 4].map((v) => `<option value="${v}" ${v === cfg.verbosity ? 'selected' : ''}>${esc(s.verbosity)}: ${v}/4 ${esc(s.verbosityLevels[v])}</option>`).join('')}
-  </select>`;
-}
-
-function fallenPicker() {
-  const s = t();
-  return `<select class="input" id="fallen" title="${esc(s.fallen.hints[cfg.fallenHeroes])}" style="width:auto;padding:.2em .4em" aria-label="${esc(s.fallen.label)}">
-    ${['knockout', 'death'].map((m) => `<option value="${m}" ${m === cfg.fallenHeroes ? 'selected' : ''}>${esc(s.fallen.label)}: ${esc(s.fallen[m])}</option>`).join('')}
-  </select>`;
+function settingsButton() {
+  return `<button class="ghost gear" data-settings title="${esc(t().settings.open)}" aria-label="${esc(t().settings.open)}">⚙</button>`;
 }
 
 function bindCommon(root) {
-  root.querySelectorAll('#fallen').forEach((sel) => sel.onchange = () => setFallenHeroes(sel.value).catch(fail));
-  root.querySelectorAll('#verbosity').forEach((sel) => sel.onchange = () => setVerbosity(Number(sel.value)).catch(fail));
-  root.querySelectorAll('[data-lang]').forEach((b) => b.onclick = () => setLanguage(b.dataset.lang).catch(fail));
-  root.querySelectorAll('#complexity').forEach((sel) => sel.onchange = () => setComplexity(sel.value).catch(fail));
+  root.querySelectorAll('[data-settings]').forEach((b) => b.onclick = openSettings);
   root.querySelectorAll('[data-go-lobby]').forEach((b) => b.onclick = async () => { view = 'lobby'; cfg = await api('/api/config'); render(); });
+}
+
+// ---- Settings overlay ---------------------------------------------------------
+
+/**
+ * Everything the settings overlay shows, group by group. A row picks one of its choices,
+ * as buttons or, with `select` or more than four choices, a dropdown. Adding a setting means adding a row here.
+ */
+const SETTING_GROUPS = [
+  { id: 'table', rows: [
+    { id: 'language', label: (s) => s.settings.language, hint: (s) => s.settings.languageHint,
+      choices: () => [['en', 'English'], ['fi', 'Suomi']], value: () => cfg.language, pick: setLanguage },
+  ] },
+  { id: 'story', rows: [
+    { id: 'verbosity', label: (s) => s.verbosity, hint: (s) => s.verbosityHints[cfg.verbosity],
+      choices: (s) => [1, 2, 3, 4].map((v) => [String(v), s.verbosityLevels[v]]), value: () => String(cfg.verbosity), pick: (v) => setVerbosity(Number(v)) },
+  ] },
+  { id: 'rules', rows: [
+    { id: 'complexity', label: (s) => s.complexity, hint: (s) => s.levelHints[level()],
+      choices: (s) => Object.entries(s.levels), value: level, pick: setComplexity },
+    { id: 'fallen', label: (s) => s.fallen.label, hint: (s) => s.fallen.hints[cfg.fallenHeroes],
+      choices: (s) => [['knockout', s.fallen.knockout], ['death', s.fallen.death]], value: () => cfg.fallenHeroes, pick: setFallenHeroes },
+  ] },
+  { id: 'voice', rows: [
+    { id: 'voice', label: (s) => s.settings.readAloud, hint: (s) => s.settings.readAloudHint,
+      choices: (s) => [['off', s.settings.off], ['on', s.settings.on]], value: () => (prefs.voice ? 'on' : 'off'), pick: (v) => savePrefs({ voice: v === 'on' }) },
+    { id: 'voice-name', select: true, label: (s) => s.settings.voiceName, hint: (s) => (voicesFor(cfg.language).length ? '' : s.noVoice),
+      choices: () => voiceChoices(), value: () => pickVoice()?.name, pick: (v) => savePrefs({ voiceName: { ...prefs.voiceName, [cfg.language]: v } }),
+      extra: (s) => (voicesFor(cfg.language).length ? `<button class="ghost" data-voice-test title="${esc(s.testVoice)}">▶︎</button>` : '') },
+  ] },
+];
+
+let settingsModal = null;
+
+function openSettings() {
+  if (settingsModal) return;
+  settingsModal = document.createElement('div');
+  settingsModal.className = 'modal settings';
+  settingsModal.onclick = (e) => { if (e.target === settingsModal) closeSettings(); };
+  document.addEventListener('keydown', settingsKey);
+  document.body.appendChild(settingsModal);
+  drawSettings();
+}
+
+function closeSettings() {
+  settingsModal?.remove();
+  settingsModal = null;
+  document.removeEventListener('keydown', settingsKey);
+}
+
+function settingsKey(e) {
+  if (e.key === 'Escape') closeSettings();
+}
+
+function settingControl(row, s) {
+  const choices = row.choices(s);
+  const current = row.value();
+  if (!choices.length) return '';
+  if (row.select || choices.length > 4) {
+    return `<select class="input" data-row="${row.id}" aria-label="${esc(row.label(s))}">${choices.map(([v, label]) =>
+      `<option value="${esc(v)}" ${v === current ? 'selected' : ''}>${esc(label)}</option>`).join('')}</select>`;
+  }
+  return `<span class="seg" role="group" aria-label="${esc(row.label(s))}">${choices.map(([v, label]) =>
+    `<button data-row="${row.id}" data-value="${esc(v)}" class="${v === current ? 'on' : ''}" aria-pressed="${v === current}">${esc(label)}</button>`).join('')}</span>`;
+}
+
+/** (Re)draws the open overlay; called on open and after every render so it follows changes from other tabs. */
+function drawSettings() {
+  if (!settingsModal) return;
+  const s = t();
+  const rows = SETTING_GROUPS.flatMap((g) => g.rows);
+  settingsModal.innerHTML = `<div class="card" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="settings-head"><h2 id="settings-title">${esc(s.settings.title)}</h2>
+      <button class="ghost" data-close title="${esc(s.settings.close)}" aria-label="${esc(s.settings.close)}">✕</button></div>
+    ${SETTING_GROUPS.map((g) => `<section class="settings-group">
+      <h3>${esc(s.settings.groups[g.id])}</h3>
+      ${g.rows.filter((row) => row.id !== 'voice-name' || prefs.voice).map((row) => {
+        const hint = row.hint?.(s);
+        return `<div class="setting"><div><b>${esc(row.label(s))}</b>${hint ? `<small>${esc(hint)}</small>` : ''}</div>
+          <div class="setting-control">${settingControl(row, s)}${row.extra?.(s) ?? ''}</div></div>`;
+      }).join('')}
+    </section>`).join('')}
+  </div>`;
+  settingsModal.querySelector('[data-close]').onclick = closeSettings;
+  settingsModal.querySelectorAll('button[data-row]').forEach((b) => b.onclick = () =>
+    rows.find((r) => r.id === b.dataset.row).pick(b.dataset.value)?.catch?.(fail));
+  settingsModal.querySelectorAll('select[data-row]').forEach((sel) => sel.onchange = () =>
+    rows.find((r) => r.id === sel.dataset.row).pick(sel.value)?.catch?.(fail));
+  settingsModal.querySelector('[data-voice-test]')?.addEventListener('click', () => speak(s.voiceSample, { interrupt: true }));
 }
 
 /** What a beginner needs instead of six numbers: the two things the hero is best at. */
@@ -227,7 +293,7 @@ function renderLobby() {
   const s = t();
   const when = (iso) => new Date(iso).toLocaleString(cfg.language === 'fi' ? 'fi-FI' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' });
   app.innerHTML = `
-    <div class="topbar"><span class="brand">${esc(s.appTitle)}</span><span class="scene"></span>${verbosityPicker()}${fallenPicker()}${complexityPicker()}${langToggle()}</div>
+    <div class="topbar"><span class="brand">${esc(s.appTitle)}</span><span class="scene"></span>${settingsButton()}</div>
     <div class="page">
       <div class="hero"><h1>${esc(s.appTitle)}</h1><p>${esc(s.tagline)}</p></div>
       <div class="card">
@@ -269,7 +335,7 @@ function renderSetup() {
   const s = t();
   app.innerHTML = `
     <div class="topbar"><button class="ghost" data-go-lobby>← ${esc(s.lobby)}</button>
-      <span class="scene"><b>${esc(live.title)}</b></span>${dmStatusPill()}${verbosityPicker()}${fallenPicker()}${complexityPicker()}${langToggle()}</div>
+      <span class="scene"><b>${esc(live.title)}</b></span>${dmStatusPill()}${settingsButton()}</div>
     <div class="page">
       <h1>${esc(s.party)}</h1>
       <div class="party-grid">${live.characters.map((c) => `
@@ -419,15 +485,8 @@ function renderTopbar() {
     <span class="scene"><b>${esc(shown.title)}</b>${scene ? ` — ${esc(scene.title)}` : ''}</span>
     ${shown.combat ? `<span class="round">${esc(shown.combat.round === 0 ? s.combat.fight : s.combat.round(shown.combat.round))}</span>` : ''}
     ${dmStatusPill()}
-    <button class="ghost" id="voice" title="${esc(s.voice)}">${prefs.voice ? '🔊' : '🔈'} ${esc(prefs.voice ? s.voiceOn : s.voiceOff)}</button>
-    ${prefs.voice ? voiceSelect() : ''}
-    ${verbosityPicker()}${fallenPicker()}${complexityPicker()}
-    ${langToggle()}`;
+    ${settingsButton()}`;
   bindCommon(el);
-  el.querySelector('#voice').onclick = () => savePrefs({ voice: !prefs.voice });
-  const sel = el.querySelector('#voice-name');
-  if (sel) sel.onchange = () => savePrefs({ voiceName: { ...prefs.voiceName, [cfg.language]: voicesFor(cfg.language)[sel.selectedIndex]?.name } });
-  el.querySelector('#voice-test')?.addEventListener('click', () => speak(t().voiceSample, { interrupt: true }));
 }
 
 function renderTimeline() {
@@ -829,16 +888,13 @@ function pickVoice() {
   return list.find((v) => v.name === prefs.voiceName?.[cfg.language]) ?? list.find((v) => v.localService) ?? list[0];
 }
 
-function voiceSelect() {
+/** Installed voices for the page's language, as [name, label]. */
+function voiceChoices() {
   const list = voicesFor(cfg.language);
-  if (!list.length) return `<span class="muted" style="font-size:.8em">${esc(t().noVoice)}</span>`;
-  const chosen = pickVoice();
   // "Eddy (Finnish (Finland))" → "Eddy"; add the region only where names would clash (en-GB vs en-US).
   const base = (v) => v.name.replace(/\s*\(.*\)\s*$/, '');
   const label = (v) => list.filter((x) => base(x) === base(v)).length > 1 ? `${base(v)} (${v.lang.split(/[-_]/)[1] ?? v.lang})` : base(v);
-  return `<select id="voice-name" class="input" style="width:auto;padding:.2em .4em">${list.map((v) =>
-    `<option ${v === chosen ? 'selected' : ''}>${esc(label(v))}</option>`).join('')}</select>
-    <button class="ghost" id="voice-test" title="${esc(t().testVoice)}">▶︎</button>`;
+  return list.map((v) => [v.name, label(v)]);
 }
 
 /**
@@ -893,6 +949,6 @@ async function savePrefs(patch) {
   render();
 }
 
-if (speech) speech.onvoiceschanged = () => { if (view === 'table') renderTopbar(); };
+if (speech) speech.onvoiceschanged = drawSettings;
 
 boot().catch(fail);

@@ -105,9 +105,6 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 .5em; }
 .topbar .brand { font-family: var(--serif); font-weight: 700; font-size: 1.15em; }
 .topbar .scene { flex: 1 1 200px; min-width: 0; color: var(--ink-soft); font-family: var(--serif); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .topbar .scene b { color: var(--ink); }
-.lang { display: inline-flex; border: 1.5px solid var(--line); border-radius: 8px; overflow: hidden; }
-.lang button { border: none; background: none; padding: .3em .65em; font-weight: 600; color: var(--ink-faint); }
-.lang button.on { background: var(--ink); color: var(--paper); }
 .dm-status { font-size: .85em; padding: .25em .7em; border-radius: 99px; border: 1px solid var(--line); color: var(--ink-soft); white-space: nowrap; }
 .dm-status::before { content: '●'; margin-right: .4em; color: var(--ink-faint); }
 .dm-status.listening::before { color: var(--good); }
@@ -272,3 +269,20 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 .5em; }
   .main { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
   .stats { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* ---- Settings ---- */
+.gear { font-size: 1.25em; line-height: 1; }
+.modal.settings .card { width: min(560px, 100%); }
+.settings-head { display: flex; align-items: center; justify-content: space-between; }
+.settings-head h2 { margin: 0; }
+.settings-group { border-top: 1.5px solid var(--line); padding: 10px 0 4px; margin-top: 12px; }
+.settings-group h3 { margin: 0 0 6px; font: 600 .72em var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--gold); }
+.setting { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; padding: 6px 0; }
+.setting > div:first-child { flex: 1 1 200px; }
+.setting small { display: block; color: var(--ink-faint); font-size: .82em; }
+.setting-control { display: flex; align-items: center; gap: 4px; }
+.setting-control select.input { width: auto; padding: .3em .5em; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1.5px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: none; background: none; padding: .35em .7em; color: var(--ink-soft); }
+.seg button:hover { background: var(--paper-2); }
+.seg button.on { background: var(--ink); color: var(--paper); }
