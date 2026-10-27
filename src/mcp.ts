@@ -6,6 +6,7 @@ import { parseDice, physicalDice, virtualRoll } from './dice.ts';
 import { DM_GUIDE } from './dm-guide.ts';
 import { registerSceneTools } from './mcp-scene.ts';
 import { findResource } from './resources.ts';
+import { newPresences, presenceSpec, stillPresent, toSpec, type Presence } from './roster.ts';
 import { checkModifier, type Character } from './rules.ts';
 import { getSketchStyle, sanitizeSketch, setSketchStyle, SKETCH_HEIGHT, SKETCH_WIDTH } from './sketch.ts';
 import type { GameState, StoredEvent } from './state.ts';
@@ -151,6 +152,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       fallenHeroes: FALLEN_GUIDE[store.fallenHeroes()],
       id: s.id, title: s.title, started: s.started, seq: s.seq, scene: s.scene,
       characters: s.characters,
+      present: s.present,
       pendingRolls: s.pendingRolls,
       dmNotes: s.dmNotes,
       sketchCount: s.sketches.length,
@@ -203,11 +205,23 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
 
   server.registerTool('set_scene', {
     description: 'Set the current location shown at the top of the table, e.g. "The Drowned Lantern — taproom".',
-    inputSchema: { title: z.string().min(1), description: z.string().default(''), game_id: gameIdArg },
-  }, ({ title, description, game_id }) => {
+    inputSchema: {
+      title: z.string().min(1),
+      description: z.string().default(''),
+      present: z.array(presenceSpec).optional().describe('Who is in the new place (enemies, neutrals, allies; never the heroes). Replaces the current roster; [] empties it. Omit to leave the roster as it is.'),
+      game_id: gameIdArg,
+    },
+  }, ({ title, description, present, game_id }) => {
     const id = resolve(game_id);
-    store.append(id, { type: 'scene_set', title, description });
-    return text(`Scene set.${sketchReminder(store.state(id))}`);
+    let roster: Presence[] | undefined;
+    if (present) {
+      roster = [];
+      for (const spec of present) roster.push(...newPresences(roster, toSpec(spec), spec.count));
+    }
+    store.append(id, { type: 'scene_set', title, description, present: roster });
+    const left = store.state(id).present;
+    const still = present === undefined && left.length ? ` Still present: ${stillPresent(left)}. If the place changed, pass present or use remove_from_scene.` : '';
+    return text(`Scene set.${still}${sketchReminder(store.state(id))}`);
   });
 
   server.registerTool('add_dm_note', {

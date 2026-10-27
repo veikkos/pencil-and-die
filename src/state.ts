@@ -1,6 +1,7 @@
 import type { Advantage } from './dice.ts';
 import { applyDeathSave, applyHpChange, wakeUp } from './life.ts';
 import { restCharacter, useResource, withDefaults, type Recharge } from './resources.ts';
+import { applyPresencePatch, healthWord, publicPresence, type Presence, type PresencePatch } from './roster.ts';
 import type { Character } from './rules.ts';
 
 export type Speaker = 'dm' | 'player' | 'system';
@@ -52,6 +53,8 @@ export interface GameState {
   seq: number;
   scene: { title: string; description: string; seq: number } | null;
   characters: Character[];
+  /** Creatures in the scene (never the heroes). */
+  present: Presence[];
   log: LogEntry[];
   pendingRolls: RollRequest[];
   rolls: RollResult[];
@@ -95,7 +98,10 @@ export type GameEvent =
   | { type: 'roll_resolved'; rollId: string; faces: number[]; total: number; success?: boolean; byDm?: boolean }
   | { type: 'roll_cancelled'; rollId: string }
   | { type: 'dm_roll'; roll: Omit<RollResult, 'requestedSeq' | 'resolvedSeq'>; secret: boolean }
-  | { type: 'scene_set'; title: string; description: string }
+  | { type: 'scene_set'; title: string; description: string; present?: Presence[] }
+  | { type: 'presence_added'; presences: Presence[] }
+  | { type: 'presence_updated'; presenceId: string; patch: PresencePatch; reason?: string }
+  | { type: 'presence_removed'; presenceIds: string[] }
   | { type: 'sketch'; caption: string; svg: string }
   | { type: 'dm_note'; text: string };
 
@@ -106,7 +112,7 @@ export interface StoredEvent {
 }
 
 export function emptyState(id: string): GameState {
-  return { id, title: '', seq: 0, scene: null, characters: [], log: [], pendingRolls: [], rolls: [], sketches: [], dmNotes: [], started: false };
+  return { id, title: '', seq: 0, scene: null, characters: [], present: [], log: [], pendingRolls: [], rolls: [], sketches: [], dmNotes: [], started: false };
 }
 
 const sign = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
@@ -268,7 +274,46 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       break;
     case 'scene_set':
       s.scene = { title: e.title, description: e.description, seq };
+      if (e.present !== undefined) s.present = e.present;
       break;
+    case 'presence_added': {
+      s.present = [...s.present, ...e.presences];
+      const names = [...new Set(e.presences.map((p) => p.name))];
+      sys('arrived', { names }, `${names.join(', ')} ${names.length > 1 ? 'are' : 'is'} here.`);
+      break;
+    }
+    case 'presence_updated': {
+      const before = s.present.find((p) => p.id === e.presenceId);
+      if (!before) break;
+      const after = applyPresencePatch(before, e.patch);
+      s.present = s.present.map((p) => (p.id === e.presenceId ? after : p));
+      if (after.defeated && !before.defeated) {
+        sys('defeated', { name: after.name }, `${after.name} is defeated.`);
+        break;
+      }
+      const params: Record<string, unknown> = { name: after.name };
+      const hb = healthWord(before);
+      const ha = healthWord(after);
+      if (ha !== hb && ha !== undefined) params.health = ha;
+      const condOn = after.conditions.filter((c) => !before.conditions.includes(c));
+      const condOff = before.conditions.filter((c) => !after.conditions.includes(c));
+      if (condOn.length) params.condOn = condOn;
+      if (condOff.length) params.condOff = condOff;
+      if (after.side !== before.side) params.sideChange = after.side;
+      if (Object.keys(params).length > 1) {
+        const bits = [params.health && `now ${params.health}`, condOn.length && `${condOn.join(', ')}`, condOff.length && `no longer ${condOff.join(', ')}`, params.sideChange && `now ${params.sideChange}`].filter(Boolean);
+        sys('presenceUpdated', params, `${after.name}: ${bits.join(', ')}`);
+      }
+      break;
+    }
+    case 'presence_removed': {
+      const gone = s.present.filter((p) => e.presenceIds.includes(p.id));
+      if (!gone.length) break;
+      s.present = s.present.filter((p) => !e.presenceIds.includes(p.id));
+      const names = [...new Set(gone.map((p) => p.name))];
+      sys('left', { names }, `${names.join(', ')} ${names.length > 1 ? 'are' : 'is'} gone.`);
+      break;
+    }
     case 'sketch':
       s.sketches = [...s.sketches, { seq, caption: e.caption, svg: e.svg }];
       break;
@@ -295,6 +340,7 @@ export function playerView(s: GameState) {
   return {
     ...s,
     dmNotes: undefined,
+    present: s.present.map(publicPresence),
     pendingRolls: s.pendingRolls.map(hide),
     // DM rolls can be secret; the public ones are already in the log.
     rolls: s.rolls.filter((r) => !r.byDm).map(hide),
