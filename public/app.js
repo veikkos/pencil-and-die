@@ -359,7 +359,8 @@ function renderTopbar() {
   bindCommon(el);
   el.querySelector('#voice').onclick = () => savePrefs({ voice: !prefs.voice });
   const sel = el.querySelector('#voice-name');
-  if (sel) sel.onchange = () => savePrefs({ voiceName: { ...prefs.voiceName, [cfg.language]: sel.value } });
+  if (sel) sel.onchange = () => savePrefs({ voiceName: { ...prefs.voiceName, [cfg.language]: voicesFor(cfg.language)[sel.selectedIndex]?.name } });
+  el.querySelector('#voice-test')?.addEventListener('click', () => speak(t().voiceSample, { interrupt: true }));
 }
 
 function renderTimeline() {
@@ -433,8 +434,7 @@ function renderStory() {
   el.innerHTML = shown.log.map(logLine).join('');
   el.querySelectorAll('[data-speak]').forEach((b) => b.onclick = () => {
     const line = shown.log.find((l) => l.seq === Number(b.dataset.speak));
-    speech?.cancel();
-    if (line) speak(line.text);
+    if (line) speak(line.text, { interrupt: true });
   });
   if (atBottom || viewSeq !== null || !el.dataset.init) el.scrollTop = el.scrollHeight;
   el.dataset.init = '1';
@@ -659,16 +659,38 @@ function voiceSelect() {
   if (!list.length) return `<span class="muted" style="font-size:.8em">${esc(t().noVoice)}</span>`;
   const chosen = pickVoice();
   return `<select id="voice-name" class="input" style="width:auto;padding:.2em .4em">${list.map((v) =>
-    `<option ${v === chosen ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</select>`;
+    `<option ${v === chosen ? 'selected' : ''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}</select>
+    <button class="ghost" id="voice-test" title="${esc(t().testVoice)}">▶︎</button>`;
 }
 
-function speak(text) {
+/**
+ * Browsers cut long utterances short and may fall back to their default (English) voice
+ * when an utterance is queued right after cancel(). So: speak sentence-sized chunks, pin the
+ * voice and language on every chunk, and never read with a voice of the wrong language.
+ */
+let speakQueueTimer = null;
+function speak(text, { interrupt = false } = {}) {
   if (!speech) return;
   const voice = pickVoice();
-  const u = new SpeechSynthesisUtterance(text.replace(/[*_#`>]/g, ''));
-  if (voice) { u.voice = voice; u.lang = voice.lang; } else u.lang = LANG_CODES[cfg.language][0];
-  u.rate = 0.97;
-  speech.speak(u);
+  if (!voice) { console.warn(`No ${cfg.language} voice installed; not reading aloud.`); return; }
+  const chunks = [];
+  for (const sentence of text.replace(/[*_#`>]/g, '').split(/(?<=[.!?…:])\s+|\n+/)) {
+    const last = chunks.at(-1);
+    if (last && last.length + sentence.length < 160) chunks[chunks.length - 1] = `${last} ${sentence}`;
+    else if (sentence.trim()) chunks.push(sentence.trim());
+  }
+  const enqueue = () => chunks.forEach((chunk) => {
+    const u = new SpeechSynthesisUtterance(chunk);
+    u.voice = voice;
+    u.lang = voice.lang;
+    u.rate = 0.97;
+    speech.speak(u);
+  });
+  if (interrupt) {
+    speech.cancel();
+    clearTimeout(speakQueueTimer);
+    speakQueueTimer = setTimeout(enqueue, 120);
+  } else enqueue();
 }
 
 function speakNew() {
@@ -687,9 +709,9 @@ function latestDmTurn() {
 async function savePrefs(patch) {
   const turningOn = patch.voice === true && !prefs.voice;
   prefs = await api('/api/prefs', patch);
-  speech?.cancel();
+  if (!prefs.voice) speech?.cancel();
   // Catch up on what's already on screen, e.g. the opening narration.
-  if (turningOn && shown) latestDmTurn().forEach((l) => speak(l.text));
+  if (turningOn && shown) speak(latestDmTurn().map((l) => l.text).join('\n'), { interrupt: true });
   render();
 }
 
