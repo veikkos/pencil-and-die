@@ -48,6 +48,11 @@ in `.claude/settings.local.json`).
 - **DM voice:** uses the browser's built-in speech synthesis. On macOS, Finnish works with the
   "Satu" voice (System Settings → Accessibility → Spoken Content → System voice → Manage
   voices). Choose the voice next to the toggle.
+- **Scene, fights and resources:** a strip at the top shows everyone in the scene: heroes with
+  their health, creatures with a health word only. During a fight it shows the turn order and
+  whose turn it is. Heroes get pips for spell slots and limited abilities, and dying heroes show
+  their death save pips. **When a hero falls** chooses what a third failed death save means:
+  knocked out with a cost (default) or can die.
 - **Timeline:** drag the slider to see the game at any earlier moment (story, sheets, sketch,
   pending rolls). Nothing changes until you press **Continue from here**. That cuts off
   everything after that point and the DM is told to carry on from there. Use it to fix a mistyped

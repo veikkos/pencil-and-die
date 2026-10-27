@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { parseDice, scoreRoll } from '../src/dice.ts';
 import { checkModifier } from '../src/rules.ts';
 import { sanitizeSketch } from '../src/sketch.ts';
-import { mira, newStore } from './helpers.ts';
+import { DM_GUIDE } from '../src/dm-guide.ts';
+import { mcpClient, mira, newStore, newTable } from './helpers.ts';
 
 
 test('dice: advantage keeps the higher d20 and validates faces', () => {
@@ -112,4 +113,13 @@ test('store: verbosity defaults to 3 and the DM hears where it settled', async (
   const { notices } = await store.waitForPlayers(g.id, 10, 0);
   assert.deepEqual(notices.filter((n) => n.startsWith('VERBOSITY')).map((n) => n.slice(0, 15)), ['VERBOSITY 4/4 (']);
   assert.throws(() => store.setVerbosity(5));
+});
+
+test('dm guide: mentions the scene, combat and resource tools, and they are registered', async () => {
+  const { store, db } = newTable();
+  const tools = await (await mcpClient(store, db)).listTools();
+  for (const tool of ['add_to_scene', 'update_presence', 'remove_from_scene', 'start_combat', 'next_turn', 'add_to_combat', 'end_combat', 'use_resource', 'rest', 'hero_fell', 'death save']) {
+    assert.ok(DM_GUIDE.includes(tool), `guide mentions ${tool}`);
+    if (/^[a-z_]+$/.test(tool) && tool !== 'hero_fell') assert.ok(tools.includes(tool), `${tool} registered`);
+  }
 });
