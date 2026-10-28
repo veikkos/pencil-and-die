@@ -234,6 +234,46 @@ function describePatch(before: Character, after: Character): PatchPart[] {
   return parts;
 }
 
+/** What a level changed, grouped so the story can show it as a list. */
+export interface LevelSummary {
+  maxHp: [number, number];
+  features: { name: string; text: string }[];
+  spells: { id: string; name: string; summary: string; level: number }[];
+  resources: { id: string; name: string; max: number }[];
+  abilities: [string, number][];
+  proficiency?: number;
+  speed?: number;
+  skills: string[];
+  expertise: string[];
+}
+
+function levelGains(before: Character, after: Character): LevelSummary {
+  const was = new Map(before.resources.map((r) => [r.id, r]));
+  return {
+    maxHp: [before.maxHp, after.maxHp],
+    features: after.features.filter((f) => !before.features.some((x) => x.name === f.name)).map(({ name, text }) => ({ name, text })),
+    spells: after.spells.filter((x) => !before.spells.some((y) => y.id === x.id)).map(({ id, name, summary, level }) => ({ id, name, summary, level })),
+    resources: after.resources.filter((r) => was.get(r.id)?.max !== r.max || was.get(r.id)?.name !== r.name).map(({ id, name, max }) => ({ id, name, max })),
+    abilities: (Object.keys(after.abilities) as (keyof Character['abilities'])[])
+      .filter((a) => after.abilities[a] !== before.abilities[a]).map((a) => [a, after.abilities[a]]),
+    ...(after.proficiencyBonus !== before.proficiencyBonus ? { proficiency: after.proficiencyBonus } : {}),
+    ...(after.speed !== before.speed ? { speed: after.speed } : {}),
+    skills: after.skills.filter((k) => !before.skills.includes(k)),
+    expertise: after.expertise.filter((k) => !before.expertise.includes(k)),
+  };
+}
+
+function levelText(c: Character, g: LevelSummary): string {
+  return [`${c.name} reaches level ${c.level}`, `max HP ${g.maxHp[0]} → ${g.maxHp[1]}`,
+    g.features.length && `new features: ${g.features.map((f) => f.name).join(', ')}`,
+    g.spells.length && `new spells: ${g.spells.map((x) => x.name).join(', ')}`,
+    g.resources.length && `uses: ${g.resources.map((r) => `${r.name} ${r.max}`).join(', ')}`,
+    g.abilities.length && `abilities: ${g.abilities.map(([a, n]) => `${a.toUpperCase()} ${n}`).join(', ')}`,
+    g.proficiency && `proficiency +${g.proficiency}`, g.speed && `speed ${g.speed} ft`,
+    g.skills.length && `new skills: ${g.skills.join(', ')}`, g.expertise.length && `expertise: ${g.expertise.join(', ')}`,
+  ].filter(Boolean).join('. ');
+}
+
 /** Pure reducer: folding all live events in order yields the game state. */
 export function apply(state: GameState, { seq, at, event: e }: StoredEvent): GameState {
   const s: GameState = { ...state, seq };
@@ -308,9 +348,8 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       if (!before) break;
       const after = applyLevel(before, e.gains);
       s.characters = s.characters.map((c) => (c.id === e.characterId ? after : c));
-      const parts = describePatch(before, after).filter(([k]) => k !== 'level');
-      sys('levelled', { name: after.name, level: after.level, parts },
-        `${after.name} reaches level ${after.level}: ${parts.map(([k, v]) => `${k} ${v}`).join(', ')}`);
+      const gains = levelGains(before, after);
+      sys('levelled', { name: after.name, level: after.level, gains }, levelText(after, gains));
       break;
     }
     case 'game_started':

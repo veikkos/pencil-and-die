@@ -198,3 +198,26 @@ test('request_roll: a Champion\'s 19 is reported as a critical hit', async () =>
   store.append(g.id, { type: 'roll_resolved', rollId: roll.rollId, faces: [19], total: 19 + roll.modifier });
   assert.match((await mcp.call('wait_for_players', { timeout_seconds: 5 })).text, /CRITICAL HIT/);
 });
+
+test('fighters have AC 19 (chain mail, shield, Defense), old ones too once loaded', () => {
+  assert.equal(hero('human', 'fighter').ac, 19);
+  const { store } = newTable();
+  const g = store.createGame('T');
+  store.append(g.id, { type: 'character_created', character: { ...hero('human', 'fighter'), ac: 18 } });
+  assert.equal(store.state(g.id).characters[0].ac, 19);
+});
+
+test('the story lists what a level changed, grouped', () => {
+  const { store } = newTable();
+  const g = store.createGame('T');
+  const w = hero('elf', 'wizard');
+  store.append(g.id, { type: 'character_created', character: w });
+  store.append(g.id, { type: 'character_levelled', characterId: w.id, gains: levelUp(w, { spells: ['thunderwave', 'feather-fall'] }), by: 'player' });
+  const line = store.state(g.id).log.at(-1)!;
+  const gains = line.sys!.params.gains as { maxHp: number[]; features: { name: string }[]; spells: { name: string }[]; resources: { id: string; max: number }[] };
+  assert.deepEqual(gains.maxHp, [w.maxHp, w.maxHp + 4 + mod(w.abilities.con)]);
+  assert.deepEqual(gains.features.map((f) => f.name), ['Evocation Savant', 'Sculpt Spells']);
+  assert.deepEqual(gains.spells.map((x) => x.name), ['Thunderwave', 'Feather Fall']);
+  assert.ok(gains.resources.some((r) => r.id === 'spell-slots-1' && r.max === 3));
+  assert.match(line.text, /new spells: Thunderwave, Feather Fall/);
+});

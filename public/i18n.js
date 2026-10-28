@@ -253,6 +253,10 @@ export const STRINGS = {
       noisy: 'Noisy',
       props: {}, damageTypes: {},
     },
+    levelLog: {
+      hp: 'Max HP', features: 'New', spells: 'New spells', uses: 'Uses', abilities: 'Abilities',
+      prof: 'Proficiency', speed: 'Speed', skills: 'New skills', expertise: 'Expertise', ft: (n) => `${n} ft`,
+    },
     levelUp: {
       chip: 'Level up!',
       title: (name, n) => `${name} reaches level ${n}`,
@@ -305,7 +309,7 @@ export const STRINGS = {
       dmRolled: (p) => `DM rolled ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)} = ${p.total}`,
       updated: (p) => `${p.name}: ${p.parts.map(([k, v]) => PART_EN[k](v)).join(', ')}${p.reason ? ` (${p.reason})` : ''}`,
       levelOffered: (p) => `${p.name} can reach level ${p.level}!`,
-      levelled: (p) => `${p.name} reaches level ${p.level}: ${p.parts.map(([k, v]) => PART_EN[k](v)).join(', ')}`,
+      levelled: (p) => `${p.name} reaches level ${p.level}!`,
     },
     timelineTypes: { dm: 'DM', player: '', rollRequested: 'Roll asked', roll: 'Roll', character: 'New hero', sketch: 'Sketch', scene: 'Scene', started: 'Adventure begins' },
   },
@@ -575,6 +579,10 @@ export const STRINGS = {
         'acid, cold, fire, lightning, poison or thunder': 'happo, kylmä, tuli, salama, myrkky tai ukkonen',
       },
     },
+    levelLog: {
+      hp: 'Maks. OP', features: 'Uutta', spells: 'Uudet loitsut', uses: 'Käytöt', abilities: 'Kyvyt',
+      prof: 'Taitobonus', speed: 'Nopeus', skills: 'Uudet taidot', expertise: 'Asiantuntemus', ft: (n) => `${n} jalkaa`,
+    },
     levelUp: {
       chip: 'Uusi taso!',
       title: (name, n) => `${name} nousee tasolle ${n}`,
@@ -627,7 +635,7 @@ export const STRINGS = {
       dmRolled: (p) => `Pelinjohtaja heitti: ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)} = ${p.total}`,
       updated: (p) => `${p.name}: ${p.parts.map(([k, v]) => PART_FI[k](v)).join(', ')}${p.reason ? ` (${p.reason})` : ''}`,
       levelOffered: (p) => `${p.name} voi nousta tasolle ${p.level}!`,
-      levelled: (p) => `${p.name} nousee tasolle ${p.level}: ${p.parts.map(([k, v]) => PART_FI[k](v)).join(', ')}`,
+      levelled: (p) => `${p.name} nousee tasolle ${p.level}!`,
     },
     timelineTypes: { dm: 'PJ', player: '', rollRequested: 'Heittopyyntö', roll: 'Heitto', character: 'Uusi sankari', sketch: 'Piirros', scene: 'Paikka', started: 'Seikkailu alkaa' },
   },

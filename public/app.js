@@ -939,12 +939,33 @@ async function scrubTo(i) {
   render();
 }
 
+/** A level up in the story: what changed, grouped; new features and spells explain themselves on tap. */
+function levelledLine(p) {
+  const s = t();
+  const L = s.levelLog;
+  const g = p.gains;
+  const expert = !isBeginner();
+  const rows = [
+    [L.hp, `${g.maxHp[0]} → ${g.maxHp[1]}`],
+    g.features.length && [L.features, g.features.map((f) => { const [n, txt] = featureText(f); return tip(esc(n), [txt]); }).join(', ')],
+    g.spells.length && [L.spells, g.spells.map((sp) => { const [n, sum] = spellText(sp); return tip(esc(n), [sum]); }).join(', ')],
+    g.abilities.length && [L.abilities, g.abilities.map(([a, n]) => `${esc(s.abilities[a])} ${n}`).join(', ')],
+    g.skills.length && [L.skills, g.skills.map((k) => esc(skillName(k))).join(', ')],
+    g.expertise.length && [L.expertise, g.expertise.map((k) => esc(skillName(k))).join(', ')],
+    g.speed && [L.speed, esc(L.ft(g.speed))],
+    expert && g.proficiency && [L.prof, sign(g.proficiency)],
+    expert && g.resources.length && [L.uses, g.resources.map((r) => `${esc(resourceName(r))} ${r.max}`).join(', ')],
+  ].filter(Boolean);
+  return `<div class="msg system levelled"><b>${esc(s.sys.levelled(p))}</b><dl>${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join('')}</dl></div>`;
+}
+
 function logLine(l) {
   const s = t();
   const who = shown.characters.find((c) => c.id === l.characterId);
   if (l.from === 'system') {
     if (isBeginner() && l.sys?.code === 'rolled') return `<p class="msg system">${esc(s.simpleRolled(localParams(l.sys)))}</p>`;
     if (isBeginner() && l.sys?.code === 'dmRolled') return '';
+    if (l.sys?.code === 'levelled' && l.sys.params.gains) return levelledLine(l.sys.params);
     const fn = l.sys && s.sys[l.sys.code];
     return `<p class="msg system">${esc(fn ? fn(localParams(l.sys)) : l.text)}</p>`;
   }

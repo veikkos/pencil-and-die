@@ -64,6 +64,8 @@ export function resourcesAt(c: Character, level: number, abilities = c.abilities
 export function withDefaults(c: Character): Character {
   return {
     ...c,
+    // Fighters used to be made with AC 18, missing their Defense style's +1.
+    ac: c.classId === 'fighter' && c.ac === 18 && c.acNote === 'Chain mail + shield' ? 19 : c.ac,
     resources: c.resources ?? defaultResources(c.classId, c.abilities, c.level),
     features: upgradeFeatures(c.raceId, c.classId, c.features),
     spells: c.spells ?? defaultSpells(c.raceId, c.classId),

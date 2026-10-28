@@ -137,7 +137,8 @@ const kit = (...items: (string | [string, number])[]) => items.map((i) => (typeo
 export const CLASSES: CharClass[] = [
   { id: 'fighter', name: 'Fighter', blurb: 'Master of weapons and armour. Simple, sturdy, reliable.', hitDie: 10,
     priority: ['str', 'con', 'dex', 'wis', 'cha', 'int'], saves: ['str', 'con'], skills: ['Athletics', 'Perception'],
-    ac: () => 18, acNote: 'Chain mail + shield',
+    // Chain mail 16 + shield 2 + Defense 1.
+    ac: () => 19, acNote: 'Chain mail + shield',
     equipment: kit('Chain mail', 'Shield', 'Longsword', ['Handaxe', 2], "Explorer's pack"),
     features: [feature('Fighting Style: Defense', '+1 AC while wearing armour (already counted).'),
       feature('Second Wind', 'Bonus action: regain 1d10 + your level in hit points.', 'second-wind')] },
