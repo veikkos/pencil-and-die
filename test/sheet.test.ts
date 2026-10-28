@@ -85,10 +85,12 @@ test('old characters (string features, bundled items) replay into the same sheet
   delete (old as Partial<Character>).spells;
   store.append(g.id, { type: 'character_created', character: old });
   store.append(g.id, { type: 'character_updated', characterId: 'sorcerer', patch: { addFeatures: ['Lucky charm'] } });
+  store.append(g.id, { type: 'character_updated', characterId: 'sorcerer', patch: { addFeatures: ['Acorn amulet: once a day, reroll a failed save'] } });
   const c = store.state(g.id).characters[0];
-  assert.deepEqual(c.features.map((f) => f.name), ['Darkvision', 'Fey Ancestry', 'Versatile', 'Draconic Bloodline', 'Blessing of the river', 'Lucky charm']);
+  assert.deepEqual(c.features.map((f) => f.name), ['Darkvision', 'Fey Ancestry', 'Versatile', 'Draconic Bloodline', 'Blessing of the river', 'Lucky charm', 'Acorn amulet']);
+  assert.equal(c.features.at(-1)!.text, 'once a day, reroll a failed save');
   assert.ok(c.features[0].text.length > 10);
-  assert.equal(c.features.at(-1)!.source, 'other');
+  assert.equal(c.features.at(-2)!.source, 'other');
   assert.deepEqual(c.spells.map((x) => x.id), ['fire-bolt', 'prestidigitation', 'ray-of-frost', 'light', 'magic-missile', 'chromatic-orb']);
   assert.deepEqual(c.effects, []);
   assert.deepEqual(c.expertise, []);

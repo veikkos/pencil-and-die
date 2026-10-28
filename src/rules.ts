@@ -271,6 +271,12 @@ export interface Character {
   deathSaves: { successes: number; failures: number };
 }
 
+/** A feature the DM wrote as plain text: "Acorn amulet: once a day, reroll a failed save" splits in two. */
+export function featureFromText(text: string): Feature {
+  const [, name, rest] = /^([^:]{1,60}):\s+(.+)$/s.exec(text.trim()) ?? [null, text.trim(), ''];
+  return { name, text: rest, source: 'other' };
+}
+
 /**
  * Features of characters made before features were data were strings like
  * "Second Wind (bonus action: heal 1d10 + level, once per rest)". Each becomes the matching
@@ -284,7 +290,7 @@ export function upgradeFeatures(raceId: string, classId: string, features: (Feat
     if (/^spellcasting\b/i.test(f)) continue;
     const text = /other abilities|extra skills/i.test(f) ? 'versatile' : f.toLowerCase();
     const match = defaults.find((d) => text.includes(d.name.split(':')[0].toLowerCase()));
-    const next = match ? { ...match } : { name: f, text: '', source: 'other' as const };
+    const next = match ? { ...match } : featureFromText(f);
     if (!out.some((x) => x.name === next.name)) out.push(next);
   }
   return out;

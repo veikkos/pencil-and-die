@@ -3,7 +3,7 @@ import type { Advantage } from './dice.ts';
 import { applyDeathSave, applyHpChange, UNCONSCIOUS, wakeUp } from './life.ts';
 import { restCharacter, useResource, withDefaults, type Recharge } from './resources.ts';
 import { applyPresencePatch, healthWord, publicPresence, type Presence, type PresencePatch } from './roster.ts';
-import type { Character, Effect, Feature } from './rules.ts';
+import { featureFromText, type Character, type Effect, type Feature } from './rules.ts';
 import { sheetOf } from './sheet.ts';
 import type { Spell } from './spells.ts';
 
@@ -171,7 +171,7 @@ function applyPatch(c: Character, p: CharacterPatch): Character {
   const ended = [...(p.removeEffects ?? []), ...(p.addEffects ?? []).map((x) => x.name)].map((x) => x.toLowerCase());
   next.effects = [...next.effects.filter((x) => !ended.includes(x.name.toLowerCase())), ...(p.addEffects ?? [])];
   for (const f of p.addFeatures ?? []) {
-    const feature: Feature = typeof f === 'string' ? { name: f, text: '', source: 'other' } : f;
+    const feature: Feature = typeof f === 'string' ? featureFromText(f) : f;
     if (!next.features.some((x) => x.name === feature.name)) next.features.push(feature);
   }
   const gone = (p.removeSpells ?? []).map((x) => x.toLowerCase());
