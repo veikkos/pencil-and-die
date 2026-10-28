@@ -121,7 +121,7 @@ test('store: verbosity defaults to 3 and the DM hears where it settled', async (
 test('dm guide: mentions the scene, combat and resource tools, and they are registered', async () => {
   const { store, db } = newTable();
   const tools = await (await mcpClient(store, db)).listTools();
-  for (const tool of ['add_to_scene', 'update_presence', 'remove_from_scene', 'start_combat', 'next_turn', 'add_to_combat', 'end_combat', 'use_resource', 'rest', 'hero_fell', 'death save']) {
+  for (const tool of ['add_to_scene', 'update_presence', 'remove_from_scene', 'start_combat', 'next_turn', 'add_to_combat', 'end_combat', 'use_resource', 'rest', 'hero_fell', 'death save', 'level_up']) {
     assert.ok(DM_GUIDE.includes(tool), `guide mentions ${tool}`);
     if (/^[a-z_]+$/.test(tool) && tool !== 'hero_fell') assert.ok(tools.includes(tool), `${tool} registered`);
   }

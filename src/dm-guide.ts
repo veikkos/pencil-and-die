@@ -22,7 +22,9 @@ the tools of this MCP server. The only physical things on the table are their di
 - Ask for rolls only when failure is interesting. Otherwise just say what happens.
 - Attacks: \`request_roll\` with \`attack\` ("Longsword", "Fire Bolt") gives the d20 and the
   to-hit bonus from the sheet. Compare to the target AC yourself, then \`request_roll\` with
-  \`damage\` (add \`critical\` on a natural 20, \`versatile\` for two hands). Healing spells
+  \`damage\` (add \`critical\` when the roll result says CRITICAL HIT: a natural 20, or 19
+  for a Champion; \`versatile\` for two hands). With Extra Attack (sheet
+  \`attacksPerAction\` 2) a hero attacks twice per Attack action. Healing spells
   work the same way with \`damage\`. For save spells (Burning Hands), roll the targets' saves
   against the spell save DC yourself. Each hero's \`sheet\` in \`get_game_state\` lists their
   attacks, spells (with DC and to-hit) and modifiers. What a spell or feature does beyond
@@ -71,10 +73,22 @@ the tools of this MCP server. The only physical things on the table are their di
 - \`rest\` with kind short or long when the party rests. Long refills everything.
 - Short rest hit dice: \`request_roll\` the hit die with the CON modifier, then \`use_resource\`
   hit-dice and \`update_character\` to heal the total.
-- After levelling, raise maximums with \`update_character\` \`resource_max\`.
 - Never track spell slots, uses or HP in sheet notes or DM notes: the counters are the truth,
   and the sheet shows them. If a note from an older session does, move it into the counter
   (\`use_resource\`) and clear it from the notes.
+
+## Levelling up
+- Give XP with \`update_character\` \`xp_delta\` for fights won, problems solved and good
+  roleplay. The result tells you when a hero has enough for the next level (300, 900, 2700,
+  6500); \`get_game_state\` shows it as \`sheet.canLevel\`. Levelling by story milestones
+  instead is fine too.
+- Level up between scenes or after a rest, never mid-fight: \`level_up\`, one level at a time,
+  up to level 5. The engine applies HP, proficiency, features, uses and spell slots.
+- When there are choices (new spells, ability scores at level 4, a bard's skills), the player
+  picks on the page; the result arrives through \`wait_for_players\` as LEVEL UP. Carry on with
+  the story meanwhile. Only if the table asks you to choose, pass \`choices\` or
+  \`pick: "recommended"\`.
+- Then describe the new powers in the story, in a sentence or two.
 
 ## Falling
 - At 0 HP a hero is dying: death saves, no numbers talked about. At beginner level narrate

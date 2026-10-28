@@ -352,3 +352,30 @@ span.tip:not(.tip-row) { text-decoration: underline dotted var(--ink-faint); tex
 .seg button { border: none; background: none; padding: .35em .7em; color: var(--ink-soft); }
 .seg button:hover { background: var(--paper-2); }
 .seg button.on { background: var(--ink); color: var(--paper); }
+
+/* Levelling up */
+.lvl-chip {
+  display: inline-block; margin-left: 4px; padding: 1px 7px; border-radius: 999px; font: 600 .7em var(--sans, inherit);
+  background: var(--gold); color: var(--ink); vertical-align: middle; cursor: pointer;
+}
+.levelup-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  margin: 8px 0; padding: 8px 12px; border: 1.5px solid var(--gold); border-radius: 10px;
+}
+.sheet .feats .val { font-style: normal; font-weight: 700; color: var(--accent); }
+.levelup-modal .card { max-width: 640px; }
+.levelup-modal .gains { padding-left: 18px; margin: 4px 0 12px; }
+.levelup-modal .gains li { margin: 3px 0; }
+.levelup-modal .gains li span { color: var(--ink-soft); }
+.levelup-modal h4 { margin: 14px 0 4px; }
+.levelup-modal .picks { list-style: none; padding: 0; margin: 0; max-height: 260px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; }
+.levelup-modal .picks li + li { border-top: 1px dotted var(--line); }
+.levelup-modal .picks label { display: flex; gap: 10px; align-items: flex-start; padding: 6px 10px; cursor: pointer; }
+.levelup-modal .picks label.on { background: var(--paper-2); }
+.levelup-modal .picks label.full { opacity: .5; cursor: default; }
+.levelup-modal .picks input { margin-top: 4px; }
+.levelup-modal .asi { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 4px 20px; }
+.levelup-modal .asi li { display: flex; align-items: center; gap: 6px; }
+.levelup-modal .asi li span { flex: 1; }
+.levelup-modal .asi li b { min-width: 3.2em; text-align: right; }
+.levelup-modal .error { color: var(--bad); }

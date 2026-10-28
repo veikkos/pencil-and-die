@@ -113,6 +113,27 @@ await dm('update_character', { character_id: mira.id, hp_delta: -40, reason: 'go
 while (!(await pending(g.id)).some((r) => r.purpose === 'death_save')) await dm('next_turn');
 await snapshot('dying', g.id);
 
+// ---- Heroes levelling up: two choosing, two already at level 5 ------------------
+
+const lv = await api('/api/games', { title: 'The Long Road' });
+const lvl = (name: string, race: string, className: string, player: string) =>
+  api(`/api/games/${lv.id}/characters`, { name, player, race, className, preset: 'specialist' });
+const ela = await lvl('Elowen', 'elf', 'wizard', 'Sam');
+const lark = await lvl('Lark', 'half-elf', 'bard', 'Veikko');
+const tor = await lvl('Torvald', 'dwarf', 'fighter', 'Ann');
+const ada = await lvl('Ada', 'human', 'cleric', 'Kim');
+await api(`/api/games/${lv.id}/start`, {});
+for (let i = 0; i < 2; i++) await dm('level_up', { character_id: ela.id, pick: 'recommended', game_id: lv.id });
+await dm('level_up', { character_id: lark.id, pick: 'recommended', game_id: lv.id });
+for (let i = 0; i < 4; i++) {
+  await dm('level_up', { character_id: tor.id, game_id: lv.id, pick: 'recommended' });
+  await dm('level_up', { character_id: ada.id, game_id: lv.id, pick: 'recommended' });
+}
+await dm('update_character', { character_id: ela.id, xp_delta: 2700, game_id: lv.id });
+await dm('level_up', { character_id: ela.id, game_id: lv.id });
+await dm('level_up', { character_id: lark.id, game_id: lv.id });
+await snapshot('levelling', lv.id);
+
 const config = await api('/api/config');
 const rules = await api('/api/rules');
 writeFileSync(out, `${JSON.stringify({ config: { ...config, activeGameId: null }, rules, games }, null, 1)}\n`);

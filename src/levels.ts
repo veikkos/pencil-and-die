@@ -3,7 +3,7 @@
 // into the hero's new numbers, which the event stores, so replays never depend on this table.
 
 import { pactSlotLevel, resourcesAt, type Resource } from './resources.ts';
-import { ABILITIES, CLASSES, mod, SKILLS, type Ability, type Abilities, type Character, type Feature } from './rules.ts';
+import { ABILITIES, CLASSES, mod, RACES, SKILLS, type Ability, type Abilities, type Character, type Feature } from './rules.ts';
 import { findSpell, SPELLS, type Spell } from './spells.ts';
 
 export const MAX_LEVEL = 5;
@@ -334,7 +334,10 @@ export function levelUp(c: Character, choices: LevelChoices): LevelGains {
   }
 
   const bardExpertise = expertise.length ? [f('Bardic Expertise', `Double proficiency in ${expertise.join(' and ')}.`)].map((x) => ({ ...x, level: o.level })) : [];
-  const features = [...c.features, ...o.features, ...bardExpertise];
+  // Starting features get today's wording, in case it changed since the hero was made.
+  const defaults = [...(CLASSES.find((x) => x.id === c.classId)?.features ?? []), ...(RACES.find((x) => x.id === c.raceId)?.traits ?? [])];
+  const current = c.features.map((x) => ({ ...x, text: defaults.find((d) => d.name === x.name)?.text ?? x.text }));
+  const features = [...current, ...o.features, ...bardExpertise];
   // A CON increase counts for every level already gained, too.
   const hpGain = hpPerLevel(c, abilities) + (mod(abilities.con) - mod(c.abilities.con)) * c.level;
   const handMadeAc = c.ac !== classAc(c, c.abilities, c.features);

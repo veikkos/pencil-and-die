@@ -433,6 +433,8 @@ const isFi = () => cfg.language === 'fi';
 const itemName = (n) => (isFi() ? FI_RULES.items[n.toLowerCase()] ?? FI_RULES.weapons[n.toLowerCase()] : null) ?? n;
 const spellText = (sp) => (isFi() && FI_RULES.spells[sp.id]) || [sp.name, sp.summary];
 const featureText = (f) => (isFi() && FI_RULES.features[f.name]) || [f.name, f.text];
+/** A feature's number in the page's language: "25 HP", "CR ½", "DC 13". */
+const valueText = (v) => v.replace(/\bHP\b/, t().hp).replace(/\bCR\b/, t().sheet.cr).replace(/\bDC\b/, t().sheet.dc);
 const damageType = (d) => t().sheet.damageTypes[d] ?? d;
 const propWord = (p) => /^([\w-]+)/.exec(p)?.[1] ?? p;
 /** "versatile (1d10)" → the property word in the page's language, the value kept. */
@@ -553,7 +555,8 @@ function attackBits(a, { carried = true } = {}) {
   const damage = a.dice ? sumText(a.bonusParts, { dice: a.dice }) : sumText(a.bonusParts, { plain: true });
   if (isBeginner()) return { right: '', sub: dot([esc(L.reach[a.range && !thrown ? 'ranged' : 'melee']), ...extra]) };
   const right = `${tip(`<b>${sign(a.toHit)}</b>`, [g.terms.toHit, sumText(a.toHitParts)])}${tip(`<span>${esc(a.damage)} ${esc(damageType(a.damageType))}</span>`, [g.terms.damage, damage])}`;
-  const sub = [a.range && !thrown ? tip(esc(`${a.range} ft`), [g.props.range]) : '', ...a.properties.map((p) => tip(esc(propName(p)), [g.props[propWord(p)]])), ...extra];
+  const sub = [a.range && !thrown ? tip(esc(`${a.range} ft`), [g.props.range]) : '', ...a.properties.map((p) => tip(esc(propName(p)), [g.props[propWord(p)]])),
+    a.critOn < 20 ? esc(L.critOn(a.critOn)) : '', ...extra];
   return { right, sub: dot(sub) };
 }
 
@@ -581,17 +584,18 @@ function actionsPanel(c) {
     const { right, sub } = attackBits(a);
     return actRow(esc(itemName(a.name)), right, sub);
   });
-  let html = `<h3>${esc(L.attacks)}</h3><ul class="acts">${attacks.join('')}</ul>`;
+  const twice = sh.attacksPerAction > 1 ? `<div class="muted">${esc(L.attacksPer[level()])}</div>` : '';
+  let html = `<h3>${esc(L.attacks)}</h3>${twice}<ul class="acts">${attacks.join('')}</ul>`;
 
   if (sh.spells.length) {
     const cast = sh.spellcasting;
     html += `<h3>${esc(L.spells)}</h3>${beginner || !cast ? '' : `<div class="muted">${tip(esc(L.spellNumbers(cast.saveDc, sign(cast.attack), s.abilityNames[cast.ability])),
       [g.terms.spellDc, sumText(cast.saveDcParts, { plain: true }), g.terms.spellAttack, sumText(cast.attackParts)])}</div>`}`;
-    for (const lv of [0, 1]) {
+    for (const lv of [0, 1, 2, 3]) {
       const list = sh.spells.filter((x) => x.level === lv);
       if (!list.length) continue;
       const slot = lv && c.resources.find((r) => r.id === cast?.slots[lv]);
-      html += `<h4>${tip(esc((lv ? L.level1 : L.cantrips)[level()]), [lv ? g.terms.slot : g.terms.cantrip])}${slot ? ` ${uses(slot)}` : ''}</h4><ul class="acts">${list.map((sp) => {
+      html += `<h4>${tip(esc(L.spellLevels[level()][lv]), [lv ? g.terms.slot : g.terms.cantrip])}${slot ? ` ${uses(slot)}` : ''}</h4><ul class="acts">${list.map((sp) => {
         const [name, summary] = spellText(sp);
         const hit = sp.toHit !== undefined ? tip(`<b>${sign(sp.toHit)}</b>`, [g.terms.spellAttack, sumText(cast.attackParts)])
           : sp.saveDc !== undefined ? tip(`<b>${esc(L.save(s.abilities[sp.save], sp.saveDc))}</b>`, [g.terms.spellDc, sumText(cast.saveDcParts, { plain: true })]) : '';
@@ -646,7 +650,8 @@ function featuresPanel(c) {
     if (!list.length) return '';
     return `<h3>${esc(L.sources[src])}</h3><ul class="feats">${list.map((f) => {
       const [name, text] = featureText(f);
-      return `<li><b>${esc(name)}</b>${text ? `<span>${esc(text)}</span>` : ''}</li>`;
+      const tags = [f.value && !isBeginner() ? `<em class="val">${esc(valueText(f.value))}</em>` : '', f.level ? `<small class="muted">${esc(L.fromLevel(f.level))}</small>` : ''].join(' ');
+      return `<li><b>${esc(name)}</b> ${tags}${text ? `<span>${esc(text)}</span>` : ''}</li>`;
     }).join('')}</ul>`;
   }).join('');
 }
@@ -665,7 +670,8 @@ function sheetHtml(c) {
     [s.sheet.prof, sign(c.sheet.proficiency), [g.prof]],
   ];
   return `<div class="sheet">
-    <div class="muted">${esc(raceName(c))} · ${esc(className(c))} · ${s.level} ${c.level}${c.player ? ` · ${esc(c.player)}` : ''}</div>
+    <div class="muted">${esc(raceName(c))} · ${esc(className(c))} · ${s.level} ${c.level}${isBeginner() || !c.sheet.xpNext && !c.xp ? '' : ` · ${tip(esc(s.sheet.xp(c.xp, c.sheet.xpNext)), [g.xp])}`}${c.player ? ` · ${esc(c.player)}` : ''}</div>
+    ${c.pendingLevel && viewSeq === null ? `<div class="levelup-banner"><span>${esc(s.sheet.levelReady(c.pendingLevel))}</span><button type="button" class="btn" data-levelup="${esc(c.id)}">${esc(s.levelUp.chip)}</button></div>` : ''}
     <div class="sheet-top">
       ${tip(`<small>${esc(s.hp)}</small><b>${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp}` : ''}</b><div class="hpbar"><i class="${pct <= 30 ? 'low' : ''}" style="width:${pct}%"></i></div>`, [g.hp], 'box sheet-hp')}
       ${nums.map(([k, v, lines]) => tip(`<small>${esc(k)}</small><b>${esc(v)}</b>`, lines, 'box sheet-num')).join('')}
@@ -697,6 +703,126 @@ function showSheet(c) {
   modal.innerHTML = `<div class="card"><h2>${esc(c.name)}</h2>${sheetHtml(c)}<div class="wizard-nav"><span></span><button class="btn" data-close>OK</button></div></div>`;
   modal.onclick = (e) => { if (e.target === modal || e.target.closest('[data-close]')) modal.remove(); };
   document.body.appendChild(modal);
+}
+
+// ---- Levelling up ------------------------------------------------------------
+
+// The DM offers a level; the player makes the choices here. Recommended picks start selected.
+document.addEventListener('click', (e) => {
+  const el = e.target.closest?.('[data-levelup]');
+  if (!el) return;
+  e.stopPropagation();
+  e.preventDefault();
+  const c = shown?.characters.find((x) => x.id === el.dataset.levelup);
+  if (!c?.levelUp) return;
+  document.querySelectorAll('.sheet-modal').forEach((m) => m.remove());
+  showLevelUp(c);
+}, true);
+
+function showLevelUp(c) {
+  const o = c.levelUp;
+  const ch = o.choices;
+  const picks = {
+    asi: { ...(ch.asi?.recommended ?? {}) },
+    cantrips: [...(ch.cantrips?.recommended ?? [])],
+    spells: [...(ch.spells?.recommended ?? [])],
+    skills: [...(ch.skills?.recommended ?? [])],
+    expertise: [...(ch.expertise?.recommended ?? [])],
+  };
+  const modal = document.createElement('div');
+  modal.className = 'modal levelup-modal';
+  document.body.appendChild(modal);
+  let error = '';
+
+  const asiUsed = () => Object.values(picks.asi).reduce((n, v) => n + v, 0);
+  const valid = () => (!ch.asi || asiUsed() === 2)
+    && ['cantrips', 'spells', 'skills', 'expertise'].every((k) => !ch[k] || picks[k].length === ch[k].count);
+
+  function render() {
+    const s = t();
+    const L = s.levelUp;
+    const expert = !isBeginner();
+    const oldRes = new Map(c.resources.map((r) => [r.id, r]));
+    const resLines = o.resources.filter((r) => !oldRes.has(r.id) || oldRes.get(r.id).max !== r.max || oldRes.get(r.id).name !== r.name)
+      .filter((r) => !(isBeginner() && r.id === 'hit-dice'))
+      .map((r) => `${resourceName(r)}${r.unit === 'hp' ? ` ${r.max}` : ` ${'●'.repeat(r.max)}`}`);
+    const gains = [
+      `<li><b>${esc(L.hp(o.hp))}</b></li>`,
+      expert && o.proficiency !== c.proficiencyBonus ? `<li>${esc(L.prof(o.proficiency))}</li>` : '',
+      o.speed ? `<li>${esc(L.speed(o.speed))}</li>` : '',
+      ...o.features.map((f) => { const [n, txt] = featureText(f); return `<li><b>${esc(n)}</b> <span>${esc(txt)}</span></li>`; }),
+      o.spells.length ? `<li><b>${esc(L.newSpells)}:</b> ${o.spells.map((sp) => esc(spellText(sp)[0])).join(', ')}</li>` : '',
+      resLines.length ? `<li><b>${esc(L.uses)}:</b> ${resLines.map(esc).join(' · ')}</li>` : '',
+    ].join('');
+
+    const pickList = (key, items, label) => {
+      const pick = ch[key];
+      return `<h4>${esc(label(pick.count))} <small class="muted">${esc(L.chosen(picks[key].length, pick.count))}</small></h4><ul class="picks">${items.map(([id, name, sub]) => {
+        const on = picks[key].includes(id);
+        const full = !on && picks[key].length >= pick.count;
+        return `<li><label class="${on ? 'on' : ''}${full ? ' full' : ''}"><input type="checkbox" data-pick="${key}" value="${esc(id)}"${on ? ' checked' : ''}${full ? ' disabled' : ''}><span><b>${esc(name)}</b>${sub ? ` <small class="muted">${sub}</small>` : ''}</span></label></li>`;
+      }).join('')}</ul>`;
+    };
+    const spellItems = (list) => list.map((sp) => {
+      const [name, summary] = spellText(sp);
+      return [sp.id, name, `${esc(t().sheet.spellLevels[level()][sp.level])} · ${esc(summary)}`];
+    });
+    const proficient = [...c.skills, ...picks.skills];
+    let choices = '';
+    if (ch.asi) {
+      const left = 2 - asiUsed();
+      choices += `<h4>${esc(L.asi)} <small class="muted">${esc(L.points(left))}</small></h4><p class="muted">${esc(L.asiHint)}</p><ul class="asi">${['str', 'dex', 'con', 'int', 'wis', 'cha'].map((a) => {
+        const add = picks.asi[a] ?? 0;
+        const score = c.abilities[a] + add;
+        return `<li><span>${esc(s.abilityNames[a])}</span><b>${score}${add ? ` <small>+${add}</small>` : ''}</b>
+          <button type="button" class="btn small" data-asi="${a}" data-d="-1"${add ? '' : ' disabled'}>−</button>
+          <button type="button" class="btn small" data-asi="${a}" data-d="1"${left && score < 20 && add < 2 ? '' : ' disabled'}>+</button></li>`;
+      }).join('')}</ul>`;
+    }
+    if (ch.cantrips) choices += pickList('cantrips', spellItems(ch.cantrips.from), L.cantrips);
+    if (ch.spells) choices += pickList('spells', spellItems(ch.spells.from), L.spells);
+    if (ch.skills) choices += pickList('skills', ch.skills.from.map((k) => [k, skillName(k), esc(s.abilities[c.sheet.skills.find((x) => x.name === k)?.ability] ?? '')]), L.skills);
+    if (ch.expertise) {
+      picks.expertise = picks.expertise.filter((k) => proficient.includes(k));
+      choices += pickList('expertise', ch.expertise.from.filter((k) => proficient.includes(k)).map((k) => [k, skillName(k), '']), L.expertise);
+    }
+
+    modal.innerHTML = `<div class="card"><h2>${esc(L.title(c.name, o.level))}</h2>
+      <h3>${esc(L.gains)}</h3><ul class="gains">${gains}</ul>
+      ${choices ? `<h3>${esc(L.choose)}</h3><p class="muted">${esc(L.picked)}</p>${choices}` : ''}
+      ${error ? `<p class="error">${esc(L.failed)} ${esc(error)}</p>` : ''}
+      <div class="wizard-nav"><button type="button" class="ghost" data-close>${esc(L.later)}</button><button type="button" class="btn primary" data-confirm${valid() ? '' : ' disabled'}>${esc(L.confirm)}</button></div></div>`;
+  }
+
+  modal.addEventListener('change', (e) => {
+    const box = e.target.closest('[data-pick]');
+    if (!box) return;
+    const list = picks[box.dataset.pick];
+    if (box.checked) list.push(box.value); else list.splice(list.indexOf(box.value), 1);
+    render();
+  });
+  modal.addEventListener('click', async (e) => {
+    if (e.target === modal || e.target.closest('[data-close]')) { modal.remove(); return; }
+    const asi = e.target.closest('[data-asi]');
+    if (asi) {
+      const a = asi.dataset.asi;
+      picks.asi[a] = (picks.asi[a] ?? 0) + Number(asi.dataset.d);
+      if (!picks.asi[a]) delete picks.asi[a];
+      render();
+      return;
+    }
+    if (e.target.closest('[data-confirm]') && valid()) {
+      const body = Object.fromEntries(Object.entries(picks).filter(([k]) => ch[k]));
+      try {
+        await api(`/api/games/${gameId}/characters/${c.id}/level-up`, body);
+        modal.remove();
+      } catch (err) {
+        error = err.message ?? String(err);
+        render();
+      }
+    }
+  });
+  render();
 }
 
 // ---------------------------------------------------------------------------
@@ -961,7 +1087,7 @@ function heroCardHtml(card) {
   const life = status === 'up' ? '' : s.life[status]?.[level()] ?? '';
   return `<button class="pc hero ${status === 'up' ? '' : status} ${card.active ? 'turn' : ''}" data-sheet="${esc(c.id)}"${card.active ? ` title="${esc(s.combat.turnOf(c.name))}"` : ''}>
     ${turnBadge(card)}
-    <div class="name">${esc(c.name)}</div>
+    <div class="name">${esc(c.name)}${c.pendingLevel && viewSeq === null ? ` <span class="lvl-chip" data-levelup="${esc(c.id)}">${esc(s.levelUp.chip)}</span>` : ''}</div>
     <div class="sub">${esc(raceName(c))} · ${esc(className(c))} ${c.level}${c.player ? ` · ${esc(c.player)}` : ''}${life ? ` · <b class="life">${esc(life)}</b>` : ''}</div>
     <div class="hpbar"><i class="${pct <= 30 ? 'low' : ''}" style="width:${pct}%"></i></div>
     <div class="nums"><span>${s.hp} ${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp}` : ''}</span>${isBeginner() ? '' : `<span>${s.ac} ${c.ac}</span>`}</div>
