@@ -590,7 +590,7 @@ function actionsPanel(c) {
     for (const lv of [0, 1]) {
       const list = sh.spells.filter((x) => x.level === lv);
       if (!list.length) continue;
-      const slot = lv && c.resources.find((r) => r.id === cast?.slots);
+      const slot = lv && c.resources.find((r) => r.id === cast?.slots[lv]);
       html += `<h4>${tip(esc((lv ? L.level1 : L.cantrips)[level()]), [lv ? g.terms.slot : g.terms.cantrip])}${slot ? ` ${uses(slot)}` : ''}</h4><ul class="acts">${list.map((sp) => {
         const [name, summary] = spellText(sp);
         const hit = sp.toHit !== undefined ? tip(`<b>${sign(sp.toHit)}</b>`, [g.terms.spellAttack, sumText(cast.attackParts)])
@@ -609,7 +609,7 @@ function actionsPanel(c) {
 
   const res = (id) => visibleResources(c).find((r) => r.id === id);
   const featured = sh.features.filter((f) => f.resourceId && res(f.resourceId));
-  const linked = new Set([...featured.map((f) => f.resourceId), sh.spells.length ? sh.spellcasting?.slots : null]);
+  const linked = new Set([...featured.map((f) => f.resourceId), ...(sh.spells.length ? Object.values(sh.spellcasting?.slots ?? {}) : [])]);
   const rest = visibleResources(c).filter((r) => !linked.has(r.id));
   if (featured.length || rest.length) {
     html += `<h3>${esc(L.limited)}</h3><ul class="acts">${[

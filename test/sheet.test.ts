@@ -41,7 +41,7 @@ test('sheet: rogue weapons, ammo, skills and saves', () => {
 test('sheet: wizard spells with DC, to-hit, slots', () => {
   const s = sheetOf(hero('elf', 'wizard')); // INT 15 + 1 = 16 (+3)
   const { ability, attack, saveDc, slots } = s.spellcasting!;
-  assert.deepEqual({ ability, attack, saveDc, slots }, { ability: 'int', attack: 5, saveDc: 13, slots: 'spell-slots-1' });
+  assert.deepEqual({ ability, attack, saveDc, slots }, { ability: 'int', attack: 5, saveDc: 13, slots: { 1: 'spell-slots-1' } });
   const sp = (n: string) => s.spells.find((x) => x.name === n)!;
   assert.equal(sp('Fire Bolt').toHit, 5);
   assert.equal(sp('Fire Bolt').roll, '1d10');

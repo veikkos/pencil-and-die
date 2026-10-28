@@ -5,6 +5,7 @@ import { createMcpExpressApp } from '@modelcontextprotocol/sdk/server/express.js
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { getSetting, openDb, setSetting } from './db.ts';
 import { parseDice, physicalDice, scoreRoll } from './dice.ts';
+import { levelUp, type LevelChoices } from './levels.ts';
 import { createMcpServer } from './mcp.ts';
 import { buildCharacter, CLASSES, PRESETS, RACES, SKILLS, type CharacterChoices } from './rules.ts';
 import { sheetOf } from './sheet.ts';
@@ -121,6 +122,16 @@ app.post('/api/games/:id/characters', (req, res) => {
   const character = buildCharacter(randomUUID().slice(0, 6), req.body as CharacterChoices);
   store.append(id, { type: 'character_created', character });
   res.json(character);
+});
+
+app.post('/api/games/:id/characters/:cid/level-up', (req, res) => {
+  const id = game(req);
+  const c = store.state(id).characters.find((x) => x.id === req.params.cid);
+  if (!c) throw new Error('No such character');
+  if (!c.pendingLevel) throw new Error(`${c.name} has no level up waiting`);
+  const gains = levelUp(c, (req.body ?? {}) as LevelChoices);
+  store.append(id, { type: 'character_levelled', characterId: c.id, gains, by: 'player' });
+  res.json({ ok: true });
 });
 
 app.post('/api/games/:id/start', (req, res) => {

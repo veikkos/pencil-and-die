@@ -6,11 +6,12 @@ import type { Db } from './db.ts';
 import { parseDice, physicalDice, virtualRoll } from './dice.ts';
 import { DM_GUIDE } from './dm-guide.ts';
 import { fightRefs, orderText, registerSceneTools, roundText } from './mcp-scene.ts';
+import { canLevel, levelOptions, levelUp, needsChoices, withRecommended, type LevelOptions } from './levels.ts';
 import { findResource } from './resources.ts';
 import { newPresences, presenceSpec, stillPresent, toSpec, type Presence } from './roster.ts';
-import { checkModifier, type Character } from './rules.ts';
+import { ABILITIES, checkModifier, type Character } from './rules.ts';
 import { attackRoll, damageRoll, sheetOf } from './sheet.ts';
-import { findSpell, SPELLS, type Spell } from './spells.ts';
+import { findSpell, SPELLS, type Spell, type SpellLevel } from './spells.ts';
 import { getSketchStyle, sanitizeSketch, setSketchStyle, SKETCH_HEIGHT, SKETCH_WIDTH } from './sketch.ts';
 import type { GameState, StoredEvent } from './state.ts';
 import { COMPLEXITY_GUIDE, FALLEN_GUIDE, LANGUAGE_NAMES, VERBOSITY_GUIDE, type GameStore } from './store.ts';
@@ -37,15 +38,19 @@ function describeEvent(s: GameState, { seq, event: e }: StoredEvent): string {
         return `[${seq}] DEATH SAVE ${who(r.characterId)}: ${face} → ${face === 20 ? 'natural 20' : face === 1 ? 'natural 1, two failures' : face >= 10 ? 'success' : 'failure'}${saves}${end}`;
       }
       const vs = r.dc !== undefined ? ` vs DC ${r.dc} → ${e.success ? 'SUCCESS' : 'FAILURE'}` : '';
+      const kept = r.advantage === 'advantage' ? Math.max(...e.faces) : r.advantage === 'disadvantage' ? Math.min(...e.faces) : e.faces[0];
+      const crit = r.critOn === undefined ? '' : kept >= r.critOn ? ` — CRITICAL HIT${kept < 20 ? ` (${kept} is a critical for ${who(r.characterId)})` : ''}: roll damage with \`critical\`` : kept === 1 ? ' — natural 1, a miss' : '';
       const lastInitiative = r.purpose === 'initiative' && s.combat && s.combat.round > 0
         && s.rolls.findLast((x) => x.purpose === 'initiative') === r;
       const order = lastInitiative ? ` Initiative order: ${orderText(s)}. ${roundText(s)}` : '';
-      return `[${seq}] ROLL ${who(r.characterId)} — ${r.label}: dice ${e.faces.join(', ')}${r.advantage !== 'none' ? ` (${r.advantage})` : ''} ${sign(r.modifier)} = ${e.total}${vs}${order}`;
+      return `[${seq}] ROLL ${who(r.characterId)} — ${r.label}: dice ${e.faces.join(', ')}${r.advantage !== 'none' ? ` (${r.advantage})` : ''} ${sign(r.modifier)} = ${e.total}${vs}${crit}${order}`;
     }
     case 'character_created': {
       const c = e.character;
       return `[${seq}] NEW CHARACTER ${c.name} (id ${c.id}), played by ${c.player || '?'}: level ${c.level} ${c.race} ${c.className}, HP ${c.maxHp}, AC ${c.ac}`;
     }
+    case 'character_levelled':
+      return `[${seq}] LEVEL UP: ${s.log.find((l) => l.seq === seq)?.text ?? who(e.characterId)}. Describe the new powers in the story.`;
     case 'hero_fell':
       return e.outcome === 'dead'
         ? `[${seq}] ${who(e.characterId)} has DIED. ${FALLEN_GUIDE.death}`
@@ -57,8 +62,24 @@ function describeEvent(s: GameState, { seq, event: e }: StoredEvent): string {
   }
 }
 
+function gainsText(o: LevelOptions): string {
+  return [`+${o.hp} HP`, `proficiency +${o.proficiency}`, o.speed && `+${o.speed} ft speed`,
+    o.features.length && `features: ${o.features.map((f) => f.name).join(', ')}`,
+    o.spells.length && `spells: ${o.spells.map((s) => s.name).join(', ')}`,
+    `uses: ${o.resources.map((r) => `${r.name} ${r.max}`).join(', ')}`].filter(Boolean).join('; ');
+}
+
+function choicesText(o: LevelOptions): string {
+  const ch = o.choices;
+  return [ch.asi && 'ability scores (+2)', ch.cantrips && `${ch.cantrips.count} cantrip(s)`, ch.spells && `${ch.spells.count} spell(s)`,
+    ch.skills && `${ch.skills.count} skills`, ch.expertise && `${ch.expertise.count} Expertise skills`].filter(Boolean).join(', ');
+}
+
+const levelHint = (c: Character) => (canLevel(c) && !c.pendingLevel
+  ? `. ${c.name} has enough XP for level ${c.level + 1}: call level_up when the story allows (between scenes, after a rest).` : '');
+
 type SpellArg = string | {
-  name: string; level: 0 | 1; casting_time: Spell['castingTime']; range: string; summary: string; concentration?: boolean;
+  name: string; level: SpellLevel; casting_time: Spell['castingTime']; range: string; summary: string; concentration?: boolean;
   attack?: Spell['attack']; save?: Spell['save']; dice?: string; add_mod?: boolean; damage_type?: string; heal?: boolean;
 };
 
@@ -315,7 +336,8 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     const rollId = randomUUID().slice(0, 8);
     const roll = deathSave
       ? { rollId, characterId: c.id, label: finalLabel, dice: '1d20', modifier: 0, advantage: 'none' as const, dc: undefined, hideDc: true, purpose: 'death_save' as const }
-      : { rollId, characterId: c.id, label: finalLabel, dice, modifier: modifier ?? named?.modifier ?? computed?.modifier ?? 0, advantage, dc, hideDc: hide_dc };
+      : { rollId, characterId: c.id, label: finalLabel, dice, modifier: modifier ?? named?.modifier ?? computed?.modifier ?? 0, advantage, dc, hideDc: hide_dc,
+        ...(attack ? { critOn: named?.critOn ?? 20 } : {}) };
     store.append(id, { type: 'roll_requested', roll });
     return text(`Asked ${c.name} to roll ${finalLabel}: ${roll.dice}${roll.advantage !== 'none' ? ` with ${roll.advantage}` : ''} ${sign(roll.modifier)} (roll id ${rollId}). The result arrives via wait_for_players.`);
   });
@@ -359,7 +381,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
   // ---- Characters ----------------------------------------------------------
 
   server.registerTool('update_character', {
-    description: 'Change a character sheet: damage/healing, items, gold, XP, conditions, level, features, spells. Every change shows up on the table.',
+    description: 'Change a character sheet: damage/healing, items, gold, XP, conditions, features, spells. Every change shows up on the table. Levels go through level_up.',
     inputSchema: {
       character_id: z.string(),
       hp_delta: z.number().int().optional().describe('Negative for damage (temp HP absorbs first), positive for healing.'),
@@ -367,7 +389,6 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       max_hp: z.number().int().optional(),
       temp_hp: z.number().int().optional(),
       ac: z.number().int().optional(),
-      level: z.number().int().min(1).max(20).optional(),
       xp_delta: z.number().int().optional(),
       gold_delta: z.number().int().optional(),
       add_items: z.array(z.object({ name: z.string(), qty: z.number().int().min(0).optional(), note: z.string().optional() })).optional()
@@ -381,7 +402,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       add_features: z.array(z.union([z.string(), z.object({ name: z.string(), text: z.string().default('') })])).optional()
         .describe('A name, or { name, text } with a one-line explanation the players can read.'),
       add_spells: z.array(z.union([z.string(), z.object({
-        name: z.string(), level: z.union([z.literal(0), z.literal(1)]), casting_time: z.enum(['action', 'bonus', 'reaction']).default('action'),
+        name: z.string(), level: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]), casting_time: z.enum(['action', 'bonus', 'reaction']).default('action'),
         range: z.string(), summary: z.string(), concentration: z.boolean().optional(),
         attack: z.enum(['ranged', 'melee']).optional(), save: z.enum(['str', 'dex', 'con', 'int', 'wis', 'cha']).optional(),
         dice: z.string().optional(), add_mod: z.boolean().optional(), damage_type: z.string().optional(), heal: z.boolean().optional(),
@@ -400,7 +421,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     store.append(id, {
       type: 'character_updated', characterId: c.id, reason: a.reason,
       patch: {
-        hpDelta: a.hp_delta, hp: a.hp, maxHp: a.max_hp, tempHp: a.temp_hp, ac: a.ac, level: a.level,
+        hpDelta: a.hp_delta, hp: a.hp, maxHp: a.max_hp, tempHp: a.temp_hp, ac: a.ac,
         xpDelta: a.xp_delta, goldDelta: a.gold_delta, addItems: a.add_items, removeItems: a.remove_items,
         addConditions: a.add_conditions, removeConditions: a.remove_conditions, addEffects: a.add_effects, removeEffects: a.remove_effects, addFeatures: a.add_features?.map((f) => (typeof f === 'string' ? f : { ...f, source: 'other' as const })), notes: a.notes,
         addSpells: a.add_spells?.map(toSpell), removeSpells: a.remove_spells, critical: a.critical, revive: a.revive,
@@ -408,7 +429,34 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       },
     });
     const after = character(store.state(id), c.id);
-    return text(`${after.name}: HP ${after.hp}/${after.maxHp}${after.tempHp ? ` (+${after.tempHp} temp)` : ''}, AC ${after.ac}, conditions: ${after.conditions.join(', ') || 'none'}, effects: ${after.effects.map((x) => x.name).join(', ') || 'none'}${lifeNote(after)}`);
+    return text(`${after.name}: HP ${after.hp}/${after.maxHp}${after.tempHp ? ` (+${after.tempHp} temp)` : ''}, AC ${after.ac}, conditions: ${after.conditions.join(', ') || 'none'}, effects: ${after.effects.map((x) => x.name).join(', ') || 'none'}${lifeNote(after)}${levelHint(after)}`);
+  });
+
+  server.registerTool('level_up', {
+    description: 'Raise a hero one level (up to 5). The engine applies everything the rules decide: HP, proficiency, features, uses, spell slots. When there are choices (new spells, ability scores at level 4, a bard\'s skills), the player makes them on the page and the result reaches you through wait_for_players. Pass `choices`, or `pick: "recommended"`, only when the table asks you to choose.',
+    inputSchema: {
+      character_id: z.string(),
+      pick: z.enum(['player', 'recommended']).default('player').describe('"recommended" applies the recommended picks at once.'),
+      choices: z.object({
+        asi: z.record(z.enum(ABILITIES), z.number().int()).optional().describe('Level 4: +2 to one ability or +1 to two, e.g. {"wis": 2}.'),
+        spells: z.array(z.string()).optional(),
+        cantrips: z.array(z.string()).optional(),
+        skills: z.array(z.string()).optional(),
+        expertise: z.array(z.string()).optional(),
+      }).optional().describe('Choices made at the table. Anything left out gets the recommended pick.'),
+      game_id: gameIdArg,
+    },
+  }, (a) => {
+    const id = resolve(a.game_id);
+    const c = character(store.state(id), a.character_id);
+    const o = levelOptions(c);
+    if (a.choices || a.pick === 'recommended' || !needsChoices(o)) {
+      const gains = levelUp(c, withRecommended(o, a.choices));
+      const ev = store.append(id, { type: 'character_levelled', characterId: c.id, gains, by: 'dm' });
+      return text(`${store.state(id).log.find((l) => l.seq === ev.seq)?.text}. Describe the new powers in the story.`);
+    }
+    store.append(id, { type: 'level_up_offered', characterId: c.id, level: o.level });
+    return text(`${c.name} can reach level ${o.level}: ${gainsText(o)}. The player is choosing on the page: ${choicesText(o)}. The result arrives through wait_for_players; carry on meanwhile.`);
   });
 
   // ---- Sketches ------------------------------------------------------------

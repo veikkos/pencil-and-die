@@ -10,34 +10,61 @@ export interface Resource {
   used: number;
   recharge: Recharge;
   unit?: 'hp';
+  /** Pact slots: the level every slot is cast at. */
+  slotLevel?: number;
 }
 
-const res = (id: string, name: string, max: number, recharge: Recharge, unit?: 'hp'): Resource =>
-  ({ id, name, max, used: 0, recharge, ...(unit ? { unit } : {}) });
-const slots = () => res('spell-slots-1', 'Spell slots (1st)', 2, 'long');
+const res = (id: string, name: string, max: number, recharge: Recharge, extra: Partial<Resource> = {}): Resource =>
+  ({ id, name, max, used: 0, recharge, ...extra });
 
-const CLASS_RESOURCES: Record<string, (a: Abilities) => Resource[]> = {
-  fighter: () => [res('second-wind', 'Second Wind', 1, 'short')],
-  barbarian: () => [res('rage', 'Rage', 2, 'long')],
-  wizard: () => [slots(), res('arcane-recovery', 'Arcane Recovery', 1, 'long')],
-  sorcerer: () => [slots()],
-  cleric: () => [slots()],
-  druid: () => [slots()],
-  bard: (a) => [slots(), res('bardic-inspiration', 'Bardic Inspiration', Math.max(1, Math.floor((a.cha - 10) / 2)), 'long')],
-  warlock: () => [res('pact-slot', 'Pact slot', 1, 'short')],
-  paladin: () => [res('lay-on-hands', 'Lay on Hands', 5, 'long', 'hp')],
+const ORDINAL = ['', '1st', '2nd', '3rd'];
+/** Spell slots per hero level, 1st level first. */
+const FULL_SLOTS = [[], [2], [3], [4, 2], [4, 3], [4, 3, 2]];
+const HALF_SLOTS = [[], [], [2], [3], [3], [4, 2]];
+
+const slots = (table: number[][], level: number) =>
+  table[level].map((n, i) => res(`spell-slots-${i + 1}`, `Spell slots (${ORDINAL[i + 1]})`, n, 'long'));
+
+/** The level of spell a warlock's pact slots are cast at. */
+export const pactSlotLevel = (level: number) => Math.min(3, Math.ceil(level / 2));
+const chaMod = (a: Abilities) => Math.max(1, Math.floor((a.cha - 10) / 2));
+
+const CLASS_RESOURCES: Record<string, (a: Abilities, level: number) => Resource[]> = {
+  fighter: (_, l) => [res('second-wind', 'Second Wind', 1, 'short'), ...(l >= 2 ? [res('action-surge', 'Action Surge', 1, 'short')] : [])],
+  barbarian: (_, l) => [res('rage', 'Rage', l >= 3 ? 3 : 2, 'long')],
+  wizard: (_, l) => [...slots(FULL_SLOTS, l), res('arcane-recovery', 'Arcane Recovery', 1, 'long')],
+  sorcerer: (_, l) => [...slots(FULL_SLOTS, l), ...(l >= 2 ? [res('sorcery-points', 'Sorcery points', l, 'long')] : [])],
+  cleric: (_, l) => [...slots(FULL_SLOTS, l), ...(l >= 2 ? [res('channel-divinity', 'Channel Divinity', 1, 'short')] : [])],
+  druid: (_, l) => [...slots(FULL_SLOTS, l), ...(l >= 2 ? [res('wild-shape', 'Wild Shape', 2, 'short')] : [])],
+  bard: (a, l) => [...slots(FULL_SLOTS, l), res('bardic-inspiration', 'Bardic Inspiration', chaMod(a), l >= 5 ? 'short' : 'long')],
+  warlock: (_, l) => [res('pact-slot', `Pact slots (${ORDINAL[pactSlotLevel(l)]})`, l >= 2 ? 2 : 1, 'short', { slotLevel: pactSlotLevel(l) })],
+  paladin: (_, l) => [res('lay-on-hands', 'Lay on Hands', 5 * l, 'long', { unit: 'hp' }), ...slots(HALF_SLOTS, l),
+    ...(l >= 3 ? [res('channel-divinity', 'Channel Divinity', 1, 'short')] : [])],
+  ranger: (_, l) => slots(HALF_SLOTS, l),
+  monk: (_, l) => (l >= 2 ? [res('ki', 'Ki points', l, 'short')] : []),
 };
 
-export function defaultResources(classId: string, abilities: Abilities): Resource[] {
+export function defaultResources(classId: string, abilities: Abilities, level = 1): Resource[] {
   const hitDie = CLASSES.find((c) => c.id === classId)?.hitDie ?? 8;
-  return [...(CLASS_RESOURCES[classId]?.(abilities) ?? []), res('hit-dice', `Hit dice (d${hitDie})`, 1, 'long')];
+  return [...(CLASS_RESOURCES[classId]?.(abilities, level) ?? []), res('hit-dice', `Hit dice (d${hitDie})`, level, 'long')];
+}
+
+/** The resources a hero has at a new level: new maximums, spent uses kept, anything the DM added kept. */
+export function resourcesAt(c: Character, level: number, abilities = c.abilities): Resource[] {
+  const fresh = defaultResources(c.classId, abilities, level);
+  const old = new Map(c.resources.map((r) => [r.id, r]));
+  const out = fresh.map((r) => {
+    const was = old.get(r.id);
+    return was ? { ...r, used: Math.min(was.used, r.max) } : r;
+  });
+  return [...out, ...c.resources.filter((r) => !fresh.some((x) => x.id === r.id))];
 }
 
 /** Brings characters from older events up to date: resources, life status, structured features, spells. */
 export function withDefaults(c: Character): Character {
   return {
     ...c,
-    resources: c.resources ?? defaultResources(c.classId, c.abilities),
+    resources: c.resources ?? defaultResources(c.classId, c.abilities, c.level),
     features: upgradeFeatures(c.raceId, c.classId, c.features),
     spells: c.spells ?? defaultSpells(c.raceId, c.classId),
     effects: c.effects ?? [],

@@ -56,6 +56,7 @@ export function isPlayerEvent(e: GameEvent): boolean {
     || (e.type === 'roll_resolved' && !e.byDm)
     || e.type === 'character_created'
     || e.type === 'hero_fell'
+    || (e.type === 'character_levelled' && e.by === 'player')
     || e.type === 'game_started';
 }
 

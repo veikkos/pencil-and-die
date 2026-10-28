@@ -23,6 +23,8 @@ export interface Feature {
   source: 'race' | 'class' | 'other';
   /** The limited-use resource it spends, if any. */
   resourceId?: string;
+  /** The hero level it came with; absent for level 1. */
+  level?: number;
 }
 
 export interface Item {
@@ -124,13 +126,13 @@ export interface CharClass {
   acNote: string;
   equipment: { name: string; qty: number }[];
   features: Feature[];
-  spellcasting?: { ability: Ability; slots: string };
+  /** Full casters get slots from level 1, half casters from level 2; warlocks have pact slots. */
+  spellcasting?: { ability: Ability; kind: 'full' | 'half' | 'pact' };
   spells?: string[];
 }
 
 const dexCap = (mod: Abilities, cap: number) => Math.min(mod.dex, cap);
 const kit = (...items: (string | [string, number])[]) => items.map((i) => (typeof i === 'string' ? { name: i, qty: 1 } : { name: i[0], qty: i[1] }));
-const SLOTS = 'spell-slots-1';
 
 export const CLASSES: CharClass[] = [
   { id: 'fighter', name: 'Fighter', blurb: 'Master of weapons and armour. Simple, sturdy, reliable.', hitDie: 10,
@@ -158,20 +160,21 @@ export const CLASSES: CharClass[] = [
     ac: (m) => 11 + m.dex, acNote: 'Leather armour',
     equipment: kit('Leather armour', ['Shortsword', 2], 'Longbow', ['Arrows', 20], "Explorer's pack"),
     features: [feature('Favored Enemy', 'Beasts: advantage on Survival to track them and on INT checks to recall facts about them.'),
-      feature('Natural Explorer', 'Forest: your group cannot get lost there, and you track and forage twice as well.')] },
+      feature('Natural Explorer', 'Forest: your group cannot get lost there, and you track and forage twice as well.')],
+    spellcasting: { ability: 'wis', kind: 'half' } },
   { id: 'wizard', name: 'Wizard', blurb: 'Scholar of arcane magic. Fragile but powerful.', hitDie: 6,
     priority: ['int', 'con', 'dex', 'wis', 'cha', 'str'], saves: ['int', 'wis'], skills: ['Arcana', 'History'],
     ac: (m) => 10 + m.dex, acNote: 'No armour (Mage Armor spell: 13 + DEX)',
     equipment: kit('Quarterstaff', 'Component pouch', 'Spellbook', "Scholar's pack"),
     features: [feature('Arcane Recovery', 'Once a day after a short rest, regain a spent spell slot.', 'arcane-recovery')],
-    spellcasting: { ability: 'int', slots: SLOTS },
+    spellcasting: { ability: 'int', kind: 'full' },
     spells: ['fire-bolt', 'mage-hand', 'light', 'magic-missile', 'shield', 'sleep', 'burning-hands', 'detect-magic', 'mage-armor'] },
   { id: 'sorcerer', name: 'Sorcerer', blurb: 'Born with raw magic in the blood.', hitDie: 6,
     priority: ['cha', 'con', 'dex', 'wis', 'int', 'str'], saves: ['con', 'cha'], skills: ['Arcana', 'Persuasion'],
     ac: (m) => 13 + m.dex, acNote: 'Draconic Resilience (13 + DEX)',
     equipment: kit('Light crossbow', ['Bolts', 20], 'Arcane focus', "Dungeoneer's pack", ['Dagger', 2]),
     features: [feature('Draconic Bloodline', 'Dragon scales: AC 13 + DEX without armour, and +1 hit point per level.')],
-    spellcasting: { ability: 'cha', slots: SLOTS },
+    spellcasting: { ability: 'cha', kind: 'full' },
     spells: ['fire-bolt', 'prestidigitation', 'ray-of-frost', 'light', 'magic-missile', 'chromatic-orb'] },
   { id: 'warlock', name: 'Warlock', blurb: 'Gained magic through a pact with something powerful.', hitDie: 8,
     priority: ['cha', 'con', 'dex', 'wis', 'int', 'str'], saves: ['wis', 'cha'], skills: ['Deception', 'Arcana'],
@@ -179,21 +182,22 @@ export const CLASSES: CharClass[] = [
     equipment: kit('Leather armour', 'Light crossbow', ['Bolts', 20], 'Arcane focus', "Scholar's pack", ['Dagger', 2]),
     features: [feature('Otherworldly Patron: the Fiend', 'When you drop a hostile creature to 0 HP, gain temporary HP equal to CHA modifier + level.'),
       feature('Pact Magic', 'Your spell slot comes back after a short rest.')],
-    spellcasting: { ability: 'cha', slots: 'pact-slot' },
+    spellcasting: { ability: 'cha', kind: 'pact' },
     spells: ['eldritch-blast', 'minor-illusion', 'hex', 'armor-of-agathys'] },
   { id: 'cleric', name: 'Cleric', blurb: 'Divine healer and warrior of a god.', hitDie: 8,
     priority: ['wis', 'con', 'str', 'dex', 'cha', 'int'], saves: ['wis', 'cha'], skills: ['Medicine', 'Religion'],
     ac: (m) => 16 + dexCap(m, 2), acNote: 'Scale mail + shield',
     equipment: kit('Scale mail', 'Shield', 'Mace', 'Holy symbol', "Priest's pack"),
     features: [feature('Divine Domain: Life', 'Your healing spells restore an extra 2 + spell level hit points.')],
-    spellcasting: { ability: 'wis', slots: SLOTS },
+    spellcasting: { ability: 'wis', kind: 'full' },
     spells: ['sacred-flame', 'guidance', 'spare-the-dying', 'cure-wounds', 'bless', 'healing-word', 'shield-of-faith'] },
   { id: 'paladin', name: 'Paladin', blurb: 'Holy knight bound by an oath.', hitDie: 10,
     priority: ['str', 'cha', 'con', 'wis', 'dex', 'int'], saves: ['wis', 'cha'], skills: ['Athletics', 'Persuasion'],
     ac: () => 18, acNote: 'Chain mail + shield',
     equipment: kit('Chain mail', 'Shield', 'Longsword', ['Javelin', 5], 'Holy symbol', "Priest's pack"),
     features: [feature('Divine Sense', 'Action: until your next turn you know where celestials, fiends and undead are within 60 ft.'),
-      feature('Lay on Hands', 'Action: touch a creature and restore hit points from your pool, or spend 5 to cure a disease or poison.', 'lay-on-hands')] },
+      feature('Lay on Hands', 'Action: touch a creature and restore hit points from your pool, or spend 5 to cure a disease or poison.', 'lay-on-hands')],
+    spellcasting: { ability: 'cha', kind: 'half' } },
   { id: 'monk', name: 'Monk', blurb: 'Martial artist who fights with fists and focus.', hitDie: 8,
     priority: ['dex', 'wis', 'con', 'str', 'int', 'cha'], saves: ['str', 'dex'], skills: ['Acrobatics', 'Insight'],
     ac: (m) => 10 + m.dex + m.wis, acNote: 'Unarmored Defense (10 + DEX + WIS)',
@@ -205,14 +209,14 @@ export const CLASSES: CharClass[] = [
     ac: (m) => 13 + m.dex, acNote: 'Leather armour + wooden shield',
     equipment: kit('Leather armour', 'Wooden shield', 'Scimitar', 'Druidic focus', "Explorer's pack"),
     features: [feature('Druidic', 'The secret language of druids; you can leave hidden messages in it.')],
-    spellcasting: { ability: 'wis', slots: SLOTS },
+    spellcasting: { ability: 'wis', kind: 'full' },
     spells: ['druidcraft', 'produce-flame', 'cure-wounds', 'entangle', 'faerie-fire', 'goodberry'] },
   { id: 'bard', name: 'Bard', blurb: 'Performer whose words and music carry magic.', hitDie: 8,
     priority: ['cha', 'dex', 'con', 'wis', 'int', 'str'], saves: ['dex', 'cha'], skills: ['Performance', 'Persuasion', 'Insight'],
     ac: (m) => 11 + m.dex, acNote: 'Leather armour',
     equipment: kit('Leather armour', 'Rapier', 'Lute', "Entertainer's pack", 'Dagger'),
     features: [feature('Bardic Inspiration', 'Bonus action: a creature within 60 ft gets a d6 to add to one attack, check or save in the next 10 minutes.', 'bardic-inspiration')],
-    spellcasting: { ability: 'cha', slots: SLOTS },
+    spellcasting: { ability: 'cha', kind: 'full' },
     spells: ['vicious-mockery', 'minor-illusion', 'healing-word', 'charm-person', 'dissonant-whispers', 'thunderwave'] },
 ];
 
@@ -286,6 +290,8 @@ export interface Character {
   resources: Resource[];
   status: LifeStatus;
   deathSaves: { successes: number; failures: number };
+  /** The DM has offered the next level; the player is choosing. */
+  pendingLevel?: number;
 }
 
 /** A feature the DM wrote as plain text: "Acorn amulet: once a day, reroll a failed save" splits in two. */
@@ -398,10 +404,14 @@ export const FI_SKILLS: Record<string, string> = {
 /** One term of a number on the sheet, so the page can show how it adds up. */
 export type Part =
   | { from: 'ability'; ability: Ability; value: number }
-  | { from: 'proficiency' | 'expertise' | 'base' | 'bonus'; value: number };
+  | { from: 'proficiency' | 'expertise' | 'half' | 'base' | 'bonus'; value: number };
 
 export const total = (parts: Part[]) => parts.reduce((n, p) => n + p.value, 0);
 export const abilityPart = (c: Character, ability: Ability): Part => ({ from: 'ability', ability, value: mod(c.abilities[ability]) });
+
+/** The bard's Jack of All Trades: half proficiency on ability checks without proficiency. */
+export const jackPart = (c: Character): Part[] =>
+  (c.features.some((f) => f.name === 'Jack of All Trades') ? [{ from: 'half', value: Math.floor(c.proficiencyBonus / 2) }] : []);
 
 /** Modifier for a check, so the DM doesn't have to do the arithmetic. */
 export function checkModifier(c: Character, what: string, lang: 'en' | 'fi' = 'en'): { modifier: number; label: string; parts: Part[] } {
@@ -415,6 +425,7 @@ export function checkModifier(c: Character, what: string, lang: 'en' | 'fi' = 'e
     const parts = [abilityPart(c, ability)];
     if (c.skills.includes(skill)) parts.push({ from: 'proficiency', value: c.proficiencyBonus });
     if (c.skills.includes(skill) && c.expertise?.includes(skill)) parts.push({ from: 'expertise', value: c.proficiencyBonus });
+    if (!c.skills.includes(skill)) parts.push(...jackPart(c));
     return out(fi ? `${FI_SKILLS[skill]} (${ab(ability)}) -heitto` : `${ab(ability)} (${skill}) check`, parts);
   }
   const save = /^(str|dex|con|int|wis|cha)\s*save$/.exec(key);
@@ -425,7 +436,7 @@ export function checkModifier(c: Character, what: string, lang: 'en' | 'fi' = 'e
   }
   if ((ABILITIES as readonly string[]).includes(key)) {
     const a = key as Ability;
-    return out(fi ? `${ab(a)} -heitto` : `${ab(a)} check`, [abilityPart(c, a)]);
+    return out(fi ? `${ab(a)} -heitto` : `${ab(a)} check`, [abilityPart(c, a), ...jackPart(c)]);
   }
   throw new Error(`Unknown check "${what}". Use a skill name (e.g. "Stealth"), an ability ("dex") or a save ("dex save").`);
 }

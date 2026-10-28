@@ -3,6 +3,7 @@ import type { Advantage } from './dice.ts';
 import { applyDeathSave, applyHpChange, UNCONSCIOUS, wakeUp } from './life.ts';
 import { restCharacter, useResource, withDefaults, type Recharge } from './resources.ts';
 import { applyPresencePatch, healthWord, publicPresence, type Presence, type PresencePatch } from './roster.ts';
+import { applyLevel, levelOptions, type LevelGains } from './levels.ts';
 import { featureFromText, splitItemName, type Character, type Effect, type Feature } from './rules.ts';
 import { sheetOf } from './sheet.ts';
 import type { Spell } from './spells.ts';
@@ -32,6 +33,8 @@ export interface RollRequest {
   /** Players don't see the DC when hidden. */
   hideDc: boolean;
   purpose?: 'initiative' | 'death_save';
+  /** Attack rolls: the lowest d20 that is a critical hit. */
+  critOn?: number;
   requestedSeq: number;
 }
 
@@ -104,6 +107,9 @@ export type GameEvent =
   | { type: 'resource_used'; characterId: string; resourceId: string; amount: number }
   | { type: 'rest'; kind: Recharge; characterIds: string[] }
   | { type: 'hero_fell'; characterId: string; outcome: 'dead' | 'knocked_out' }
+  | { type: 'level_up_offered'; characterId: string; level: number }
+  /** `by` is who made the choices: the player on the page, or the DM. */
+  | { type: 'character_levelled'; characterId: string; gains: LevelGains; by: 'player' | 'dm' }
   | { type: 'game_started' }
   | { type: 'message'; from: Speaker; characterId?: string; kind: MessageKind; text: string }
   | { type: 'roll_requested'; roll: Omit<RollRequest, 'requestedSeq'> }
@@ -216,8 +222,15 @@ function describePatch(before: Character, after: Character): PatchPart[] {
   for (const sp of before.spells) if (!after.spells.some((x) => x.id === sp.id)) parts.push(['spellLost', sp.name]);
   for (const r of after.resources) {
     const old = before.resources.find((x) => x.id === r.id);
-    if (old && (old.used !== r.used || old.max !== r.max)) parts.push(['resource', `${r.name} ${r.max - r.used}/${r.max}`]);
+    if (!old || old.used !== r.used || old.max !== r.max || old.name !== r.name) parts.push(['resource', `${r.name} ${r.max - r.used}/${r.max}`]);
   }
+  for (const a of Object.keys(after.abilities) as (keyof Character['abilities'])[]) {
+    if (after.abilities[a] !== before.abilities[a]) parts.push(['ability', `${a} ${after.abilities[a]}`]);
+  }
+  if (after.proficiencyBonus !== before.proficiencyBonus) parts.push(['prof', sign(after.proficiencyBonus)]);
+  if (after.speed !== before.speed) parts.push(['speed', after.speed]);
+  for (const k of after.skills) if (!before.skills.includes(k)) parts.push(['skill', k]);
+  for (const k of after.expertise) if (!before.expertise.includes(k)) parts.push(['expertise', k]);
   return parts;
 }
 
@@ -281,6 +294,23 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
         : { ...c, hp: 0, status: 'out' }));
       sys('fell', { name: hero.name, outcome: e.outcome },
         e.outcome === 'dead' ? `${hero.name} has died.` : `${hero.name} is knocked out.`);
+      break;
+    }
+    case 'level_up_offered': {
+      const hero = s.characters.find((c) => c.id === e.characterId);
+      if (!hero) break;
+      s.characters = s.characters.map((c) => (c.id === e.characterId ? { ...c, pendingLevel: e.level } : c));
+      sys('levelOffered', { name: hero.name, level: e.level }, `${hero.name} can reach level ${e.level}!`);
+      break;
+    }
+    case 'character_levelled': {
+      const before = s.characters.find((c) => c.id === e.characterId);
+      if (!before) break;
+      const after = applyLevel(before, e.gains);
+      s.characters = s.characters.map((c) => (c.id === e.characterId ? after : c));
+      const parts = describePatch(before, after).filter(([k]) => k !== 'level');
+      sys('levelled', { name: after.name, level: after.level, parts },
+        `${after.name} reaches level ${after.level}: ${parts.map(([k, v]) => `${k} ${v}`).join(', ')}`);
       break;
     }
     case 'game_started':
@@ -413,7 +443,7 @@ export function playerView(s: GameState) {
   const hide = <T extends RollRequest>(r: T) => (r.hideDc ? { ...r, dc: undefined } : r);
   return {
     ...s,
-    characters: s.characters.map((c) => ({ ...c, sheet: sheetOf(c) })),
+    characters: s.characters.map((c) => ({ ...c, sheet: sheetOf(c), ...(c.pendingLevel ? { levelUp: levelOptions(c) } : {}) })),
     dmNotes: undefined,
     present: s.present.map(publicPresence),
     combat: s.combat && { round: s.combat.round, turn: s.combat.turn, order: s.combat.order.map((e) => ({ ref: e.ref, ready: e.initiative !== null })) },
