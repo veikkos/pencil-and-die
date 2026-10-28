@@ -151,7 +151,12 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 .5em; }
   display: flex; align-items: center; gap: 12px; padding: 6px 16px; border-bottom: 1px solid var(--line); font-size: .85em; color: var(--ink-soft);
 }
 .timeline-bar input[type=range] { flex: 1; accent-color: var(--ink); }
-.timeline-bar .moment { min-width: 0; max-width: 40%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* A fixed share for the label, so the slider doesn't resize under the thumb as the label changes. */
+.timeline-bar .moment { flex: 0 0 40%; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 700px) {
+  .timeline-bar { flex-wrap: wrap; row-gap: 2px; }
+  .timeline-bar .moment { flex-basis: 100%; }
+}
 .past-banner {
   display: flex; align-items: center; gap: 12px; justify-content: center; padding: 8px; background: var(--past-bg);
   border-bottom: 1.5px solid var(--gold); font-weight: 600;
