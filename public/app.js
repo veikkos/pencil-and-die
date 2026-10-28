@@ -30,7 +30,10 @@ const isBeginner = () => cfg.complexity === 'beginner';
 const isExpert = () => cfg.complexity === 'intermediate';
 /** Engine rolls (initiative, death saves) and conditions arrive in English; name them in the page's language and level. */
 const rollLabel = (purpose, fallback) => t().rollLabels[purpose]?.[level()] ?? fallback;
-const condName = (c) => t().conditionNames[c]?.[level()] ?? c;
+/** The DM may write "poisoned" or "Poisoned". */
+const condKey = (c, map) => Object.keys(map).find((k) => k.toLowerCase() === String(c).toLowerCase());
+const condName = (c) => t().conditionNames[condKey(c, t().conditionNames)]?.[level()] ?? c;
+const condHelp = (c) => t().conditionHelp[condKey(c, t().conditionHelp)];
 const condList = (cs) => cs.map((c) => esc(condName(c))).join(', ');
 
 async function api(path, body) {
@@ -420,27 +423,163 @@ function openWizard() {
   draw().catch(fail);
 }
 
-function sheetHtml(c) {
+// ---- Character sheet -----------------------------------------------------------
+// The numbers come from the engine (`c.sheet`); this only lays them out.
+
+let sheetTab = 'actions';
+const SHEET_TABS = ['actions', 'inventory', 'features', 'notes'];
+
+const isFi = () => cfg.language === 'fi';
+const itemName = (n) => (isFi() ? FI_RULES.items[n.toLowerCase()] ?? FI_RULES.weapons[n.toLowerCase()] : null) ?? n;
+const spellText = (sp) => (isFi() && FI_RULES.spells[sp.id]) || [sp.name, sp.summary];
+const featureText = (f) => (isFi() && FI_RULES.features[f.name]) || [f.name, f.text];
+const damageType = (d) => t().sheet.damageTypes[d] ?? d;
+/** "versatile (1d10)" → the property word in the page's language, the value kept. */
+function propName(p) {
+  const [, word, value] = /^([\w-]+)(?: \((.+)\))?$/.exec(p) ?? [null, p];
+  const name = t().sheet.props[word] ?? word;
+  return value ? `${name} (${value})` : name;
+}
+const rangeText = (r) => (isFi()
+  ? r.replace(/^Touch$/, 'Kosketus').replace(/^Self/, 'Itse').replace(/(\d+)-ft (cone|cube)/, (_, n, k) => `${n} jalan ${k === 'cone' ? 'kartio' : 'kuutio'}`).replace(/^(\d+) ft$/, '$1 jalkaa')
+  : r);
+const uses = (r) => (r.unit === 'hp' ? `<span class="pip">${r.max - r.used}/${r.max}</span>` : pips(r.max - r.used, r.max));
+const actRow = (name, right, sub) => `<li class="act"><div class="act-main"><span class="act-name">${name}</span>${right}</div>${sub ? `<small class="muted">${sub}</small>` : ''}</li>`;
+const dot = (parts) => parts.filter(Boolean).map(esc).join(' · ');
+
+function sheetStatus(c) {
   const s = t();
-  return `<div class="sheet">
-    <div class="muted">${esc(raceName(c))} · ${esc(className(c))} · ${s.level} ${c.level}${c.player ? ` · ${esc(c.player)}` : ''}</div>
-    ${statsBlock(c)}
-    <div><b>${s.hp}</b> ${c.hp}/${c.maxHp}${c.tempHp ? ` (+${c.tempHp})` : ''}${isBeginner() ? '' : ` · <b>${s.ac}</b> ${c.ac} <span class="muted">(${esc(c.acNote)})</span> · <b>${s.speed}</b> ${c.speed}`} · <b>${s.gold}</b> ${c.gold}${isBeginner() ? '' : ` · <b>${s.xp}</b> ${c.xp}`}</div>
-    ${visibleResources(c).length ? `<h3>${esc(s.usesLeft)}</h3><ul class="res-list">${visibleResources(c).map((r) => `<li>${resourceRow(r)}<small class="muted">${esc(s.recharge[r.recharge]?.[level()] ?? '')}</small></li>`).join('')}</ul>` : ''}
-    ${c.conditions.length ? `<h3>${s.conditions}</h3><div>${condList(c.conditions)}</div>` : ''}
-    <h3>${s.skills}</h3><div>${c.skills.map((k) => esc(skillName(k))).join(', ')}</div>
-    ${isExpert() ? `<h3>${s.saves}</h3><div>${c.saves.map((a) => s.abilityNames[a]).join(', ')}</div><div class="muted">+${c.proficiencyBonus} proficiency</div>` : ''}
-    <h3>${s.inventory}</h3><ul>${c.inventory.map((i) => `<li>${esc(i.name)}${i.qty > 1 ? ` ×${i.qty}` : ''}</li>`).join('')}</ul>
-    <h3>${s.features}</h3><ul>${c.features.map((f) => `<li><b>${esc(f.name)}</b>${f.text ? ` — ${esc(f.text)}` : ''}</li>`).join('')}</ul>
-    ${c.notes ? `<h3>${s.notes}</h3><p>${esc(c.notes)}</p>` : ''}
+  const status = c.status ?? 'up';
+  const life = status === 'up' ? '' : s.life[status]?.[level()] ?? '';
+  const items = [...c.conditions.map((x) => [condName(x), condHelp(x) ?? '']), ...(c.effects ?? []).map((e) => [e.name, e.note])];
+  return `<div class="sheet-status">
+    <h3>${esc(s.sheet.status)}${life ? ` · <b class="life">${esc(life)}</b>` : ''}</h3>
+    ${status === 'dying' ? deathSaveRows(c) : ''}
+    ${items.length ? `<ul>${items.map(([n, h]) => `<li><b>${esc(n)}</b>${h ? ` <span>${esc(h)}</span>` : ''}</li>`).join('')}</ul>`
+      : life ? '' : `<p class="muted">${esc(s.sheet.noEffects)}</p>`}
   </div>`;
 }
 
+function sheetLeft(c) {
+  const s = t();
+  const byName = (a, b) => skillName(a.name).localeCompare(skillName(b.name), cfg.language);
+  if (isBeginner()) {
+    const mine = c.sheet.skills.filter((k) => k.proficient).sort(byName);
+    return `${goodAt(c)}<h3>${esc(s.skills)}</h3><ul class="mods">${mine.map((k) => `<li class="prof"><i>●</i><span>${esc(skillName(k.name))}</span></li>`).join('')}</ul>`;
+  }
+  const row = (name, m, prof, sub, twice) => `<li class="${prof ? 'prof' : ''}"><i>${twice ? '◉' : prof ? '●' : '○'}</i><span>${esc(name)}${sub ? ` <small>${esc(sub)}</small>` : ''}</span><b>${sign(m)}</b></li>`;
+  return `${statsBlock(c)}
+    ${isExpert() ? `<h3>${esc(s.saves)}</h3><ul class="mods">${c.sheet.saves.map((x) => row(s.abilityNames[x.ability], x.mod, x.proficient)).join('')}</ul>` : ''}
+    <h3>${esc(s.skills)}</h3><ul class="mods">${[...c.sheet.skills].sort(byName).map((k) => row(skillName(k.name), k.mod, k.proficient, s.abilities[k.ability], k.expertise)).join('')}</ul>
+    <div class="muted">${esc(s.sheet.passive)} ${c.sheet.passivePerception}</div>`;
+}
+
+function actionsPanel(c) {
+  const s = t();
+  const L = s.sheet;
+  const sh = c.sheet;
+  const beginner = isBeginner();
+  const attacks = sh.attacks.map((a) => {
+    const thrown = a.properties.some((p) => p.startsWith('thrown'));
+    const carried = [a.count > 1 ? L.carried(a.count) : '', a.ammo !== undefined ? L.ammo(a.ammo) : ''];
+    const right = beginner ? '' : `<b>${sign(a.toHit)}</b><span>${esc(a.damage)} ${esc(damageType(a.damageType))}</span>`;
+    const sub = beginner ? [L.reach[a.range && !thrown ? 'ranged' : 'melee'], ...carried] : [a.range && !thrown ? `${a.range} ft` : '', ...a.properties.map(propName), ...carried];
+    return actRow(esc(itemName(a.name)), right, dot(sub));
+  });
+  let html = `<h3>${esc(L.attacks)}</h3><ul class="acts">${attacks.join('')}</ul>`;
+
+  if (sh.spells.length) {
+    const cast = sh.spellcasting;
+    html += `<h3>${esc(L.spells)}</h3>${beginner || !cast ? '' : `<div class="muted">${esc(L.spellNumbers(cast.saveDc, sign(cast.attack), s.abilityNames[cast.ability]))}</div>`}`;
+    for (const lv of [0, 1]) {
+      const list = sh.spells.filter((x) => x.level === lv);
+      if (!list.length) continue;
+      const slot = lv && c.resources.find((r) => r.id === cast?.slots);
+      html += `<h4>${esc((lv ? L.level1 : L.cantrips)[level()])}${slot ? ` ${uses(slot)}` : ''}</h4><ul class="acts">${list.map((sp) => {
+        const [name, summary] = spellText(sp);
+        const hit = sp.toHit !== undefined ? `<b>${sign(sp.toHit)}</b>` : sp.saveDc !== undefined ? `<b>${esc(L.save(s.abilities[sp.save], sp.saveDc))}</b>` : '';
+        const roll = sp.roll ? `<span>${esc(sp.roll)} ${esc(sp.heal ? L.healing : damageType(sp.damageType ?? ''))}</span>` : '';
+        const meta = beginner ? [] : [sp.castingTime === 'action' ? '' : L.castingTime[sp.castingTime], rangeText(sp.range), sp.concentration ? L.concentration : ''];
+        return actRow(esc(name), beginner ? '' : `${hit}${roll}`, [dot(meta), esc(summary)].filter(Boolean).join('<br>'));
+      }).join('')}</ul>`;
+    }
+  }
+
+  const res = (id) => visibleResources(c).find((r) => r.id === id);
+  const featured = sh.features.filter((f) => f.resourceId && res(f.resourceId));
+  const linked = new Set([...featured.map((f) => f.resourceId), sh.spells.length ? sh.spellcasting?.slots : null]);
+  const rest = visibleResources(c).filter((r) => !linked.has(r.id));
+  if (featured.length || rest.length) {
+    html += `<h3>${esc(L.limited)}</h3><ul class="acts">${[
+      ...featured.map((f) => {
+        const r = res(f.resourceId);
+        const [name, text] = featureText(f);
+        return actRow(esc(name), uses(r), [esc(text), esc(s.recharge[r.recharge]?.[level()] ?? '')].filter(Boolean).join('<br>'));
+      }),
+      ...rest.map((r) => actRow(esc(resourceName(r)), uses(r), esc(s.recharge[r.recharge]?.[level()] ?? ''))),
+    ].join('')}</ul>`;
+  }
+  return html;
+}
+
+function inventoryPanel(c) {
+  const s = t();
+  const groups = ['weapon', 'armour', 'ammo', 'gear'].map((k) => [k, c.sheet.inventory.filter((i) => i.kind === k)]).filter(([, items]) => items.length);
+  return `${groups.map(([k, items]) => `<h3>${esc(s.sheet.kinds[k])}</h3><ul class="items">${items.map((i) => `<li><span>${esc(itemName(i.name))}</span>${i.qty > 1 ? `<b>×${i.qty}</b>` : ''}</li>`).join('')}</ul>`).join('')}
+    <div class="sheet-purse"><span><b>${esc(s.gold)}</b> ${c.gold}</span>${isBeginner() ? '' : `<span><b>${esc(s.xp)}</b> ${c.xp}</span>`}</div>`;
+}
+
+function featuresPanel(c) {
+  const L = t().sheet;
+  return ['race', 'class', 'other'].map((src) => {
+    const list = c.sheet.features.filter((f) => (f.source ?? 'other') === src);
+    if (!list.length) return '';
+    return `<h3>${esc(L.sources[src])}</h3><ul class="feats">${list.map((f) => {
+      const [name, text] = featureText(f);
+      return `<li><b>${esc(name)}</b>${text ? `<span>${esc(text)}</span>` : ''}</li>`;
+    }).join('')}</ul>`;
+  }).join('');
+}
+
+const notesPanel = (c) => (c.notes ? `<p class="sheet-notes">${esc(c.notes)}</p>` : `<p class="muted">${esc(t().sheet.noNotes)}</p>`);
+const SHEET_PANELS = { actions: actionsPanel, inventory: inventoryPanel, features: featuresPanel, notes: notesPanel };
+
+function sheetHtml(c) {
+  const s = t();
+  const pct = Math.round((c.hp / c.maxHp) * 100);
+  const nums = isBeginner() ? [] : [[s.ac, c.ac], [s.speed, c.speed], [s.sheet.init, sign(c.sheet.initiative)], [s.sheet.prof, sign(c.sheet.proficiency)]];
+  return `<div class="sheet">
+    <div class="muted">${esc(raceName(c))} · ${esc(className(c))} · ${s.level} ${c.level}${c.player ? ` · ${esc(c.player)}` : ''}</div>
+    <div class="sheet-top">
+      <div class="sheet-hp"><small>${esc(s.hp)}</small><b>${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp}` : ''}</b><div class="hpbar"><i class="${pct <= 30 ? 'low' : ''}" style="width:${pct}%"></i></div></div>
+      ${nums.map(([k, v]) => `<div class="sheet-num"><small>${esc(k)}</small><b>${esc(v)}</b></div>`).join('')}
+    </div>
+    ${sheetStatus(c)}
+    <div class="sheet-cols">
+      <aside class="sheet-left">${sheetLeft(c)}</aside>
+      <section class="sheet-right">
+        <div class="seg sheet-tabs" role="tablist">${SHEET_TABS.map((k) => `<button type="button" role="tab" data-tab="${k}" class="${k === sheetTab ? 'on' : ''}">${esc(s.sheet.tabs[k])}</button>`).join('')}</div>
+        ${SHEET_TABS.map((k) => `<div class="sheet-panel" data-panel="${k}"${k === sheetTab ? '' : ' hidden'}>${SHEET_PANELS[k](c)}</div>`).join('')}
+      </section>
+    </div>
+  </div>`;
+}
+
+// Tabs work wherever a sheet is shown (the sheet overlay and the last wizard step).
+document.addEventListener('click', (e) => {
+  const tab = e.target.closest?.('.sheet [data-tab]');
+  if (!tab) return;
+  sheetTab = tab.dataset.tab;
+  const root = tab.closest('.sheet');
+  root.querySelectorAll('[data-tab]').forEach((b) => b.classList.toggle('on', b === tab));
+  root.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== sheetTab; });
+});
+
 function showSheet(c) {
   const modal = document.createElement('div');
-  modal.className = 'modal';
-  modal.innerHTML = `<div class="card"><h2>${esc(c.name)}</h2>${sheetHtml(c)}<div class="wizard-nav"><span></span><button class="btn">OK</button></div></div>`;
-  modal.onclick = (e) => { if (e.target === modal || e.target.tagName === 'BUTTON') modal.remove(); };
+  modal.className = 'modal sheet-modal';
+  modal.innerHTML = `<div class="card"><h2>${esc(c.name)}</h2>${sheetHtml(c)}<div class="wizard-nav"><span></span><button class="btn" data-close>OK</button></div></div>`;
+  modal.onclick = (e) => { if (e.target === modal || e.target.closest('[data-close]')) modal.remove(); };
   document.body.appendChild(modal);
 }
 
@@ -698,7 +837,7 @@ function heroCardHtml(card) {
     <div class="nums"><span>${s.hp} ${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp}` : ''}</span>${isBeginner() ? '' : `<span>${s.ac} ${c.ac}</span>`}</div>
     ${status === 'dying' ? deathSaveRows(c) : ''}
     ${status === 'dead' ? '' : visibleResources(c).map(resourceRow).join('')}
-    ${c.conditions.length ? `<div class="conds">${condList(c.conditions)}</div>` : ''}
+    ${c.conditions.length || c.effects?.length ? `<div class="conds">${[...c.conditions.map(condName), ...(c.effects ?? []).map((e) => e.name)].map(esc).join(', ')}</div>` : ''}
   </button>`;
 }
 

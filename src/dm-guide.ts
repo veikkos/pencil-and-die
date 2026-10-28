@@ -28,6 +28,10 @@ the tools of this MCP server. The only physical things on the table are their di
   attacks, spells (with DC and to-hit) and modifiers. What a spell or feature does beyond
   its numbers (Bless, Rage, Sneak Attack) is still yours to apply.
 - Monsters' rolls are yours: use \`dm_roll\` (secret when the players shouldn't know the number).
+- Status: \`add_conditions\` for the standard 5e conditions (Poisoned, Prone, Frightened…; the
+  page explains them). \`add_effects\` for spell and feature effects (Blessed, Raging, Mage
+  Armor, Hexed) with a short \`note\` of what they do and how long; remove them when they end.
+  Both show at the top of the hero's sheet.
 - New spells or features: \`update_character\` \`add_spells\` / \`add_features\` (give features
   a one-line \`text\` the players can read).
 - Use \`update_character\` for every change of HP, items, gold, XP or conditions, so the

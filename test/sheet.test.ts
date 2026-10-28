@@ -21,7 +21,9 @@ test('sheet: rogue weapons, ammo, skills and saves', () => {
   assert.deepEqual(by('Dagger').properties, ['finesse', 'light', 'thrown (20/60)']);
   assert.equal(by('Unarmed strike').damage, '1'); // 1 + STR −1, never below 1
   assert.equal(s.skills.length, 18);
-  assert.deepEqual(s.skills.find((k) => k.name === 'Stealth'), { name: 'Stealth', ability: 'dex', mod: 5, proficient: true });
+  // Expertise: proficiency counts twice for the rogue's Stealth.
+  assert.deepEqual(s.skills.find((k) => k.name === 'Stealth'), { name: 'Stealth', ability: 'dex', mod: 7, proficient: true, expertise: true });
+  assert.equal(s.skills.find((k) => k.name === 'Acrobatics')!.mod, 5);
   assert.equal(s.skills.find((k) => k.name === 'Athletics')!.mod, -1);
   assert.equal(s.initiative, 3);
   assert.equal(s.passivePerception, 10 + s.skills.find((k) => k.name === 'Perception')!.mod);
@@ -88,6 +90,8 @@ test('old characters (string features, bundled items) replay into the same sheet
   assert.ok(c.features[0].text.length > 10);
   assert.equal(c.features.at(-1)!.source, 'other');
   assert.deepEqual(c.spells.map((x) => x.id), ['fire-bolt', 'prestidigitation', 'ray-of-frost', 'light', 'magic-missile', 'chromatic-orb']);
+  assert.deepEqual(c.effects, []);
+  assert.deepEqual(c.expertise, []);
   const s = sheetOf(c);
   assert.equal(s.attacks.find((a) => a.name === 'Light crossbow')!.ammo, 20);
   assert.equal(s.attacks.find((a) => a.name === 'Dagger')!.count, 2);
@@ -139,4 +143,33 @@ test('MCP: request_roll by attack/damage, add and remove spells, sheet for playe
   const state = JSON.parse((await dm.call('get_game_state')).text);
   assert.equal(state.characters[0].sheet.attacks[0].toHit, 5);
   assert.equal(state.characters[0].sheet.features, undefined);
+});
+
+test('old rogues get Expertise on replay', () => {
+  const store = newStore();
+  const g = store.createGame('T');
+  const old = mira() as Partial<Character>;
+  delete old.expertise;
+  store.append(g.id, { type: 'character_created', character: old as Character });
+  assert.equal(sheetOf(store.state(g.id).characters[0]).skills.find((k) => k.name === 'Stealth')!.mod, 7);
+});
+
+test('status effects: add, replace by name, remove, long rest ends them', async () => {
+  const { store, db } = newTable();
+  const g = store.createGame('T');
+  store.setActiveGame(g.id);
+  store.append(g.id, { type: 'character_created', character: mira() });
+  const dm = await mcpClient(store, db);
+  const c = () => store.state(g.id).characters[0];
+  const r = await dm.call('update_character', { character_id: 'Mira', add_conditions: ['Poisoned'],
+    add_effects: [{ name: 'Blessed', note: '+1d4 to attacks and saves' }, { name: 'Hasted', note: 'double speed' }] });
+  assert.match(r.text, /effects: Blessed, Hasted/);
+  assert.match(store.state(g.id).log.at(-1)!.text, /condOn Blessed/);
+  await dm.call('update_character', { character_id: 'Mira', add_effects: [{ name: 'blessed', note: '+1d4, 1 round left' }], remove_effects: ['Hasted'] });
+  assert.deepEqual(c().effects, [{ name: 'blessed', note: '+1d4, 1 round left' }]);
+  store.append(g.id, { type: 'rest', kind: 'short', characterIds: [c().id] });
+  assert.equal(c().effects.length, 1);
+  store.append(g.id, { type: 'rest', kind: 'long', characterIds: [c().id] });
+  assert.deepEqual(c().effects, []);
+  assert.deepEqual(c().conditions, ['Poisoned']);
 });

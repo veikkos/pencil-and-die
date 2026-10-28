@@ -101,6 +101,9 @@ await dm('update_presence', { presence_id: 'goblin-1', hp_delta: -4, reason: 'Mi
 await dm('update_presence', { presence_id: 'goblin-2', hp_delta: -7, reason: 'magic missile' });
 await dm('update_character', { character_id: torvald.id, hp_delta: -6, reason: 'goblin knife' });
 await dm('update_character', { character_id: elowen.id, add_conditions: ['Frightened'], reason: 'a goblin shriek' });
+await dm('update_character', { character_id: torvald.id, add_conditions: ['prone'], add_effects: [{ name: 'Blessed', note: '+1d4 to attacks and saves for a minute' }], reason: 'knocked over; Elowen\'s blessing' });
+await dm('use_resource', { character_id: elowen.id, resource: 'spell-slots-1' });
+await dm('update_character', { character_id: mira.id, notes: 'Owes Brannock 3 silver.\nThe bell rings at low tide.' });
 await dm('request_roll', { character_id: torvald.id, label: 'Battleaxe attack', modifier: 5, dc: 13 });
 await snapshot('combat', g.id);
 

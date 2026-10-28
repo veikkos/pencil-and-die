@@ -260,10 +260,54 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 .5em; }
 @media (max-width: 700px) { .roll { grid-template-columns: 1fr; } }
 
 /* ---- Modal ---- */
-.modal { position: fixed; inset: 0; background: var(--overlay); display: grid; place-items: center; padding: 16px; z-index: 10; }
+.modal { position: fixed; inset: 0; background: var(--overlay); display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: 16px; z-index: 10; }
 .modal .card { width: min(720px, 100%); max-height: 90vh; overflow-y: auto; margin: 0; }
 .sheet ul { margin: 4px 0 12px; padding-left: 18px; }
 .sheet h3 { font-size: 1em; margin: 12px 0 4px; }
+.sheet h4 { font: 600 .78em var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--gold); margin: 10px 0 2px; display: flex; gap: 8px; align-items: center; }
+.modal.sheet-modal .card { width: min(900px, 100%); }
+.sheet-top { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.sheet-top > div { border: 1.5px solid var(--line); border-radius: 10px; background: var(--field); padding: 4px 12px; text-align: center; }
+.sheet-top small { display: block; font-size: .7em; font-weight: 700; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .05em; }
+.sheet-top b { font-size: 1.15em; }
+.sheet-top .sheet-hp { flex: 1 1 180px; text-align: left; }
+.sheet-top .sheet-hp b { margin-right: 8px; }
+.sheet-top .hpbar { margin-top: 4px; }
+.sheet-status { border: 1.5px dashed var(--line); border-radius: 10px; padding: 6px 12px; margin-bottom: 10px; }
+.sheet-status h3 { margin: 0 0 2px; }
+.sheet-status p { margin: 0; }
+.sheet-status ul { list-style: none; padding: 0; margin: 0; }
+.sheet-status li { padding: 2px 0; }
+.sheet-status li span { color: var(--ink-soft); }
+.sheet-cols { display: grid; grid-template-columns: minmax(200px, 250px) minmax(0, 1fr); gap: 18px; align-items: start; }
+.sheet-left .stats { grid-template-columns: repeat(3, 1fr); }
+.sheet .mods { list-style: none; padding: 0; margin: 2px 0 8px; }
+.sheet .mods li { display: grid; grid-template-columns: 1.1em 1fr auto; gap: 4px; padding: 1px 0; color: var(--ink-faint); }
+.sheet .mods li.prof { color: var(--ink); }
+.sheet .mods i { font-style: normal; color: var(--side-hero); font-size: .8em; line-height: 1.6; }
+.sheet .mods small { font-size: .72em; color: var(--ink-faint); }
+.sheet-tabs { margin-bottom: 4px; }
+.sheet .acts, .sheet .items, .sheet .feats { list-style: none; padding: 0; margin: 2px 0 10px; }
+.sheet .act { padding: 5px 0; border-bottom: 1px solid var(--line); }
+.sheet .act:last-child { border-bottom: none; }
+.sheet .act-main { display: flex; gap: 10px; align-items: baseline; }
+.sheet .act-name { font-weight: 700; flex: 1; }
+.sheet .act-main b { font-variant-numeric: tabular-nums; }
+.sheet .act-main span:not(.act-name) { color: var(--ink-soft); }
+.sheet .act small { display: block; font-size: .85em; }
+.sheet .items li { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dotted var(--line); }
+.sheet .feats li { padding: 4px 0; }
+.sheet .feats li span { display: block; color: var(--ink-soft); font-size: .92em; }
+.sheet-purse { display: flex; gap: 18px; margin-top: 6px; }
+.sheet-notes { white-space: pre-wrap; }
+.sheet .life { color: var(--bad); }
+@media (max-width: 700px) {
+  .sheet-cols { grid-template-columns: 1fr; }
+  /* At the table on a phone, what you can do matters more than the full skill list. */
+  .sheet-right { order: -1; }
+  .sheet-left .stats { grid-template-columns: repeat(6, 1fr); }
+}
+@media (max-width: 440px) { .sheet-left .stats { grid-template-columns: repeat(3, 1fr); } }
 
 @media (max-width: 860px) {
   .main { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }

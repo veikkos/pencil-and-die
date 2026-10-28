@@ -7,22 +7,22 @@
   "activeGameId": null,
   "games": [
    {
-    "id": "2e397bbd",
+    "id": "2debb1f2",
     "title": "The Drowned Lantern",
-    "createdAt": "2026-10-28T06:10:21.885Z",
-    "updatedAt": "2026-10-28T06:10:21.978Z"
+    "createdAt": "2026-10-28T06:35:09.596Z",
+    "updatedAt": "2026-10-28T06:35:09.676Z"
    },
    {
-    "id": "79e0c27f",
+    "id": "73020da5",
     "title": "Fresh start",
-    "createdAt": "2026-10-28T06:10:21.880Z",
-    "updatedAt": "2026-10-28T06:10:21.880Z"
+    "createdAt": "2026-10-28T06:35:09.593Z",
+    "updatedAt": "2026-10-28T06:35:09.594Z"
    },
    {
-    "id": "04e99f83",
+    "id": "16044495",
     "title": "The Sunken Bell",
-    "createdAt": "2026-10-28T06:10:21.865Z",
-    "updatedAt": "2026-10-28T06:10:21.871Z"
+    "createdAt": "2026-10-28T06:35:09.585Z",
+    "updatedAt": "2026-10-28T06:35:09.590Z"
    }
   ]
  },
@@ -426,15 +426,15 @@
  },
  "games": {
   "setup": {
-   "id": "04e99f83",
+   "id": "16044495",
    "state": {
-    "id": "04e99f83",
+    "id": "16044495",
     "title": "The Sunken Bell",
     "seq": 3,
     "scene": null,
     "characters": [
      {
-      "id": "c0c326",
+      "id": "bdee5f",
       "name": "Mira",
       "player": "Veikko",
       "raceId": "halfling",
@@ -466,6 +466,9 @@
        "Sleight of Hand",
        "Perception",
        "Acrobatics"
+      ],
+      "expertise": [
+       "Stealth"
       ],
       "inventory": [
        {
@@ -500,6 +503,7 @@
       "gold": 10,
       "xp": 0,
       "conditions": [],
+      "effects": [],
       "features": [
        {
         "name": "Lucky",
@@ -594,109 +598,127 @@
          "name": "Acrobatics",
          "ability": "dex",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Animal Handling",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Arcana",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Athletics",
          "ability": "str",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Deception",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "History",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Insight",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Intimidation",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Investigation",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Medicine",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Nature",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Perception",
          "ability": "wis",
          "mod": 3,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Performance",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Persuasion",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Religion",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Sleight of Hand",
          "ability": "dex",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Stealth",
          "ability": "dex",
-         "mod": 5,
-         "proficient": true
+         "mod": 7,
+         "proficient": true,
+         "expertise": true
         },
         {
          "name": "Survival",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         }
        ],
        "attacks": [
@@ -836,7 +858,7 @@
       }
      },
      {
-      "id": "43233d",
+      "id": "cb5c9c",
       "name": "Torvald",
       "player": "Ann",
       "raceId": "dwarf",
@@ -867,6 +889,7 @@
        "Athletics",
        "Perception"
       ],
+      "expertise": [],
       "inventory": [
        {
         "name": "Chain mail",
@@ -892,6 +915,7 @@
       "gold": 10,
       "xp": 0,
       "conditions": [],
+      "effects": [],
       "features": [
        {
         "name": "Darkvision",
@@ -989,109 +1013,127 @@
          "name": "Acrobatics",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Animal Handling",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Arcana",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Athletics",
          "ability": "str",
          "mod": 4,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Deception",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "History",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Insight",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Intimidation",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Investigation",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Medicine",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Nature",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Perception",
          "ability": "wis",
          "mod": 3,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Performance",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Persuasion",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Religion",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Sleight of Hand",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Stealth",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Survival",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         }
        ],
        "attacks": [
@@ -1206,7 +1248,7 @@
     "log": [
      {
       "seq": 2,
-      "at": "2026-10-28T06:10:21.869Z",
+      "at": "2026-10-28T06:35:09.588Z",
       "from": "system",
       "kind": "info",
       "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
@@ -1221,7 +1263,7 @@
      },
      {
       "seq": 3,
-      "at": "2026-10-28T06:10:21.871Z",
+      "at": "2026-10-28T06:35:09.590Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
@@ -1247,14 +1289,14 @@
    "history": [
     {
      "seq": 2,
-     "at": "2026-10-28T06:10:21.869Z",
+     "at": "2026-10-28T06:35:09.588Z",
      "type": "character",
      "who": "Mira",
      "text": "Halfling (Lightfoot) Rogue"
     },
     {
      "seq": 3,
-     "at": "2026-10-28T06:10:21.871Z",
+     "at": "2026-10-28T06:35:09.590Z",
      "type": "character",
      "who": "Torvald",
      "text": "Dwarf (Hill) Fighter"
@@ -1262,9 +1304,9 @@
    ]
   },
   "setupEmpty": {
-   "id": "79e0c27f",
+   "id": "73020da5",
    "state": {
-    "id": "79e0c27f",
+    "id": "73020da5",
     "title": "Fresh start",
     "seq": 1,
     "scene": null,
@@ -1284,9 +1326,9 @@
    "history": []
   },
   "exploring": {
-   "id": "2e397bbd",
+   "id": "2debb1f2",
    "state": {
-    "id": "2e397bbd",
+    "id": "2debb1f2",
     "title": "The Drowned Lantern",
     "seq": 17,
     "scene": {
@@ -1296,7 +1338,7 @@
     },
     "characters": [
      {
-      "id": "754f90",
+      "id": "502e50",
       "name": "Mira",
       "player": "Veikko",
       "raceId": "halfling",
@@ -1328,6 +1370,9 @@
        "Sleight of Hand",
        "Perception",
        "Acrobatics"
+      ],
+      "expertise": [
+       "Stealth"
       ],
       "inventory": [
        {
@@ -1362,6 +1407,7 @@
       "gold": 10,
       "xp": 0,
       "conditions": [],
+      "effects": [],
       "features": [
        {
         "name": "Lucky",
@@ -1456,109 +1502,127 @@
          "name": "Acrobatics",
          "ability": "dex",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Animal Handling",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Arcana",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Athletics",
          "ability": "str",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Deception",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "History",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Insight",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Intimidation",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Investigation",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Medicine",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Nature",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Perception",
          "ability": "wis",
          "mod": 3,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Performance",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Persuasion",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Religion",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Sleight of Hand",
          "ability": "dex",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Stealth",
          "ability": "dex",
-         "mod": 5,
-         "proficient": true
+         "mod": 7,
+         "proficient": true,
+         "expertise": true
         },
         {
          "name": "Survival",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         }
        ],
        "attacks": [
@@ -1698,7 +1762,7 @@
       }
      },
      {
-      "id": "96d1bf",
+      "id": "9b4e7f",
       "name": "Torvald",
       "player": "Ann",
       "raceId": "dwarf",
@@ -1729,6 +1793,7 @@
        "Athletics",
        "Perception"
       ],
+      "expertise": [],
       "inventory": [
        {
         "name": "Chain mail",
@@ -1754,6 +1819,7 @@
       "gold": 10,
       "xp": 0,
       "conditions": [],
+      "effects": [],
       "features": [
        {
         "name": "Darkvision",
@@ -1851,109 +1917,127 @@
          "name": "Acrobatics",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Animal Handling",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Arcana",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Athletics",
          "ability": "str",
          "mod": 4,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Deception",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "History",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Insight",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Intimidation",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Investigation",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Medicine",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Nature",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Perception",
          "ability": "wis",
          "mod": 3,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Performance",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Persuasion",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Religion",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Sleight of Hand",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Stealth",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Survival",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         }
        ],
        "attacks": [
@@ -2063,7 +2147,7 @@
       }
      },
      {
-      "id": "c9cfa3",
+      "id": "7f2f44",
       "name": "Elowen",
       "player": "Sam",
       "raceId": "elf",
@@ -2095,6 +2179,7 @@
        "History",
        "Perception"
       ],
+      "expertise": [],
       "inventory": [
        {
         "name": "Quarterstaff",
@@ -2116,6 +2201,7 @@
       "gold": 10,
       "xp": 0,
       "conditions": [],
+      "effects": [],
       "features": [
        {
         "name": "Darkvision",
@@ -2305,109 +2391,127 @@
          "name": "Acrobatics",
          "ability": "dex",
          "mod": 2,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Animal Handling",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Arcana",
          "ability": "int",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Athletics",
          "ability": "str",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Deception",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "History",
          "ability": "int",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Insight",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Intimidation",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Investigation",
          "ability": "int",
          "mod": 3,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Medicine",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Nature",
          "ability": "int",
          "mod": 3,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Perception",
          "ability": "wis",
          "mod": 3,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Performance",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Persuasion",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Religion",
          "ability": "int",
          "mod": 3,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Sleight of Hand",
          "ability": "dex",
          "mod": 2,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Stealth",
          "ability": "dex",
          "mod": 2,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Survival",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         }
        ],
        "attacks": [
@@ -2614,7 +2718,7 @@
     "log": [
      {
       "seq": 2,
-      "at": "2026-10-28T06:10:21.889Z",
+      "at": "2026-10-28T06:35:09.598Z",
       "from": "system",
       "kind": "info",
       "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
@@ -2629,7 +2733,7 @@
      },
      {
       "seq": 3,
-      "at": "2026-10-28T06:10:21.891Z",
+      "at": "2026-10-28T06:35:09.599Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
@@ -2644,7 +2748,7 @@
      },
      {
       "seq": 4,
-      "at": "2026-10-28T06:10:21.892Z",
+      "at": "2026-10-28T06:35:09.599Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen the Elf (High) Wizard joins the party.",
@@ -2659,7 +2763,7 @@
      },
      {
       "seq": 5,
-      "at": "2026-10-28T06:10:21.894Z",
+      "at": "2026-10-28T06:35:09.600Z",
       "from": "system",
       "kind": "info",
       "text": "The adventure begins.",
@@ -2670,53 +2774,53 @@
      },
      {
       "seq": 8,
-      "at": "2026-10-28T06:10:21.908Z",
+      "at": "2026-10-28T06:35:09.610Z",
       "from": "dm",
       "kind": "narration",
       "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
      },
      {
       "seq": 9,
-      "at": "2026-10-28T06:10:21.909Z",
+      "at": "2026-10-28T06:35:09.612Z",
       "from": "player",
-      "characterId": "754f90",
+      "characterId": "502e50",
       "kind": "action",
       "text": "I slide onto a stool at the bar and order whatever is warm."
      },
      {
       "seq": 10,
-      "at": "2026-10-28T06:10:21.910Z",
+      "at": "2026-10-28T06:35:09.612Z",
       "from": "player",
-      "characterId": "96d1bf",
+      "characterId": "9b4e7f",
       "kind": "speech",
       "text": "\"Who rings a bell under the sea, old man?\""
      },
      {
       "seq": 11,
-      "at": "2026-10-28T06:10:21.912Z",
+      "at": "2026-10-28T06:35:09.614Z",
       "from": "dm",
       "kind": "narration",
       "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
      },
      {
       "seq": 12,
-      "at": "2026-10-28T06:10:21.913Z",
+      "at": "2026-10-28T06:35:09.615Z",
       "from": "player",
-      "characterId": "c9cfa3",
+      "characterId": "7f2f44",
       "kind": "question",
       "text": "Can I tell if the dripping comes from a cellar?"
      },
      {
       "seq": 13,
-      "at": "2026-10-28T06:10:21.915Z",
+      "at": "2026-10-28T06:35:09.617Z",
       "from": "dm",
-      "characterId": "c9cfa3",
+      "characterId": "7f2f44",
       "kind": "answer",
       "text": "You can try. Listen closely to where it comes from."
      },
      {
       "seq": 15,
-      "at": "2026-10-28T06:10:21.921Z",
+      "at": "2026-10-28T06:35:09.622Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen rolled Wisdom (Perception) check: 14 +3 = 17 — success",
@@ -2737,7 +2841,7 @@
      },
      {
       "seq": 16,
-      "at": "2026-10-28T06:10:21.923Z",
+      "at": "2026-10-28T06:35:09.624Z",
       "from": "dm",
       "kind": "narration",
       "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
@@ -2745,11 +2849,11 @@
     ],
     "pendingRolls": [
      {
-      "rollId": "7ce33c3c",
-      "characterId": "754f90",
+      "rollId": "5a1e5ed5",
+      "characterId": "502e50",
       "label": "Dexterity (Stealth) check",
       "dice": "1d20",
-      "modifier": 5,
+      "modifier": 7,
       "advantage": "advantage",
       "hideDc": true,
       "requestedSeq": 17
@@ -2757,8 +2861,8 @@
     ],
     "rolls": [
      {
-      "rollId": "66fe57b7",
-      "characterId": "c9cfa3",
+      "rollId": "b56cca0f",
+      "characterId": "7f2f44",
       "label": "Wisdom (Perception) check",
       "dice": "1d20",
       "modifier": 3,
@@ -2790,46 +2894,46 @@
    "history": [
     {
      "seq": 2,
-     "at": "2026-10-28T06:10:21.889Z",
+     "at": "2026-10-28T06:35:09.598Z",
      "type": "character",
      "who": "Mira",
      "text": "Halfling (Lightfoot) Rogue"
     },
     {
      "seq": 3,
-     "at": "2026-10-28T06:10:21.891Z",
+     "at": "2026-10-28T06:35:09.599Z",
      "type": "character",
      "who": "Torvald",
      "text": "Dwarf (Hill) Fighter"
     },
     {
      "seq": 4,
-     "at": "2026-10-28T06:10:21.892Z",
+     "at": "2026-10-28T06:35:09.599Z",
      "type": "character",
      "who": "Elowen",
      "text": "Elf (High) Wizard"
     },
     {
      "seq": 5,
-     "at": "2026-10-28T06:10:21.894Z",
+     "at": "2026-10-28T06:35:09.600Z",
      "type": "started",
      "text": ""
     },
     {
      "seq": 6,
-     "at": "2026-10-28T06:10:21.900Z",
+     "at": "2026-10-28T06:35:09.604Z",
      "type": "scene",
      "text": "The Drowned Lantern — taproom"
     },
     {
      "seq": 7,
-     "at": "2026-10-28T06:10:21.905Z",
+     "at": "2026-10-28T06:35:09.608Z",
      "type": "sketch",
      "text": "The taproom of the Drowned Lantern"
     },
     {
      "seq": 8,
-     "at": "2026-10-28T06:10:21.908Z",
+     "at": "2026-10-28T06:35:09.610Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -2837,7 +2941,7 @@
     },
     {
      "seq": 9,
-     "at": "2026-10-28T06:10:21.909Z",
+     "at": "2026-10-28T06:35:09.612Z",
      "type": "player",
      "kind": "action",
      "who": "Mira",
@@ -2845,7 +2949,7 @@
     },
     {
      "seq": 10,
-     "at": "2026-10-28T06:10:21.910Z",
+     "at": "2026-10-28T06:35:09.612Z",
      "type": "player",
      "kind": "speech",
      "who": "Torvald",
@@ -2853,7 +2957,7 @@
     },
     {
      "seq": 11,
-     "at": "2026-10-28T06:10:21.912Z",
+     "at": "2026-10-28T06:35:09.614Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -2861,7 +2965,7 @@
     },
     {
      "seq": 12,
-     "at": "2026-10-28T06:10:21.913Z",
+     "at": "2026-10-28T06:35:09.615Z",
      "type": "player",
      "kind": "question",
      "who": "Elowen",
@@ -2869,7 +2973,7 @@
     },
     {
      "seq": 13,
-     "at": "2026-10-28T06:10:21.915Z",
+     "at": "2026-10-28T06:35:09.617Z",
      "type": "dm",
      "kind": "answer",
      "who": null,
@@ -2877,14 +2981,14 @@
     },
     {
      "seq": 14,
-     "at": "2026-10-28T06:10:21.918Z",
+     "at": "2026-10-28T06:35:09.620Z",
      "type": "rollRequested",
      "who": "Elowen",
      "text": "Wisdom (Perception) check"
     },
     {
      "seq": 15,
-     "at": "2026-10-28T06:10:21.921Z",
+     "at": "2026-10-28T06:35:09.622Z",
      "type": "roll",
      "text": "Wisdom (Perception) check: 14 → 17",
      "label": "Wisdom (Perception) check",
@@ -2892,7 +2996,7 @@
     },
     {
      "seq": 16,
-     "at": "2026-10-28T06:10:21.923Z",
+     "at": "2026-10-28T06:35:09.624Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -2900,7 +3004,7 @@
     },
     {
      "seq": 17,
-     "at": "2026-10-28T06:10:21.925Z",
+     "at": "2026-10-28T06:35:09.626Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Dexterity (Stealth) check"
@@ -2908,9 +3012,9 @@
    ]
   },
   "initiative": {
-   "id": "2e397bbd",
+   "id": "2debb1f2",
    "state": {
-    "id": "2e397bbd",
+    "id": "2debb1f2",
     "title": "The Drowned Lantern",
     "seq": 24,
     "scene": {
@@ -2920,7 +3024,7 @@
     },
     "characters": [
      {
-      "id": "754f90",
+      "id": "502e50",
       "name": "Mira",
       "player": "Veikko",
       "raceId": "halfling",
@@ -2952,6 +3056,9 @@
        "Sleight of Hand",
        "Perception",
        "Acrobatics"
+      ],
+      "expertise": [
+       "Stealth"
       ],
       "inventory": [
        {
@@ -2986,6 +3093,7 @@
       "gold": 10,
       "xp": 0,
       "conditions": [],
+      "effects": [],
       "features": [
        {
         "name": "Lucky",
@@ -3080,109 +3188,127 @@
          "name": "Acrobatics",
          "ability": "dex",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Animal Handling",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Arcana",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Athletics",
          "ability": "str",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Deception",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "History",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Insight",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Intimidation",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Investigation",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Medicine",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Nature",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Perception",
          "ability": "wis",
          "mod": 3,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Performance",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Persuasion",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Religion",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Sleight of Hand",
          "ability": "dex",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Stealth",
          "ability": "dex",
-         "mod": 5,
-         "proficient": true
+         "mod": 7,
+         "proficient": true,
+         "expertise": true
         },
         {
          "name": "Survival",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         }
        ],
        "attacks": [
@@ -3322,7 +3448,7 @@
       }
      },
      {
-      "id": "96d1bf",
+      "id": "9b4e7f",
       "name": "Torvald",
       "player": "Ann",
       "raceId": "dwarf",
@@ -3353,6 +3479,7 @@
        "Athletics",
        "Perception"
       ],
+      "expertise": [],
       "inventory": [
        {
         "name": "Chain mail",
@@ -3378,6 +3505,7 @@
       "gold": 10,
       "xp": 0,
       "conditions": [],
+      "effects": [],
       "features": [
        {
         "name": "Darkvision",
@@ -3475,109 +3603,127 @@
          "name": "Acrobatics",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Animal Handling",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Arcana",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Athletics",
          "ability": "str",
          "mod": 4,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Deception",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "History",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Insight",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Intimidation",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Investigation",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Medicine",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Nature",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Perception",
          "ability": "wis",
          "mod": 3,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Performance",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Persuasion",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Religion",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Sleight of Hand",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Stealth",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Survival",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         }
        ],
        "attacks": [
@@ -3687,7 +3833,7 @@
       }
      },
      {
-      "id": "c9cfa3",
+      "id": "7f2f44",
       "name": "Elowen",
       "player": "Sam",
       "raceId": "elf",
@@ -3719,6 +3865,7 @@
        "History",
        "Perception"
       ],
+      "expertise": [],
       "inventory": [
        {
         "name": "Quarterstaff",
@@ -3740,6 +3887,7 @@
       "gold": 10,
       "xp": 0,
       "conditions": [],
+      "effects": [],
       "features": [
        {
         "name": "Darkvision",
@@ -3929,109 +4077,127 @@
          "name": "Acrobatics",
          "ability": "dex",
          "mod": 2,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Animal Handling",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Arcana",
          "ability": "int",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Athletics",
          "ability": "str",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Deception",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "History",
          "ability": "int",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Insight",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Intimidation",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Investigation",
          "ability": "int",
          "mod": 3,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Medicine",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Nature",
          "ability": "int",
          "mod": 3,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Perception",
          "ability": "wis",
          "mod": 3,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Performance",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Persuasion",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Religion",
          "ability": "int",
          "mod": 3,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Sleight of Hand",
          "ability": "dex",
          "mod": 2,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Stealth",
          "ability": "dex",
          "mod": 2,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Survival",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         }
        ],
        "attacks": [
@@ -4271,21 +4437,21 @@
       {
        "ref": {
         "kind": "hero",
-        "id": "754f90"
+        "id": "502e50"
        },
        "ready": false
       },
       {
        "ref": {
         "kind": "hero",
-        "id": "96d1bf"
+        "id": "9b4e7f"
        },
        "ready": false
       },
       {
        "ref": {
         "kind": "hero",
-        "id": "c9cfa3"
+        "id": "7f2f44"
        },
        "ready": false
       },
@@ -4301,7 +4467,7 @@
     "log": [
      {
       "seq": 2,
-      "at": "2026-10-28T06:10:21.889Z",
+      "at": "2026-10-28T06:35:09.598Z",
       "from": "system",
       "kind": "info",
       "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
@@ -4316,7 +4482,7 @@
      },
      {
       "seq": 3,
-      "at": "2026-10-28T06:10:21.891Z",
+      "at": "2026-10-28T06:35:09.599Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
@@ -4331,7 +4497,7 @@
      },
      {
       "seq": 4,
-      "at": "2026-10-28T06:10:21.892Z",
+      "at": "2026-10-28T06:35:09.599Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen the Elf (High) Wizard joins the party.",
@@ -4346,7 +4512,7 @@
      },
      {
       "seq": 5,
-      "at": "2026-10-28T06:10:21.894Z",
+      "at": "2026-10-28T06:35:09.600Z",
       "from": "system",
       "kind": "info",
       "text": "The adventure begins.",
@@ -4357,53 +4523,53 @@
      },
      {
       "seq": 8,
-      "at": "2026-10-28T06:10:21.908Z",
+      "at": "2026-10-28T06:35:09.610Z",
       "from": "dm",
       "kind": "narration",
       "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
      },
      {
       "seq": 9,
-      "at": "2026-10-28T06:10:21.909Z",
+      "at": "2026-10-28T06:35:09.612Z",
       "from": "player",
-      "characterId": "754f90",
+      "characterId": "502e50",
       "kind": "action",
       "text": "I slide onto a stool at the bar and order whatever is warm."
      },
      {
       "seq": 10,
-      "at": "2026-10-28T06:10:21.910Z",
+      "at": "2026-10-28T06:35:09.612Z",
       "from": "player",
-      "characterId": "96d1bf",
+      "characterId": "9b4e7f",
       "kind": "speech",
       "text": "\"Who rings a bell under the sea, old man?\""
      },
      {
       "seq": 11,
-      "at": "2026-10-28T06:10:21.912Z",
+      "at": "2026-10-28T06:35:09.614Z",
       "from": "dm",
       "kind": "narration",
       "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
      },
      {
       "seq": 12,
-      "at": "2026-10-28T06:10:21.913Z",
+      "at": "2026-10-28T06:35:09.615Z",
       "from": "player",
-      "characterId": "c9cfa3",
+      "characterId": "7f2f44",
       "kind": "question",
       "text": "Can I tell if the dripping comes from a cellar?"
      },
      {
       "seq": 13,
-      "at": "2026-10-28T06:10:21.915Z",
+      "at": "2026-10-28T06:35:09.617Z",
       "from": "dm",
-      "characterId": "c9cfa3",
+      "characterId": "7f2f44",
       "kind": "answer",
       "text": "You can try. Listen closely to where it comes from."
      },
      {
       "seq": 15,
-      "at": "2026-10-28T06:10:21.921Z",
+      "at": "2026-10-28T06:35:09.622Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen rolled Wisdom (Perception) check: 14 +3 = 17 — success",
@@ -4424,17 +4590,17 @@
      },
      {
       "seq": 16,
-      "at": "2026-10-28T06:10:21.923Z",
+      "at": "2026-10-28T06:35:09.624Z",
       "from": "dm",
       "kind": "narration",
       "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
      },
      {
       "seq": 18,
-      "at": "2026-10-28T06:10:21.930Z",
+      "at": "2026-10-28T06:35:09.630Z",
       "from": "system",
       "kind": "info",
-      "text": "Mira rolled Dexterity (Stealth) check: 6 & 17 +5 = 22",
+      "text": "Mira rolled Dexterity (Stealth) check: 6 & 17 +7 = 24",
       "sys": {
        "code": "rolled",
        "params": {
@@ -4444,22 +4610,22 @@
          6,
          17
         ],
-        "mod": 5,
-        "total": 22,
+        "mod": 7,
+        "total": 24,
         "rollSeq": 18
        }
       }
      },
      {
       "seq": 19,
-      "at": "2026-10-28T06:10:21.932Z",
+      "at": "2026-10-28T06:35:09.632Z",
       "from": "dm",
       "kind": "narration",
       "text": "The trapdoor bursts open. Three goblins, dripping with harbour water, scramble up with knives drawn!"
      },
      {
       "seq": 20,
-      "at": "2026-10-28T06:10:21.935Z",
+      "at": "2026-10-28T06:35:09.634Z",
       "from": "system",
       "kind": "info",
       "text": "Goblin is here.",
@@ -4474,7 +4640,7 @@
      },
      {
       "seq": 21,
-      "at": "2026-10-28T06:10:21.939Z",
+      "at": "2026-10-28T06:35:09.637Z",
       "from": "system",
       "kind": "info",
       "text": "Fight!",
@@ -4486,8 +4652,8 @@
     ],
     "pendingRolls": [
      {
-      "rollId": "init-754f90-20",
-      "characterId": "754f90",
+      "rollId": "init-502e50-20",
+      "characterId": "502e50",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 3,
@@ -4497,8 +4663,8 @@
       "requestedSeq": 22
      },
      {
-      "rollId": "init-96d1bf-20",
-      "characterId": "96d1bf",
+      "rollId": "init-9b4e7f-20",
+      "characterId": "9b4e7f",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 1,
@@ -4508,8 +4674,8 @@
       "requestedSeq": 23
      },
      {
-      "rollId": "init-c9cfa3-20",
-      "characterId": "c9cfa3",
+      "rollId": "init-7f2f44-20",
+      "characterId": "7f2f44",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 2,
@@ -4521,8 +4687,8 @@
     ],
     "rolls": [
      {
-      "rollId": "66fe57b7",
-      "characterId": "c9cfa3",
+      "rollId": "b56cca0f",
+      "characterId": "7f2f44",
       "label": "Wisdom (Perception) check",
       "dice": "1d20",
       "modifier": 3,
@@ -4538,11 +4704,11 @@
       "byDm": false
      },
      {
-      "rollId": "7ce33c3c",
-      "characterId": "754f90",
+      "rollId": "5a1e5ed5",
+      "characterId": "502e50",
       "label": "Dexterity (Stealth) check",
       "dice": "1d20",
-      "modifier": 5,
+      "modifier": 7,
       "advantage": "advantage",
       "hideDc": true,
       "requestedSeq": 17,
@@ -4550,7 +4716,7 @@
        6,
        17
       ],
-      "total": 22,
+      "total": 24,
       "resolvedSeq": 18,
       "byDm": false
      }
@@ -4571,46 +4737,46 @@
    "history": [
     {
      "seq": 2,
-     "at": "2026-10-28T06:10:21.889Z",
+     "at": "2026-10-28T06:35:09.598Z",
      "type": "character",
      "who": "Mira",
      "text": "Halfling (Lightfoot) Rogue"
     },
     {
      "seq": 3,
-     "at": "2026-10-28T06:10:21.891Z",
+     "at": "2026-10-28T06:35:09.599Z",
      "type": "character",
      "who": "Torvald",
      "text": "Dwarf (Hill) Fighter"
     },
     {
      "seq": 4,
-     "at": "2026-10-28T06:10:21.892Z",
+     "at": "2026-10-28T06:35:09.599Z",
      "type": "character",
      "who": "Elowen",
      "text": "Elf (High) Wizard"
     },
     {
      "seq": 5,
-     "at": "2026-10-28T06:10:21.894Z",
+     "at": "2026-10-28T06:35:09.600Z",
      "type": "started",
      "text": ""
     },
     {
      "seq": 6,
-     "at": "2026-10-28T06:10:21.900Z",
+     "at": "2026-10-28T06:35:09.604Z",
      "type": "scene",
      "text": "The Drowned Lantern — taproom"
     },
     {
      "seq": 7,
-     "at": "2026-10-28T06:10:21.905Z",
+     "at": "2026-10-28T06:35:09.608Z",
      "type": "sketch",
      "text": "The taproom of the Drowned Lantern"
     },
     {
      "seq": 8,
-     "at": "2026-10-28T06:10:21.908Z",
+     "at": "2026-10-28T06:35:09.610Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -4618,7 +4784,7 @@
     },
     {
      "seq": 9,
-     "at": "2026-10-28T06:10:21.909Z",
+     "at": "2026-10-28T06:35:09.612Z",
      "type": "player",
      "kind": "action",
      "who": "Mira",
@@ -4626,7 +4792,7 @@
     },
     {
      "seq": 10,
-     "at": "2026-10-28T06:10:21.910Z",
+     "at": "2026-10-28T06:35:09.612Z",
      "type": "player",
      "kind": "speech",
      "who": "Torvald",
@@ -4634,7 +4800,7 @@
     },
     {
      "seq": 11,
-     "at": "2026-10-28T06:10:21.912Z",
+     "at": "2026-10-28T06:35:09.614Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -4642,7 +4808,7 @@
     },
     {
      "seq": 12,
-     "at": "2026-10-28T06:10:21.913Z",
+     "at": "2026-10-28T06:35:09.615Z",
      "type": "player",
      "kind": "question",
      "who": "Elowen",
@@ -4650,7 +4816,7 @@
     },
     {
      "seq": 13,
-     "at": "2026-10-28T06:10:21.915Z",
+     "at": "2026-10-28T06:35:09.617Z",
      "type": "dm",
      "kind": "answer",
      "who": null,
@@ -4658,14 +4824,14 @@
     },
     {
      "seq": 14,
-     "at": "2026-10-28T06:10:21.918Z",
+     "at": "2026-10-28T06:35:09.620Z",
      "type": "rollRequested",
      "who": "Elowen",
      "text": "Wisdom (Perception) check"
     },
     {
      "seq": 15,
-     "at": "2026-10-28T06:10:21.921Z",
+     "at": "2026-10-28T06:35:09.622Z",
      "type": "roll",
      "text": "Wisdom (Perception) check: 14 → 17",
      "label": "Wisdom (Perception) check",
@@ -4673,7 +4839,7 @@
     },
     {
      "seq": 16,
-     "at": "2026-10-28T06:10:21.923Z",
+     "at": "2026-10-28T06:35:09.624Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -4681,22 +4847,22 @@
     },
     {
      "seq": 17,
-     "at": "2026-10-28T06:10:21.925Z",
+     "at": "2026-10-28T06:35:09.626Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Dexterity (Stealth) check"
     },
     {
      "seq": 18,
-     "at": "2026-10-28T06:10:21.930Z",
+     "at": "2026-10-28T06:35:09.630Z",
      "type": "roll",
-     "text": "Dexterity (Stealth) check: 6 & 17 → 22",
+     "text": "Dexterity (Stealth) check: 6 & 17 → 24",
      "label": "Dexterity (Stealth) check",
-     "result": "6 & 17 → 22"
+     "result": "6 & 17 → 24"
     },
     {
      "seq": 19,
-     "at": "2026-10-28T06:10:21.932Z",
+     "at": "2026-10-28T06:35:09.632Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -4704,7 +4870,7 @@
     },
     {
      "seq": 22,
-     "at": "2026-10-28T06:10:21.939Z",
+     "at": "2026-10-28T06:35:09.638Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Initiative",
@@ -4712,7 +4878,7 @@
     },
     {
      "seq": 23,
-     "at": "2026-10-28T06:10:21.940Z",
+     "at": "2026-10-28T06:35:09.638Z",
      "type": "rollRequested",
      "who": "Torvald",
      "text": "Initiative",
@@ -4720,7 +4886,7 @@
     },
     {
      "seq": 24,
-     "at": "2026-10-28T06:10:21.940Z",
+     "at": "2026-10-28T06:35:09.638Z",
      "type": "rollRequested",
      "who": "Elowen",
      "text": "Initiative",
@@ -4729,11 +4895,11 @@
    ]
   },
   "combat": {
-   "id": "2e397bbd",
+   "id": "2debb1f2",
    "state": {
-    "id": "2e397bbd",
+    "id": "2debb1f2",
     "title": "The Drowned Lantern",
-    "seq": 32,
+    "seq": 35,
     "scene": {
      "title": "The Drowned Lantern — taproom",
      "description": "A low-beamed harbour inn, half sunk into the mud.",
@@ -4741,7 +4907,7 @@
     },
     "characters": [
      {
-      "id": "754f90",
+      "id": "502e50",
       "name": "Mira",
       "player": "Veikko",
       "raceId": "halfling",
@@ -4773,6 +4939,9 @@
        "Sleight of Hand",
        "Perception",
        "Acrobatics"
+      ],
+      "expertise": [
+       "Stealth"
       ],
       "inventory": [
        {
@@ -4807,6 +4976,7 @@
       "gold": 10,
       "xp": 0,
       "conditions": [],
+      "effects": [],
       "features": [
        {
         "name": "Lucky",
@@ -4845,7 +5015,7 @@
        }
       ],
       "spells": [],
-      "notes": "",
+      "notes": "Owes Brannock 3 silver.\nThe bell rings at low tide.",
       "resources": [
        {
         "id": "hit-dice",
@@ -4901,109 +5071,127 @@
          "name": "Acrobatics",
          "ability": "dex",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Animal Handling",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Arcana",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Athletics",
          "ability": "str",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Deception",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "History",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Insight",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Intimidation",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Investigation",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Medicine",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Nature",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Perception",
          "ability": "wis",
          "mod": 3,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Performance",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Persuasion",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Religion",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Sleight of Hand",
          "ability": "dex",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Stealth",
          "ability": "dex",
-         "mod": 5,
-         "proficient": true
+         "mod": 7,
+         "proficient": true,
+         "expertise": true
         },
         {
          "name": "Survival",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         }
        ],
        "attacks": [
@@ -5143,7 +5331,7 @@
       }
      },
      {
-      "id": "96d1bf",
+      "id": "9b4e7f",
       "name": "Torvald",
       "player": "Ann",
       "raceId": "dwarf",
@@ -5174,6 +5362,7 @@
        "Athletics",
        "Perception"
       ],
+      "expertise": [],
       "inventory": [
        {
         "name": "Chain mail",
@@ -5198,7 +5387,15 @@
       ],
       "gold": 10,
       "xp": 0,
-      "conditions": [],
+      "conditions": [
+       "prone"
+      ],
+      "effects": [
+       {
+        "name": "Blessed",
+        "note": "+1d4 to attacks and saves for a minute"
+       }
+      ],
       "features": [
        {
         "name": "Darkvision",
@@ -5296,109 +5493,127 @@
          "name": "Acrobatics",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Animal Handling",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Arcana",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Athletics",
          "ability": "str",
          "mod": 4,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Deception",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "History",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Insight",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Intimidation",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Investigation",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Medicine",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Nature",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Perception",
          "ability": "wis",
          "mod": 3,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Performance",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Persuasion",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Religion",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Sleight of Hand",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Stealth",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Survival",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         }
        ],
        "attacks": [
@@ -5508,7 +5723,7 @@
       }
      },
      {
-      "id": "c9cfa3",
+      "id": "7f2f44",
       "name": "Elowen",
       "player": "Sam",
       "raceId": "elf",
@@ -5540,6 +5755,7 @@
        "History",
        "Perception"
       ],
+      "expertise": [],
       "inventory": [
        {
         "name": "Quarterstaff",
@@ -5563,6 +5779,7 @@
       "conditions": [
        "Frightened"
       ],
+      "effects": [],
       "features": [
        {
         "name": "Darkvision",
@@ -5688,7 +5905,7 @@
         "id": "spell-slots-1",
         "name": "Spell slots (1st)",
         "max": 2,
-        "used": 0,
+        "used": 1,
         "recharge": "long"
        },
        {
@@ -5752,109 +5969,127 @@
          "name": "Acrobatics",
          "ability": "dex",
          "mod": 2,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Animal Handling",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Arcana",
          "ability": "int",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Athletics",
          "ability": "str",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Deception",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "History",
          "ability": "int",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Insight",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Intimidation",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Investigation",
          "ability": "int",
          "mod": 3,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Medicine",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Nature",
          "ability": "int",
          "mod": 3,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Perception",
          "ability": "wis",
          "mod": 3,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Performance",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Persuasion",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Religion",
          "ability": "int",
          "mod": 3,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Sleight of Hand",
          "ability": "dex",
          "mod": 2,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Stealth",
          "ability": "dex",
          "mod": 2,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Survival",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         }
        ],
        "attacks": [
@@ -6094,7 +6329,7 @@
       {
        "ref": {
         "kind": "hero",
-        "id": "754f90"
+        "id": "502e50"
        },
        "ready": true
       },
@@ -6108,14 +6343,14 @@
       {
        "ref": {
         "kind": "hero",
-        "id": "c9cfa3"
+        "id": "7f2f44"
        },
        "ready": true
       },
       {
        "ref": {
         "kind": "hero",
-        "id": "96d1bf"
+        "id": "9b4e7f"
        },
        "ready": true
       }
@@ -6124,7 +6359,7 @@
     "log": [
      {
       "seq": 2,
-      "at": "2026-10-28T06:10:21.889Z",
+      "at": "2026-10-28T06:35:09.598Z",
       "from": "system",
       "kind": "info",
       "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
@@ -6139,7 +6374,7 @@
      },
      {
       "seq": 3,
-      "at": "2026-10-28T06:10:21.891Z",
+      "at": "2026-10-28T06:35:09.599Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
@@ -6154,7 +6389,7 @@
      },
      {
       "seq": 4,
-      "at": "2026-10-28T06:10:21.892Z",
+      "at": "2026-10-28T06:35:09.599Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen the Elf (High) Wizard joins the party.",
@@ -6169,7 +6404,7 @@
      },
      {
       "seq": 5,
-      "at": "2026-10-28T06:10:21.894Z",
+      "at": "2026-10-28T06:35:09.600Z",
       "from": "system",
       "kind": "info",
       "text": "The adventure begins.",
@@ -6180,53 +6415,53 @@
      },
      {
       "seq": 8,
-      "at": "2026-10-28T06:10:21.908Z",
+      "at": "2026-10-28T06:35:09.610Z",
       "from": "dm",
       "kind": "narration",
       "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
      },
      {
       "seq": 9,
-      "at": "2026-10-28T06:10:21.909Z",
+      "at": "2026-10-28T06:35:09.612Z",
       "from": "player",
-      "characterId": "754f90",
+      "characterId": "502e50",
       "kind": "action",
       "text": "I slide onto a stool at the bar and order whatever is warm."
      },
      {
       "seq": 10,
-      "at": "2026-10-28T06:10:21.910Z",
+      "at": "2026-10-28T06:35:09.612Z",
       "from": "player",
-      "characterId": "96d1bf",
+      "characterId": "9b4e7f",
       "kind": "speech",
       "text": "\"Who rings a bell under the sea, old man?\""
      },
      {
       "seq": 11,
-      "at": "2026-10-28T06:10:21.912Z",
+      "at": "2026-10-28T06:35:09.614Z",
       "from": "dm",
       "kind": "narration",
       "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
      },
      {
       "seq": 12,
-      "at": "2026-10-28T06:10:21.913Z",
+      "at": "2026-10-28T06:35:09.615Z",
       "from": "player",
-      "characterId": "c9cfa3",
+      "characterId": "7f2f44",
       "kind": "question",
       "text": "Can I tell if the dripping comes from a cellar?"
      },
      {
       "seq": 13,
-      "at": "2026-10-28T06:10:21.915Z",
+      "at": "2026-10-28T06:35:09.617Z",
       "from": "dm",
-      "characterId": "c9cfa3",
+      "characterId": "7f2f44",
       "kind": "answer",
       "text": "You can try. Listen closely to where it comes from."
      },
      {
       "seq": 15,
-      "at": "2026-10-28T06:10:21.921Z",
+      "at": "2026-10-28T06:35:09.622Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen rolled Wisdom (Perception) check: 14 +3 = 17 — success",
@@ -6247,17 +6482,17 @@
      },
      {
       "seq": 16,
-      "at": "2026-10-28T06:10:21.923Z",
+      "at": "2026-10-28T06:35:09.624Z",
       "from": "dm",
       "kind": "narration",
       "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
      },
      {
       "seq": 18,
-      "at": "2026-10-28T06:10:21.930Z",
+      "at": "2026-10-28T06:35:09.630Z",
       "from": "system",
       "kind": "info",
-      "text": "Mira rolled Dexterity (Stealth) check: 6 & 17 +5 = 22",
+      "text": "Mira rolled Dexterity (Stealth) check: 6 & 17 +7 = 24",
       "sys": {
        "code": "rolled",
        "params": {
@@ -6267,22 +6502,22 @@
          6,
          17
         ],
-        "mod": 5,
-        "total": 22,
+        "mod": 7,
+        "total": 24,
         "rollSeq": 18
        }
       }
      },
      {
       "seq": 19,
-      "at": "2026-10-28T06:10:21.932Z",
+      "at": "2026-10-28T06:35:09.632Z",
       "from": "dm",
       "kind": "narration",
       "text": "The trapdoor bursts open. Three goblins, dripping with harbour water, scramble up with knives drawn!"
      },
      {
       "seq": 20,
-      "at": "2026-10-28T06:10:21.935Z",
+      "at": "2026-10-28T06:35:09.634Z",
       "from": "system",
       "kind": "info",
       "text": "Goblin is here.",
@@ -6297,7 +6532,7 @@
      },
      {
       "seq": 21,
-      "at": "2026-10-28T06:10:21.939Z",
+      "at": "2026-10-28T06:35:09.637Z",
       "from": "system",
       "kind": "info",
       "text": "Fight!",
@@ -6308,7 +6543,7 @@
      },
      {
       "seq": 25,
-      "at": "2026-10-28T06:10:21.943Z",
+      "at": "2026-10-28T06:35:09.641Z",
       "from": "system",
       "kind": "info",
       "text": "Mira rolled Initiative: 18 +3 = 21",
@@ -6329,7 +6564,7 @@
      },
      {
       "seq": 26,
-      "at": "2026-10-28T06:10:21.944Z",
+      "at": "2026-10-28T06:35:09.642Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald rolled Initiative: 4 +1 = 5",
@@ -6350,7 +6585,7 @@
      },
      {
       "seq": 27,
-      "at": "2026-10-28T06:10:21.945Z",
+      "at": "2026-10-28T06:35:09.643Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen rolled Initiative: 11 +2 = 13",
@@ -6371,7 +6606,7 @@
      },
      {
       "seq": 27,
-      "at": "2026-10-28T06:10:21.945Z",
+      "at": "2026-10-28T06:35:09.643Z",
       "from": "system",
       "kind": "info",
       "text": "Turn order: Mira, Goblin, Elowen, Torvald.",
@@ -6389,7 +6624,7 @@
      },
      {
       "seq": 28,
-      "at": "2026-10-28T06:10:21.947Z",
+      "at": "2026-10-28T06:35:09.645Z",
       "from": "system",
       "kind": "info",
       "text": "Goblin: now bloodied",
@@ -6403,7 +6638,7 @@
      },
      {
       "seq": 29,
-      "at": "2026-10-28T06:10:21.949Z",
+      "at": "2026-10-28T06:35:09.646Z",
       "from": "system",
       "kind": "info",
       "text": "Goblin is defeated.",
@@ -6416,7 +6651,7 @@
      },
      {
       "seq": 30,
-      "at": "2026-10-28T06:10:21.952Z",
+      "at": "2026-10-28T06:35:09.649Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald: hp 14 → 8 (goblin knife)",
@@ -6436,7 +6671,7 @@
      },
      {
       "seq": 31,
-      "at": "2026-10-28T06:10:21.955Z",
+      "at": "2026-10-28T06:35:09.651Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen: condOn Frightened (a goblin shriek)",
@@ -6453,24 +6688,67 @@
         "reason": "a goblin shriek"
        }
       }
+     },
+     {
+      "seq": 32,
+      "at": "2026-10-28T06:35:09.653Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Torvald: condOn prone, condOn Blessed (knocked over; Elowen's blessing)",
+      "sys": {
+       "code": "updated",
+       "params": {
+        "name": "Torvald",
+        "parts": [
+         [
+          "condOn",
+          "prone"
+         ],
+         [
+          "condOn",
+          "Blessed"
+         ]
+        ],
+        "reason": "knocked over; Elowen's blessing"
+       }
+      }
+     },
+     {
+      "seq": 33,
+      "at": "2026-10-28T06:35:09.655Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Elowen: resource Spell slots (1st) 1/2",
+      "sys": {
+       "code": "updated",
+       "params": {
+        "name": "Elowen",
+        "parts": [
+         [
+          "resource",
+          "Spell slots (1st) 1/2"
+         ]
+        ]
+       }
+      }
      }
     ],
     "pendingRolls": [
      {
-      "rollId": "c22d3b94",
-      "characterId": "96d1bf",
+      "rollId": "1f7d7291",
+      "characterId": "9b4e7f",
       "label": "Battleaxe attack",
       "dice": "1d20",
       "modifier": 5,
       "advantage": "none",
       "hideDc": true,
-      "requestedSeq": 32
+      "requestedSeq": 35
      }
     ],
     "rolls": [
      {
-      "rollId": "66fe57b7",
-      "characterId": "c9cfa3",
+      "rollId": "b56cca0f",
+      "characterId": "7f2f44",
       "label": "Wisdom (Perception) check",
       "dice": "1d20",
       "modifier": 3,
@@ -6486,11 +6764,11 @@
       "byDm": false
      },
      {
-      "rollId": "7ce33c3c",
-      "characterId": "754f90",
+      "rollId": "5a1e5ed5",
+      "characterId": "502e50",
       "label": "Dexterity (Stealth) check",
       "dice": "1d20",
-      "modifier": 5,
+      "modifier": 7,
       "advantage": "advantage",
       "hideDc": true,
       "requestedSeq": 17,
@@ -6498,13 +6776,13 @@
        6,
        17
       ],
-      "total": 22,
+      "total": 24,
       "resolvedSeq": 18,
       "byDm": false
      },
      {
-      "rollId": "init-754f90-20",
-      "characterId": "754f90",
+      "rollId": "init-502e50-20",
+      "characterId": "502e50",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 3,
@@ -6520,8 +6798,8 @@
       "byDm": false
      },
      {
-      "rollId": "init-96d1bf-20",
-      "characterId": "96d1bf",
+      "rollId": "init-9b4e7f-20",
+      "characterId": "9b4e7f",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 1,
@@ -6537,8 +6815,8 @@
       "byDm": false
      },
      {
-      "rollId": "init-c9cfa3-20",
-      "characterId": "c9cfa3",
+      "rollId": "init-7f2f44-20",
+      "characterId": "7f2f44",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 2,
@@ -6563,53 +6841,53 @@
     ],
     "started": true,
     "complexity": "beginner",
-    "latestSeq": 32,
+    "latestSeq": 35,
     "dmStatus": "thinking",
     "language": "en"
    },
    "history": [
     {
      "seq": 2,
-     "at": "2026-10-28T06:10:21.889Z",
+     "at": "2026-10-28T06:35:09.598Z",
      "type": "character",
      "who": "Mira",
      "text": "Halfling (Lightfoot) Rogue"
     },
     {
      "seq": 3,
-     "at": "2026-10-28T06:10:21.891Z",
+     "at": "2026-10-28T06:35:09.599Z",
      "type": "character",
      "who": "Torvald",
      "text": "Dwarf (Hill) Fighter"
     },
     {
      "seq": 4,
-     "at": "2026-10-28T06:10:21.892Z",
+     "at": "2026-10-28T06:35:09.599Z",
      "type": "character",
      "who": "Elowen",
      "text": "Elf (High) Wizard"
     },
     {
      "seq": 5,
-     "at": "2026-10-28T06:10:21.894Z",
+     "at": "2026-10-28T06:35:09.600Z",
      "type": "started",
      "text": ""
     },
     {
      "seq": 6,
-     "at": "2026-10-28T06:10:21.900Z",
+     "at": "2026-10-28T06:35:09.604Z",
      "type": "scene",
      "text": "The Drowned Lantern — taproom"
     },
     {
      "seq": 7,
-     "at": "2026-10-28T06:10:21.905Z",
+     "at": "2026-10-28T06:35:09.608Z",
      "type": "sketch",
      "text": "The taproom of the Drowned Lantern"
     },
     {
      "seq": 8,
-     "at": "2026-10-28T06:10:21.908Z",
+     "at": "2026-10-28T06:35:09.610Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -6617,7 +6895,7 @@
     },
     {
      "seq": 9,
-     "at": "2026-10-28T06:10:21.909Z",
+     "at": "2026-10-28T06:35:09.612Z",
      "type": "player",
      "kind": "action",
      "who": "Mira",
@@ -6625,7 +6903,7 @@
     },
     {
      "seq": 10,
-     "at": "2026-10-28T06:10:21.910Z",
+     "at": "2026-10-28T06:35:09.612Z",
      "type": "player",
      "kind": "speech",
      "who": "Torvald",
@@ -6633,7 +6911,7 @@
     },
     {
      "seq": 11,
-     "at": "2026-10-28T06:10:21.912Z",
+     "at": "2026-10-28T06:35:09.614Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -6641,7 +6919,7 @@
     },
     {
      "seq": 12,
-     "at": "2026-10-28T06:10:21.913Z",
+     "at": "2026-10-28T06:35:09.615Z",
      "type": "player",
      "kind": "question",
      "who": "Elowen",
@@ -6649,7 +6927,7 @@
     },
     {
      "seq": 13,
-     "at": "2026-10-28T06:10:21.915Z",
+     "at": "2026-10-28T06:35:09.617Z",
      "type": "dm",
      "kind": "answer",
      "who": null,
@@ -6657,14 +6935,14 @@
     },
     {
      "seq": 14,
-     "at": "2026-10-28T06:10:21.918Z",
+     "at": "2026-10-28T06:35:09.620Z",
      "type": "rollRequested",
      "who": "Elowen",
      "text": "Wisdom (Perception) check"
     },
     {
      "seq": 15,
-     "at": "2026-10-28T06:10:21.921Z",
+     "at": "2026-10-28T06:35:09.622Z",
      "type": "roll",
      "text": "Wisdom (Perception) check: 14 → 17",
      "label": "Wisdom (Perception) check",
@@ -6672,7 +6950,7 @@
     },
     {
      "seq": 16,
-     "at": "2026-10-28T06:10:21.923Z",
+     "at": "2026-10-28T06:35:09.624Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -6680,22 +6958,22 @@
     },
     {
      "seq": 17,
-     "at": "2026-10-28T06:10:21.925Z",
+     "at": "2026-10-28T06:35:09.626Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Dexterity (Stealth) check"
     },
     {
      "seq": 18,
-     "at": "2026-10-28T06:10:21.930Z",
+     "at": "2026-10-28T06:35:09.630Z",
      "type": "roll",
-     "text": "Dexterity (Stealth) check: 6 & 17 → 22",
+     "text": "Dexterity (Stealth) check: 6 & 17 → 24",
      "label": "Dexterity (Stealth) check",
-     "result": "6 & 17 → 22"
+     "result": "6 & 17 → 24"
     },
     {
      "seq": 19,
-     "at": "2026-10-28T06:10:21.932Z",
+     "at": "2026-10-28T06:35:09.632Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -6703,7 +6981,7 @@
     },
     {
      "seq": 22,
-     "at": "2026-10-28T06:10:21.939Z",
+     "at": "2026-10-28T06:35:09.638Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Initiative",
@@ -6711,7 +6989,7 @@
     },
     {
      "seq": 23,
-     "at": "2026-10-28T06:10:21.940Z",
+     "at": "2026-10-28T06:35:09.638Z",
      "type": "rollRequested",
      "who": "Torvald",
      "text": "Initiative",
@@ -6719,7 +6997,7 @@
     },
     {
      "seq": 24,
-     "at": "2026-10-28T06:10:21.940Z",
+     "at": "2026-10-28T06:35:09.638Z",
      "type": "rollRequested",
      "who": "Elowen",
      "text": "Initiative",
@@ -6727,7 +7005,7 @@
     },
     {
      "seq": 25,
-     "at": "2026-10-28T06:10:21.943Z",
+     "at": "2026-10-28T06:35:09.641Z",
      "type": "roll",
      "text": "Initiative: 18 → 21",
      "label": "Initiative",
@@ -6736,7 +7014,7 @@
     },
     {
      "seq": 26,
-     "at": "2026-10-28T06:10:21.944Z",
+     "at": "2026-10-28T06:35:09.642Z",
      "type": "roll",
      "text": "Initiative: 4 → 5",
      "label": "Initiative",
@@ -6745,7 +7023,7 @@
     },
     {
      "seq": 27,
-     "at": "2026-10-28T06:10:21.945Z",
+     "at": "2026-10-28T06:35:09.643Z",
      "type": "roll",
      "text": "Initiative: 11 → 13",
      "label": "Initiative",
@@ -6753,8 +7031,8 @@
      "purpose": "initiative"
     },
     {
-     "seq": 32,
-     "at": "2026-10-28T06:10:21.957Z",
+     "seq": 35,
+     "at": "2026-10-28T06:35:09.659Z",
      "type": "rollRequested",
      "who": "Torvald",
      "text": "Battleaxe attack"
@@ -6762,11 +7040,11 @@
    ]
   },
   "dying": {
-   "id": "2e397bbd",
+   "id": "2debb1f2",
    "state": {
-    "id": "2e397bbd",
+    "id": "2debb1f2",
     "title": "The Drowned Lantern",
-    "seq": 39,
+    "seq": 42,
     "scene": {
      "title": "The Drowned Lantern — taproom",
      "description": "A low-beamed harbour inn, half sunk into the mud.",
@@ -6774,7 +7052,7 @@
     },
     "characters": [
      {
-      "id": "754f90",
+      "id": "502e50",
       "name": "Mira",
       "player": "Veikko",
       "raceId": "halfling",
@@ -6806,6 +7084,9 @@
        "Sleight of Hand",
        "Perception",
        "Acrobatics"
+      ],
+      "expertise": [
+       "Stealth"
       ],
       "inventory": [
        {
@@ -6842,6 +7123,7 @@
       "conditions": [
        "Unconscious"
       ],
+      "effects": [],
       "features": [
        {
         "name": "Lucky",
@@ -6880,7 +7162,7 @@
        }
       ],
       "spells": [],
-      "notes": "",
+      "notes": "Owes Brannock 3 silver.\nThe bell rings at low tide.",
       "resources": [
        {
         "id": "hit-dice",
@@ -6936,109 +7218,127 @@
          "name": "Acrobatics",
          "ability": "dex",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Animal Handling",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Arcana",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Athletics",
          "ability": "str",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Deception",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "History",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Insight",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Intimidation",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Investigation",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Medicine",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Nature",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Perception",
          "ability": "wis",
          "mod": 3,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Performance",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Persuasion",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Religion",
          "ability": "int",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Sleight of Hand",
          "ability": "dex",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Stealth",
          "ability": "dex",
-         "mod": 5,
-         "proficient": true
+         "mod": 7,
+         "proficient": true,
+         "expertise": true
         },
         {
          "name": "Survival",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         }
        ],
        "attacks": [
@@ -7178,7 +7478,7 @@
       }
      },
      {
-      "id": "96d1bf",
+      "id": "9b4e7f",
       "name": "Torvald",
       "player": "Ann",
       "raceId": "dwarf",
@@ -7209,6 +7509,7 @@
        "Athletics",
        "Perception"
       ],
+      "expertise": [],
       "inventory": [
        {
         "name": "Chain mail",
@@ -7233,7 +7534,15 @@
       ],
       "gold": 10,
       "xp": 0,
-      "conditions": [],
+      "conditions": [
+       "prone"
+      ],
+      "effects": [
+       {
+        "name": "Blessed",
+        "note": "+1d4 to attacks and saves for a minute"
+       }
+      ],
       "features": [
        {
         "name": "Darkvision",
@@ -7331,109 +7640,127 @@
          "name": "Acrobatics",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Animal Handling",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Arcana",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Athletics",
          "ability": "str",
          "mod": 4,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Deception",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "History",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Insight",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Intimidation",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Investigation",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Medicine",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Nature",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Perception",
          "ability": "wis",
          "mod": 3,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Performance",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Persuasion",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Religion",
          "ability": "int",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Sleight of Hand",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Stealth",
          "ability": "dex",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Survival",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         }
        ],
        "attacks": [
@@ -7543,7 +7870,7 @@
       }
      },
      {
-      "id": "c9cfa3",
+      "id": "7f2f44",
       "name": "Elowen",
       "player": "Sam",
       "raceId": "elf",
@@ -7575,6 +7902,7 @@
        "History",
        "Perception"
       ],
+      "expertise": [],
       "inventory": [
        {
         "name": "Quarterstaff",
@@ -7598,6 +7926,7 @@
       "conditions": [
        "Frightened"
       ],
+      "effects": [],
       "features": [
        {
         "name": "Darkvision",
@@ -7723,7 +8052,7 @@
         "id": "spell-slots-1",
         "name": "Spell slots (1st)",
         "max": 2,
-        "used": 0,
+        "used": 1,
         "recharge": "long"
        },
        {
@@ -7787,109 +8116,127 @@
          "name": "Acrobatics",
          "ability": "dex",
          "mod": 2,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Animal Handling",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Arcana",
          "ability": "int",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Athletics",
          "ability": "str",
          "mod": -1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Deception",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "History",
          "ability": "int",
          "mod": 5,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Insight",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Intimidation",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Investigation",
          "ability": "int",
          "mod": 3,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Medicine",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Nature",
          "ability": "int",
          "mod": 3,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Perception",
          "ability": "wis",
          "mod": 3,
-         "proficient": true
+         "proficient": true,
+         "expertise": false
         },
         {
          "name": "Performance",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Persuasion",
          "ability": "cha",
          "mod": 0,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Religion",
          "ability": "int",
          "mod": 3,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Sleight of Hand",
          "ability": "dex",
          "mod": 2,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Stealth",
          "ability": "dex",
          "mod": 2,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         },
         {
          "name": "Survival",
          "ability": "wis",
          "mod": 1,
-         "proficient": false
+         "proficient": false,
+         "expertise": false
         }
        ],
        "attacks": [
@@ -8129,7 +8476,7 @@
       {
        "ref": {
         "kind": "hero",
-        "id": "754f90"
+        "id": "502e50"
        },
        "ready": true
       },
@@ -8143,14 +8490,14 @@
       {
        "ref": {
         "kind": "hero",
-        "id": "c9cfa3"
+        "id": "7f2f44"
        },
        "ready": true
       },
       {
        "ref": {
         "kind": "hero",
-        "id": "96d1bf"
+        "id": "9b4e7f"
        },
        "ready": true
       }
@@ -8159,7 +8506,7 @@
     "log": [
      {
       "seq": 2,
-      "at": "2026-10-28T06:10:21.889Z",
+      "at": "2026-10-28T06:35:09.598Z",
       "from": "system",
       "kind": "info",
       "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
@@ -8174,7 +8521,7 @@
      },
      {
       "seq": 3,
-      "at": "2026-10-28T06:10:21.891Z",
+      "at": "2026-10-28T06:35:09.599Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
@@ -8189,7 +8536,7 @@
      },
      {
       "seq": 4,
-      "at": "2026-10-28T06:10:21.892Z",
+      "at": "2026-10-28T06:35:09.599Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen the Elf (High) Wizard joins the party.",
@@ -8204,7 +8551,7 @@
      },
      {
       "seq": 5,
-      "at": "2026-10-28T06:10:21.894Z",
+      "at": "2026-10-28T06:35:09.600Z",
       "from": "system",
       "kind": "info",
       "text": "The adventure begins.",
@@ -8215,53 +8562,53 @@
      },
      {
       "seq": 8,
-      "at": "2026-10-28T06:10:21.908Z",
+      "at": "2026-10-28T06:35:09.610Z",
       "from": "dm",
       "kind": "narration",
       "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
      },
      {
       "seq": 9,
-      "at": "2026-10-28T06:10:21.909Z",
+      "at": "2026-10-28T06:35:09.612Z",
       "from": "player",
-      "characterId": "754f90",
+      "characterId": "502e50",
       "kind": "action",
       "text": "I slide onto a stool at the bar and order whatever is warm."
      },
      {
       "seq": 10,
-      "at": "2026-10-28T06:10:21.910Z",
+      "at": "2026-10-28T06:35:09.612Z",
       "from": "player",
-      "characterId": "96d1bf",
+      "characterId": "9b4e7f",
       "kind": "speech",
       "text": "\"Who rings a bell under the sea, old man?\""
      },
      {
       "seq": 11,
-      "at": "2026-10-28T06:10:21.912Z",
+      "at": "2026-10-28T06:35:09.614Z",
       "from": "dm",
       "kind": "narration",
       "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
      },
      {
       "seq": 12,
-      "at": "2026-10-28T06:10:21.913Z",
+      "at": "2026-10-28T06:35:09.615Z",
       "from": "player",
-      "characterId": "c9cfa3",
+      "characterId": "7f2f44",
       "kind": "question",
       "text": "Can I tell if the dripping comes from a cellar?"
      },
      {
       "seq": 13,
-      "at": "2026-10-28T06:10:21.915Z",
+      "at": "2026-10-28T06:35:09.617Z",
       "from": "dm",
-      "characterId": "c9cfa3",
+      "characterId": "7f2f44",
       "kind": "answer",
       "text": "You can try. Listen closely to where it comes from."
      },
      {
       "seq": 15,
-      "at": "2026-10-28T06:10:21.921Z",
+      "at": "2026-10-28T06:35:09.622Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen rolled Wisdom (Perception) check: 14 +3 = 17 — success",
@@ -8282,17 +8629,17 @@
      },
      {
       "seq": 16,
-      "at": "2026-10-28T06:10:21.923Z",
+      "at": "2026-10-28T06:35:09.624Z",
       "from": "dm",
       "kind": "narration",
       "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
      },
      {
       "seq": 18,
-      "at": "2026-10-28T06:10:21.930Z",
+      "at": "2026-10-28T06:35:09.630Z",
       "from": "system",
       "kind": "info",
-      "text": "Mira rolled Dexterity (Stealth) check: 6 & 17 +5 = 22",
+      "text": "Mira rolled Dexterity (Stealth) check: 6 & 17 +7 = 24",
       "sys": {
        "code": "rolled",
        "params": {
@@ -8302,22 +8649,22 @@
          6,
          17
         ],
-        "mod": 5,
-        "total": 22,
+        "mod": 7,
+        "total": 24,
         "rollSeq": 18
        }
       }
      },
      {
       "seq": 19,
-      "at": "2026-10-28T06:10:21.932Z",
+      "at": "2026-10-28T06:35:09.632Z",
       "from": "dm",
       "kind": "narration",
       "text": "The trapdoor bursts open. Three goblins, dripping with harbour water, scramble up with knives drawn!"
      },
      {
       "seq": 20,
-      "at": "2026-10-28T06:10:21.935Z",
+      "at": "2026-10-28T06:35:09.634Z",
       "from": "system",
       "kind": "info",
       "text": "Goblin is here.",
@@ -8332,7 +8679,7 @@
      },
      {
       "seq": 21,
-      "at": "2026-10-28T06:10:21.939Z",
+      "at": "2026-10-28T06:35:09.637Z",
       "from": "system",
       "kind": "info",
       "text": "Fight!",
@@ -8343,7 +8690,7 @@
      },
      {
       "seq": 25,
-      "at": "2026-10-28T06:10:21.943Z",
+      "at": "2026-10-28T06:35:09.641Z",
       "from": "system",
       "kind": "info",
       "text": "Mira rolled Initiative: 18 +3 = 21",
@@ -8364,7 +8711,7 @@
      },
      {
       "seq": 26,
-      "at": "2026-10-28T06:10:21.944Z",
+      "at": "2026-10-28T06:35:09.642Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald rolled Initiative: 4 +1 = 5",
@@ -8385,7 +8732,7 @@
      },
      {
       "seq": 27,
-      "at": "2026-10-28T06:10:21.945Z",
+      "at": "2026-10-28T06:35:09.643Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen rolled Initiative: 11 +2 = 13",
@@ -8406,7 +8753,7 @@
      },
      {
       "seq": 27,
-      "at": "2026-10-28T06:10:21.945Z",
+      "at": "2026-10-28T06:35:09.643Z",
       "from": "system",
       "kind": "info",
       "text": "Turn order: Mira, Goblin, Elowen, Torvald.",
@@ -8424,7 +8771,7 @@
      },
      {
       "seq": 28,
-      "at": "2026-10-28T06:10:21.947Z",
+      "at": "2026-10-28T06:35:09.645Z",
       "from": "system",
       "kind": "info",
       "text": "Goblin: now bloodied",
@@ -8438,7 +8785,7 @@
      },
      {
       "seq": 29,
-      "at": "2026-10-28T06:10:21.949Z",
+      "at": "2026-10-28T06:35:09.646Z",
       "from": "system",
       "kind": "info",
       "text": "Goblin is defeated.",
@@ -8451,7 +8798,7 @@
      },
      {
       "seq": 30,
-      "at": "2026-10-28T06:10:21.952Z",
+      "at": "2026-10-28T06:35:09.649Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald: hp 14 → 8 (goblin knife)",
@@ -8471,7 +8818,7 @@
      },
      {
       "seq": 31,
-      "at": "2026-10-28T06:10:21.955Z",
+      "at": "2026-10-28T06:35:09.651Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen: condOn Frightened (a goblin shriek)",
@@ -8490,8 +8837,51 @@
       }
      },
      {
+      "seq": 32,
+      "at": "2026-10-28T06:35:09.653Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Torvald: condOn prone, condOn Blessed (knocked over; Elowen's blessing)",
+      "sys": {
+       "code": "updated",
+       "params": {
+        "name": "Torvald",
+        "parts": [
+         [
+          "condOn",
+          "prone"
+         ],
+         [
+          "condOn",
+          "Blessed"
+         ]
+        ],
+        "reason": "knocked over; Elowen's blessing"
+       }
+      }
+     },
+     {
       "seq": 33,
-      "at": "2026-10-28T06:10:21.961Z",
+      "at": "2026-10-28T06:35:09.655Z",
+      "from": "system",
+      "kind": "info",
+      "text": "Elowen: resource Spell slots (1st) 1/2",
+      "sys": {
+       "code": "updated",
+       "params": {
+        "name": "Elowen",
+        "parts": [
+         [
+          "resource",
+          "Spell slots (1st) 1/2"
+         ]
+        ]
+       }
+      }
+     },
+     {
+      "seq": 36,
+      "at": "2026-10-28T06:35:09.663Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald rolled Battleaxe attack: 3 +5 = 8 — failure",
@@ -8506,13 +8896,13 @@
         "mod": 5,
         "total": 8,
         "success": false,
-        "rollSeq": 33
+        "rollSeq": 36
        }
       }
      },
      {
-      "seq": 34,
-      "at": "2026-10-28T06:10:21.963Z",
+      "seq": 37,
+      "at": "2026-10-28T06:35:09.664Z",
       "from": "system",
       "kind": "info",
       "text": "Mira: hp 10 → 0, status dying, condOn Unconscious (goblin ambush)",
@@ -8541,21 +8931,21 @@
     ],
     "pendingRolls": [
      {
-      "rollId": "death-754f90-37",
-      "characterId": "754f90",
+      "rollId": "death-502e50-40",
+      "characterId": "502e50",
       "label": "Death save",
       "dice": "1d20",
       "modifier": 0,
       "advantage": "none",
       "hideDc": true,
       "purpose": "death_save",
-      "requestedSeq": 39
+      "requestedSeq": 42
      }
     ],
     "rolls": [
      {
-      "rollId": "66fe57b7",
-      "characterId": "c9cfa3",
+      "rollId": "b56cca0f",
+      "characterId": "7f2f44",
       "label": "Wisdom (Perception) check",
       "dice": "1d20",
       "modifier": 3,
@@ -8571,11 +8961,11 @@
       "byDm": false
      },
      {
-      "rollId": "7ce33c3c",
-      "characterId": "754f90",
+      "rollId": "5a1e5ed5",
+      "characterId": "502e50",
       "label": "Dexterity (Stealth) check",
       "dice": "1d20",
-      "modifier": 5,
+      "modifier": 7,
       "advantage": "advantage",
       "hideDc": true,
       "requestedSeq": 17,
@@ -8583,13 +8973,13 @@
        6,
        17
       ],
-      "total": 22,
+      "total": 24,
       "resolvedSeq": 18,
       "byDm": false
      },
      {
-      "rollId": "init-754f90-20",
-      "characterId": "754f90",
+      "rollId": "init-502e50-20",
+      "characterId": "502e50",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 3,
@@ -8605,8 +8995,8 @@
       "byDm": false
      },
      {
-      "rollId": "init-96d1bf-20",
-      "characterId": "96d1bf",
+      "rollId": "init-9b4e7f-20",
+      "characterId": "9b4e7f",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 1,
@@ -8622,8 +9012,8 @@
       "byDm": false
      },
      {
-      "rollId": "init-c9cfa3-20",
-      "characterId": "c9cfa3",
+      "rollId": "init-7f2f44-20",
+      "characterId": "7f2f44",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 2,
@@ -8639,20 +9029,20 @@
       "byDm": false
      },
      {
-      "rollId": "c22d3b94",
-      "characterId": "96d1bf",
+      "rollId": "1f7d7291",
+      "characterId": "9b4e7f",
       "label": "Battleaxe attack",
       "dice": "1d20",
       "modifier": 5,
       "advantage": "none",
       "hideDc": true,
-      "requestedSeq": 32,
+      "requestedSeq": 35,
       "faces": [
        3
       ],
       "total": 8,
       "success": false,
-      "resolvedSeq": 33,
+      "resolvedSeq": 36,
       "byDm": false
      }
     ],
@@ -8665,53 +9055,53 @@
     ],
     "started": true,
     "complexity": "beginner",
-    "latestSeq": 39,
+    "latestSeq": 42,
     "dmStatus": "thinking",
     "language": "en"
    },
    "history": [
     {
      "seq": 2,
-     "at": "2026-10-28T06:10:21.889Z",
+     "at": "2026-10-28T06:35:09.598Z",
      "type": "character",
      "who": "Mira",
      "text": "Halfling (Lightfoot) Rogue"
     },
     {
      "seq": 3,
-     "at": "2026-10-28T06:10:21.891Z",
+     "at": "2026-10-28T06:35:09.599Z",
      "type": "character",
      "who": "Torvald",
      "text": "Dwarf (Hill) Fighter"
     },
     {
      "seq": 4,
-     "at": "2026-10-28T06:10:21.892Z",
+     "at": "2026-10-28T06:35:09.599Z",
      "type": "character",
      "who": "Elowen",
      "text": "Elf (High) Wizard"
     },
     {
      "seq": 5,
-     "at": "2026-10-28T06:10:21.894Z",
+     "at": "2026-10-28T06:35:09.600Z",
      "type": "started",
      "text": ""
     },
     {
      "seq": 6,
-     "at": "2026-10-28T06:10:21.900Z",
+     "at": "2026-10-28T06:35:09.604Z",
      "type": "scene",
      "text": "The Drowned Lantern — taproom"
     },
     {
      "seq": 7,
-     "at": "2026-10-28T06:10:21.905Z",
+     "at": "2026-10-28T06:35:09.608Z",
      "type": "sketch",
      "text": "The taproom of the Drowned Lantern"
     },
     {
      "seq": 8,
-     "at": "2026-10-28T06:10:21.908Z",
+     "at": "2026-10-28T06:35:09.610Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -8719,7 +9109,7 @@
     },
     {
      "seq": 9,
-     "at": "2026-10-28T06:10:21.909Z",
+     "at": "2026-10-28T06:35:09.612Z",
      "type": "player",
      "kind": "action",
      "who": "Mira",
@@ -8727,7 +9117,7 @@
     },
     {
      "seq": 10,
-     "at": "2026-10-28T06:10:21.910Z",
+     "at": "2026-10-28T06:35:09.612Z",
      "type": "player",
      "kind": "speech",
      "who": "Torvald",
@@ -8735,7 +9125,7 @@
     },
     {
      "seq": 11,
-     "at": "2026-10-28T06:10:21.912Z",
+     "at": "2026-10-28T06:35:09.614Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -8743,7 +9133,7 @@
     },
     {
      "seq": 12,
-     "at": "2026-10-28T06:10:21.913Z",
+     "at": "2026-10-28T06:35:09.615Z",
      "type": "player",
      "kind": "question",
      "who": "Elowen",
@@ -8751,7 +9141,7 @@
     },
     {
      "seq": 13,
-     "at": "2026-10-28T06:10:21.915Z",
+     "at": "2026-10-28T06:35:09.617Z",
      "type": "dm",
      "kind": "answer",
      "who": null,
@@ -8759,14 +9149,14 @@
     },
     {
      "seq": 14,
-     "at": "2026-10-28T06:10:21.918Z",
+     "at": "2026-10-28T06:35:09.620Z",
      "type": "rollRequested",
      "who": "Elowen",
      "text": "Wisdom (Perception) check"
     },
     {
      "seq": 15,
-     "at": "2026-10-28T06:10:21.921Z",
+     "at": "2026-10-28T06:35:09.622Z",
      "type": "roll",
      "text": "Wisdom (Perception) check: 14 → 17",
      "label": "Wisdom (Perception) check",
@@ -8774,7 +9164,7 @@
     },
     {
      "seq": 16,
-     "at": "2026-10-28T06:10:21.923Z",
+     "at": "2026-10-28T06:35:09.624Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -8782,22 +9172,22 @@
     },
     {
      "seq": 17,
-     "at": "2026-10-28T06:10:21.925Z",
+     "at": "2026-10-28T06:35:09.626Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Dexterity (Stealth) check"
     },
     {
      "seq": 18,
-     "at": "2026-10-28T06:10:21.930Z",
+     "at": "2026-10-28T06:35:09.630Z",
      "type": "roll",
-     "text": "Dexterity (Stealth) check: 6 & 17 → 22",
+     "text": "Dexterity (Stealth) check: 6 & 17 → 24",
      "label": "Dexterity (Stealth) check",
-     "result": "6 & 17 → 22"
+     "result": "6 & 17 → 24"
     },
     {
      "seq": 19,
-     "at": "2026-10-28T06:10:21.932Z",
+     "at": "2026-10-28T06:35:09.632Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -8805,7 +9195,7 @@
     },
     {
      "seq": 22,
-     "at": "2026-10-28T06:10:21.939Z",
+     "at": "2026-10-28T06:35:09.638Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Initiative",
@@ -8813,7 +9203,7 @@
     },
     {
      "seq": 23,
-     "at": "2026-10-28T06:10:21.940Z",
+     "at": "2026-10-28T06:35:09.638Z",
      "type": "rollRequested",
      "who": "Torvald",
      "text": "Initiative",
@@ -8821,7 +9211,7 @@
     },
     {
      "seq": 24,
-     "at": "2026-10-28T06:10:21.940Z",
+     "at": "2026-10-28T06:35:09.638Z",
      "type": "rollRequested",
      "who": "Elowen",
      "text": "Initiative",
@@ -8829,7 +9219,7 @@
     },
     {
      "seq": 25,
-     "at": "2026-10-28T06:10:21.943Z",
+     "at": "2026-10-28T06:35:09.641Z",
      "type": "roll",
      "text": "Initiative: 18 → 21",
      "label": "Initiative",
@@ -8838,7 +9228,7 @@
     },
     {
      "seq": 26,
-     "at": "2026-10-28T06:10:21.944Z",
+     "at": "2026-10-28T06:35:09.642Z",
      "type": "roll",
      "text": "Initiative: 4 → 5",
      "label": "Initiative",
@@ -8847,7 +9237,7 @@
     },
     {
      "seq": 27,
-     "at": "2026-10-28T06:10:21.945Z",
+     "at": "2026-10-28T06:35:09.643Z",
      "type": "roll",
      "text": "Initiative: 11 → 13",
      "label": "Initiative",
@@ -8855,23 +9245,23 @@
      "purpose": "initiative"
     },
     {
-     "seq": 32,
-     "at": "2026-10-28T06:10:21.957Z",
+     "seq": 35,
+     "at": "2026-10-28T06:35:09.659Z",
      "type": "rollRequested",
      "who": "Torvald",
      "text": "Battleaxe attack"
     },
     {
-     "seq": 33,
-     "at": "2026-10-28T06:10:21.961Z",
+     "seq": 36,
+     "at": "2026-10-28T06:35:09.663Z",
      "type": "roll",
      "text": "Battleaxe attack: 3 → 8",
      "label": "Battleaxe attack",
      "result": "3 → 8"
     },
     {
-     "seq": 39,
-     "at": "2026-10-28T06:10:21.978Z",
+     "seq": 42,
+     "at": "2026-10-28T06:35:09.676Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Death save",

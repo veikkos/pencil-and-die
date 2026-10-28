@@ -374,6 +374,9 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       remove_items: z.array(z.object({ name: z.string(), qty: z.number().int().optional() })).optional(),
       add_conditions: z.array(z.string()).optional(),
       remove_conditions: z.array(z.string()).optional(),
+      add_effects: z.array(z.object({ name: z.string(), note: z.string() })).optional()
+        .describe('Spell or feature effects on the hero, e.g. { name: "Blessed", note: "+1d4 to attacks and saves, 1 minute" }. A long rest ends them all.'),
+      remove_effects: z.array(z.string()).optional(),
       add_features: z.array(z.union([z.string(), z.object({ name: z.string(), text: z.string().default('') })])).optional()
         .describe('A name, or { name, text } with a one-line explanation the players can read.'),
       add_spells: z.array(z.union([z.string(), z.object({
@@ -398,13 +401,13 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       patch: {
         hpDelta: a.hp_delta, hp: a.hp, maxHp: a.max_hp, tempHp: a.temp_hp, ac: a.ac, level: a.level,
         xpDelta: a.xp_delta, goldDelta: a.gold_delta, addItems: a.add_items, removeItems: a.remove_items,
-        addConditions: a.add_conditions, removeConditions: a.remove_conditions, addFeatures: a.add_features?.map((f) => (typeof f === 'string' ? f : { ...f, source: 'other' as const })), notes: a.notes,
+        addConditions: a.add_conditions, removeConditions: a.remove_conditions, addEffects: a.add_effects, removeEffects: a.remove_effects, addFeatures: a.add_features?.map((f) => (typeof f === 'string' ? f : { ...f, source: 'other' as const })), notes: a.notes,
         addSpells: a.add_spells?.map(toSpell), removeSpells: a.remove_spells, critical: a.critical, revive: a.revive,
         resourceMax: a.resource_max?.map((m) => ({ resourceId: findResource(c, m.resource).id, max: m.max })),
       },
     });
     const after = character(store.state(id), c.id);
-    return text(`${after.name}: HP ${after.hp}/${after.maxHp}${after.tempHp ? ` (+${after.tempHp} temp)` : ''}, AC ${after.ac}, conditions: ${after.conditions.join(', ') || 'none'}${lifeNote(after)}`);
+    return text(`${after.name}: HP ${after.hp}/${after.maxHp}${after.tempHp ? ` (+${after.tempHp} temp)` : ''}, AC ${after.ac}, conditions: ${after.conditions.join(', ') || 'none'}, effects: ${after.effects.map((x) => x.name).join(', ') || 'none'}${lifeNote(after)}`);
   });
 
   // ---- Sketches ------------------------------------------------------------

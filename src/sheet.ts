@@ -40,7 +40,7 @@ export interface Sheet {
   initiative: number;
   passivePerception: number;
   saves: { ability: Ability; mod: number; proficient: boolean }[];
-  skills: { name: string; ability: Ability; mod: number; proficient: boolean }[];
+  skills: { name: string; ability: Ability; mod: number; proficient: boolean; expertise: boolean }[];
   attacks: Attack[];
   spellcasting?: { ability: Ability; attack: number; saveDc: number; slots: string };
   spells: SheetSpell[];
@@ -130,7 +130,7 @@ function itemKind(name: string): Sheet['inventory'][number]['kind'] {
 export function sheetOf(c: Character): Sheet {
   const casting = spellcasting(c);
   const skills = Object.entries(SKILLS).map(([name, ability]) =>
-    ({ name, ability, mod: checkModifier(c, name).modifier, proficient: c.skills.includes(name) }));
+    ({ name, ability, mod: checkModifier(c, name).modifier, proficient: c.skills.includes(name), expertise: c.expertise.includes(name) }));
   return {
     proficiency: c.proficiencyBonus,
     initiative: mod(c.abilities.dex),

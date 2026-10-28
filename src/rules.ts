@@ -25,6 +25,11 @@ export interface Feature {
   resourceId?: string;
 }
 
+export interface Effect {
+  name: string;
+  note: string;
+}
+
 export interface Race {
   id: string;
   name: string;
@@ -95,6 +100,8 @@ export interface CharClass {
   priority: Ability[];
   saves: Ability[];
   skills: string[];
+  /** Skills with double proficiency. */
+  expertise?: string[];
   /** Armour class from equipment, given ability modifiers. */
   ac: (mod: Abilities) => number;
   acNote: string;
@@ -123,7 +130,7 @@ export const CLASSES: CharClass[] = [
       feature('Unarmored Defense', 'Without armour your AC is 10 + DEX + CON.')] },
   { id: 'rogue', name: 'Rogue', blurb: 'Sneaky, skilled and deadly from the shadows.', hitDie: 8,
     priority: ['dex', 'con', 'int', 'wis', 'cha', 'str'], saves: ['dex', 'int'],
-    skills: ['Stealth', 'Sleight of Hand', 'Perception', 'Acrobatics'],
+    skills: ['Stealth', 'Sleight of Hand', 'Perception', 'Acrobatics'], expertise: ['Stealth'],
     ac: (m) => 11 + m.dex, acNote: 'Leather armour',
     equipment: kit('Leather armour', 'Rapier', 'Shortbow', ['Arrows', 20], "Thieves' tools", "Burglar's pack", ['Dagger', 2]),
     features: [feature('Sneak Attack', 'Once per turn, +1d6 damage with a finesse or ranged weapon when you have advantage or an ally is next to the target.'),
@@ -248,10 +255,14 @@ export interface Character {
   proficiencyBonus: number;
   saves: Ability[];
   skills: string[];
+  /** Skills with double proficiency (the rogue's Expertise). */
+  expertise: string[];
   inventory: { name: string; qty: number }[];
   gold: number;
   xp: number;
   conditions: string[];
+  /** Spell and feature effects on the hero (Blessed, Raging), with what they do. */
+  effects: Effect[];
   features: Feature[];
   spells: Spell[];
   notes: string;
@@ -336,10 +347,12 @@ export function buildCharacter(id: string, choice: CharacterChoices): Character 
     proficiencyBonus: 2,
     saves: cls.saves,
     skills,
+    expertise: [...(cls.expertise ?? [])],
     inventory: cls.equipment.map((i) => ({ ...i })),
     gold: 10,
     xp: 0,
     conditions: [],
+    effects: [],
     features: [...race.traits, ...cls.features].map((f) => ({ ...f })),
     spells: defaultSpells(race.id, cls.id),
     notes: '',
@@ -367,7 +380,7 @@ export function checkModifier(c: Character, what: string, lang: 'en' | 'fi' = 'e
   const skill = Object.keys(SKILLS).find((s) => s.toLowerCase() === key || FI_SKILLS[s].toLowerCase() === key);
   if (skill) {
     const ability = SKILLS[skill];
-    const prof = c.skills.includes(skill) ? c.proficiencyBonus : 0;
+    const prof = c.skills.includes(skill) ? c.proficiencyBonus * (c.expertise?.includes(skill) ? 2 : 1) : 0;
     const label = fi ? `${FI_SKILLS[skill]} (${ab(ability)}) -heitto` : `${ab(ability)} (${skill}) check`;
     return { modifier: mod(c.abilities[ability]) + prof, label };
   }

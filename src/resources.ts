@@ -40,6 +40,8 @@ export function withDefaults(c: Character): Character {
     resources: c.resources ?? defaultResources(c.classId, c.abilities),
     features: upgradeFeatures(c.raceId, c.classId, c.features),
     spells: c.spells ?? defaultSpells(c.raceId, c.classId),
+    effects: c.effects ?? [],
+    expertise: c.expertise ?? [...(CLASSES.find((x) => x.id === c.classId)?.expertise ?? [])],
     status: c.status ?? 'up',
     deathSaves: c.deathSaves ?? { successes: 0, failures: 0 },
   };
@@ -70,5 +72,6 @@ export function restCharacter(c: Character, kind: Recharge): Character {
     if (r.id === 'hit-dice') return { ...r, used: Math.max(0, r.used - Math.max(1, Math.floor(r.max / 2))) };
     return { ...r, used: 0 };
   });
-  return kind === 'long' ? { ...c, resources, hp: c.maxHp } : { ...c, resources };
+  // Spell and feature effects last minutes or hours; a night's sleep ends them all.
+  return kind === 'long' ? { ...c, resources, hp: c.maxHp, effects: [] } : { ...c, resources };
 }
