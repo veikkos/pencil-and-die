@@ -544,6 +544,33 @@ function sheetLeft(c) {
     <div class="muted">${tip(`${esc(s.sheet.passive)} ${c.sheet.passivePerception}`, [g.terms.passive, sumText(c.sheet.passivePerceptionParts, { plain: true })])}</div>`;
 }
 
+/** A weapon's numbers (to hit, damage) and its properties, as shown in Actions and Inventory. */
+function attackBits(a, { carried = true } = {}) {
+  const L = t().sheet;
+  const g = t().glossary;
+  const thrown = a.properties.some((p) => p.startsWith('thrown'));
+  const extra = carried ? [a.count > 1 ? L.carried(a.count) : '', a.ammo !== undefined ? L.ammo(a.ammo) : ''].map(esc) : [];
+  const damage = a.dice ? sumText(a.bonusParts, { dice: a.dice }) : sumText(a.bonusParts, { plain: true });
+  if (isBeginner()) return { right: '', sub: dot([esc(L.reach[a.range && !thrown ? 'ranged' : 'melee']), ...extra]) };
+  const right = `${tip(`<b>${sign(a.toHit)}</b>`, [g.terms.toHit, sumText(a.toHitParts)])}${tip(`<span>${esc(a.damage)} ${esc(damageType(a.damageType))}</span>`, [g.terms.damage, damage])}`;
+  const sub = [a.range && !thrown ? tip(esc(`${a.range} ft`), [g.props.range]) : '', ...a.properties.map((p) => tip(esc(propName(p)), [g.props[propWord(p)]])), ...extra];
+  return { right, sub: dot(sub) };
+}
+
+/** What a piece of armour protects: "AC 11 + DEX", with how it adds up for this hero. */
+function armourBits(a) {
+  const L = t().sheet;
+  const g = t().glossary;
+  const shield = a.kind === 'shield';
+  const kind = tip(esc(L.armourKinds[a.kind]), [g.armour[a.kind]]);
+  const noisy = a.stealth ? tip(esc(L.noisy), [g.armour.stealth]) : '';
+  if (isBeginner()) return { right: '', sub: dot([kind, noisy]) };
+  const right = tip(`<b>${esc(L.armourAc(shield ? null : a.ac, shield ? a.ac : a.dexMax))}</b>`,
+    [shield ? g.armour.shield : g.terms.ac, sumText(a.acParts, { plain: !shield })]);
+  if (shield) return { right, sub: noisy };
+  return { right, sub: dot([kind, noisy]) };
+}
+
 function actionsPanel(c) {
   const s = t();
   const L = s.sheet;
@@ -551,13 +578,8 @@ function actionsPanel(c) {
   const sh = c.sheet;
   const beginner = isBeginner();
   const attacks = sh.attacks.map((a) => {
-    const thrown = a.properties.some((p) => p.startsWith('thrown'));
-    const carried = [a.count > 1 ? L.carried(a.count) : '', a.ammo !== undefined ? L.ammo(a.ammo) : ''].map(esc);
-    const damage = a.dice ? sumText(a.bonusParts, { dice: a.dice }) : sumText(a.bonusParts, { plain: true });
-    const right = beginner ? '' : `${tip(`<b>${sign(a.toHit)}</b>`, [g.terms.toHit, sumText(a.toHitParts)])}${tip(`<span>${esc(a.damage)} ${esc(damageType(a.damageType))}</span>`, [g.terms.damage, damage])}`;
-    const sub = beginner ? [esc(L.reach[a.range && !thrown ? 'ranged' : 'melee']), ...carried]
-      : [a.range && !thrown ? tip(esc(`${a.range} ft`), [g.props.range]) : '', ...a.properties.map((p) => tip(esc(propName(p)), [g.props[propWord(p)]])), ...carried];
-    return actRow(esc(itemName(a.name)), right, dot(sub));
+    const { right, sub } = attackBits(a);
+    return actRow(esc(itemName(a.name)), right, sub);
   });
   let html = `<h3>${esc(L.attacks)}</h3><ul class="acts">${attacks.join('')}</ul>`;
 
@@ -606,8 +628,14 @@ function inventoryPanel(c) {
   const s = t();
   const groups = ['weapon', 'armour', 'ammo', 'gear'].map((k) => [k, c.sheet.inventory.filter((i) => i.kind === k)]).filter(([, items]) => items.length);
   const name = (i) => (i.note ? tip(esc(itemName(i.name)), [i.note]) : esc(itemName(i.name)));
-  return `${groups.map(([k, items]) => `<h3>${esc(s.sheet.kinds[k])}</h3><ul class="items">${items.map((i) =>
-    `<li><span>${name(i)}</span>${i.qty > 1 ? `<b>×${i.qty}</b>` : ''}</li>`).join('')}</ul>`).join('')}
+  const qty = (i) => (i.qty > 1 ? ` <span>×${i.qty}</span>` : '');
+  const row = (i) => {
+    const attack = i.weaponId && c.sheet.attacks.find((a) => a.weaponId === i.weaponId);
+    const bits = attack ? attackBits(attack, { carried: false }) : i.armour ? armourBits(i.armour) : null;
+    if (bits) return actRow(`${name(i)}${qty(i)}`, bits.right, bits.sub);
+    return `<li><span>${name(i)}</span>${i.qty > 1 ? `<b>×${i.qty}</b>` : ''}</li>`;
+  };
+  return `${groups.map(([k, items]) => `<h3>${esc(s.sheet.kinds[k])}</h3><ul class="${k === 'weapon' || k === 'armour' ? 'acts' : 'items'}">${items.map(row).join('')}</ul>`).join('')}
     <div class="sheet-purse"><span><b>${esc(s.gold)}</b> ${c.gold}</span>${isBeginner() ? '' : `<span><b>${esc(s.xp)}</b> ${c.xp}</span>`}</div>`;
 }
 
@@ -688,11 +716,16 @@ function renderTable() {
     app.innerHTML = `<div class="table-view">
       <div class="topbar" id="topbar"></div>
       <div id="timeline"></div>
-      <div class="main"><div class="story" id="story"></div><div class="canvas-wrap" id="canvas"></div></div>
+      <div class="main"><div class="story-wrap"><div class="story" id="story"></div><button class="to-bottom" id="to-bottom" tabindex="-1">↓</button></div><div class="canvas-wrap" id="canvas"></div></div>
       <div class="party" id="party"></div>
       <div class="bottom"><div class="rolls" id="rolls"></div><div id="composer"></div></div>
     </div>`;
     renderComposer();
+    const story = app.querySelector('#story');
+    const down = app.querySelector('#to-bottom');
+    down.title = down.ariaLabel = t().toBottom;
+    story.addEventListener('scroll', () => showToBottom(story), { passive: true });
+    down.onclick = () => story.scrollTo({ top: story.scrollHeight, behavior: 'smooth' });
   }
   app.querySelector('.table-view').classList.toggle('past', viewSeq !== null);
   renderTopbar();
@@ -806,6 +839,15 @@ function renderStory() {
   });
   if (atBottom || viewSeq !== null || !el.dataset.init) el.scrollTop = el.scrollHeight;
   el.dataset.init = '1';
+  showToBottom(el);
+}
+
+/** The ↓ button fades in once the story is scrolled up from its newest lines. */
+function showToBottom(story) {
+  const away = story.scrollHeight - story.scrollTop - story.clientHeight > 160;
+  const down = app.querySelector('#to-bottom');
+  down.classList.toggle('show', away);
+  down.tabIndex = away ? 0 : -1;
 }
 
 function renderCanvas() {

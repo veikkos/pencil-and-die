@@ -2,7 +2,7 @@
 // writes go nowhere and the live stream stays silent. The query string says what to show:
 //   game=<fixture> lang=en|fi level=beginner|casual|intermediate verbosity=1..4 fallen=knockout|death
 //   dm=offline|listening|thinking voice=on
-//   steps=<JSON list of ["click", selector, text?] / ["type", selector, text]>, run once the page is up.
+//   steps=<JSON list of ["click", selector, text?] / ["type", selector, text] / ["scroll", selector, top]>, run once the page is up.
 //   A click with text picks the first match containing it, e.g. ["click", ".pc.hero", "Elowen"].
 
 const q = new URLSearchParams(location.search);
@@ -61,5 +61,6 @@ export async function runSteps() {
     const el = await until(selector, action === 'click' ? text : undefined);
     if (action === 'click') el.click();
     if (action === 'type') { el.value = text; el.dispatchEvent(new Event('input')); }
+    if (action === 'scroll') { el.scrollTop = Number(text); el.dispatchEvent(new Event('scroll')); }
   }
 }

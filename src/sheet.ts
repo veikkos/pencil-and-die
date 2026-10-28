@@ -3,6 +3,7 @@
 // Each number comes with its parts (ability, proficiency…) so the page can show how it adds up.
 
 import { abilityPart, ABILITIES, checkModifier, CLASSES, mod, SKILLS, total, type Ability, type Character, type Feature, type Part } from './rules.ts';
+import { armourFor, type Armour } from './armour.ts';
 import type { Spell } from './spells.ts';
 import { AMMO, ammoCount, countIn, weaponFor, type Weapon } from './weapons.ts';
 
@@ -52,7 +53,18 @@ export interface Sheet {
   spellcasting?: { ability: Ability; attack: number; attackParts: Part[]; saveDc: number; saveDcParts: Part[]; slots: string };
   spells: SheetSpell[];
   features: Feature[];
-  inventory: { name: string; qty: number; note?: string; kind: 'weapon' | 'armour' | 'ammo' | 'gear' }[];
+  inventory: SheetItem[];
+}
+
+export interface SheetItem {
+  name: string;
+  qty: number;
+  note?: string;
+  kind: 'weapon' | 'armour' | 'ammo' | 'gear';
+  /** A weapon's stats are in `attacks` under this id. */
+  weaponId?: string;
+  /** Armour with the AC it gives this hero; for a shield, what it adds. */
+  armour?: Armour & { acParts: Part[] };
 }
 
 const sign = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
@@ -135,11 +147,18 @@ function spells(c: Character, casting: Sheet['spellcasting']): SheetSpell[] {
   });
 }
 
-function itemKind(name: string): Sheet['inventory'][number]['kind'] {
-  if (weaponFor(name)) return 'weapon';
-  if (AMMO.some((a) => a.toLowerCase() === name.toLowerCase())) return 'ammo';
-  if (/armou?r|mail|shield|plate/i.test(name)) return 'armour';
-  return 'gear';
+function sheetItem(c: Character, i: Character['inventory'][number]): SheetItem {
+  const w = weaponFor(i.name);
+  if (w) return { ...i, kind: 'weapon', weaponId: w.id };
+  if (AMMO.some((a) => a.toLowerCase() === i.name.toLowerCase())) return { ...i, kind: 'ammo' };
+  const a = armourFor(i.name);
+  if (a) {
+    const dex = abilityPart(c, 'dex');
+    const acParts: Part[] = a.kind === 'shield' ? [{ from: 'bonus', value: a.ac }]
+      : [{ from: 'base', value: a.ac }, ...(a.dexMax === 0 ? [] : [{ ...dex, value: Math.min(dex.value, a.dexMax ?? Infinity) }])];
+    return { ...i, kind: 'armour', armour: { ...a, acParts } };
+  }
+  return { ...i, kind: /armou?r|mail|shield|plate/i.test(i.name) ? 'armour' : 'gear' };
 }
 
 export function sheetOf(c: Character): Sheet {
@@ -165,7 +184,7 @@ export function sheetOf(c: Character): Sheet {
     ...(casting ? { spellcasting: casting } : {}),
     spells: spells(c, casting),
     features: c.features,
-    inventory: c.inventory.map((i) => ({ ...i, kind: itemKind(i.name) })),
+    inventory: c.inventory.map((i) => sheetItem(c, i)),
   };
 }
 

@@ -223,3 +223,19 @@ test('item notes: given by the DM, kept on more of the same, and old bracketed d
   assert.deepEqual(item('Silver key'), { name: 'Silver key', qty: 2, note: 'Opens the bell tower crypt' });
   assert.equal(sheetOf(store.state(g.id).characters[0]).inventory.find((i) => i.name === 'Silver key')!.note, 'Opens the bell tower crypt');
 });
+
+test('inventory: weapons point at their attack, armour says the AC it gives', () => {
+  const inv = (c: Character, name: string) => sheetOf(c).inventory.find((i) => i.name === name)!;
+  const m = mira(); // DEX +3
+  assert.equal(inv(m, 'Rapier').weaponId, 'rapier');
+  const leather = inv(m, 'Leather armour').armour!;
+  assert.equal(leather.kind, 'light');
+  assert.equal(leather.acParts.reduce((n, p) => n + p.value, 0), m.ac); // 11 + DEX 3
+  const cleric = hero('human', 'cleric');
+  const scale = inv(cleric, 'Scale mail').armour!;
+  assert.deepEqual([scale.kind, scale.dexMax, scale.stealth], ['medium', 2, true]);
+  assert.ok(scale.acParts.every((p) => p.from !== 'ability' || p.value <= 2));
+  assert.deepEqual(inv(cleric, 'Shield').armour!.acParts, [{ from: 'bonus', value: 2 }]);
+  const druid = hero('human', 'druid');
+  assert.equal(inv(druid, 'Wooden shield').armour!.id, 'shield');
+});
