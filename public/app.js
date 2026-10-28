@@ -431,7 +431,7 @@ function sheetHtml(c) {
     <h3>${s.skills}</h3><div>${c.skills.map((k) => esc(skillName(k))).join(', ')}</div>
     ${isExpert() ? `<h3>${s.saves}</h3><div>${c.saves.map((a) => s.abilityNames[a]).join(', ')}</div><div class="muted">+${c.proficiencyBonus} proficiency</div>` : ''}
     <h3>${s.inventory}</h3><ul>${c.inventory.map((i) => `<li>${esc(i.name)}${i.qty > 1 ? ` ×${i.qty}` : ''}</li>`).join('')}</ul>
-    <h3>${s.features}</h3><ul>${c.features.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>
+    <h3>${s.features}</h3><ul>${c.features.map((f) => `<li><b>${esc(f.name)}</b>${f.text ? ` — ${esc(f.text)}` : ''}</li>`).join('')}</ul>
     ${c.notes ? `<h3>${s.notes}</h3><p>${esc(c.notes)}</p>` : ''}
   </div>`;
 }

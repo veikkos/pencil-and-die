@@ -7,22 +7,22 @@
   "activeGameId": null,
   "games": [
    {
-    "id": "3304125b",
+    "id": "2e397bbd",
     "title": "The Drowned Lantern",
-    "createdAt": "2026-10-27T20:47:35.684Z",
-    "updatedAt": "2026-10-27T20:47:35.753Z"
+    "createdAt": "2026-10-28T06:10:21.885Z",
+    "updatedAt": "2026-10-28T06:10:21.978Z"
    },
    {
-    "id": "b6b43f55",
+    "id": "79e0c27f",
     "title": "Fresh start",
-    "createdAt": "2026-10-27T20:47:35.681Z",
-    "updatedAt": "2026-10-27T20:47:35.682Z"
+    "createdAt": "2026-10-28T06:10:21.880Z",
+    "updatedAt": "2026-10-28T06:10:21.880Z"
    },
    {
-    "id": "41a866a2",
+    "id": "04e99f83",
     "title": "The Sunken Bell",
-    "createdAt": "2026-10-27T20:47:35.674Z",
-    "updatedAt": "2026-10-27T20:47:35.679Z"
+    "createdAt": "2026-10-28T06:10:21.865Z",
+    "updatedAt": "2026-10-28T06:10:21.871Z"
    }
   ]
  },
@@ -42,7 +42,11 @@
     },
     "speed": 30,
     "traits": [
-     "Extra language"
+     {
+      "name": "Extra language",
+      "text": "You speak one more language of your choice.",
+      "source": "race"
+     }
     ]
    },
    {
@@ -55,11 +59,31 @@
     },
     "speed": 30,
     "traits": [
-     "Darkvision 60 ft",
-     "Keen Senses (Perception)",
-     "Fey Ancestry",
-     "Trance",
-     "One wizard cantrip"
+     {
+      "name": "Darkvision",
+      "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+      "source": "race"
+     },
+     {
+      "name": "Keen Senses",
+      "text": "Proficient in Perception.",
+      "source": "race"
+     },
+     {
+      "name": "Fey Ancestry",
+      "text": "Advantage on saves against being charmed; magic cannot put you to sleep.",
+      "source": "race"
+     },
+     {
+      "name": "Trance",
+      "text": "Four hours of meditation give you the rest of eight hours of sleep.",
+      "source": "race"
+     },
+     {
+      "name": "Wizard cantrip",
+      "text": "You know one wizard cantrip, cast with INT.",
+      "source": "race"
+     }
     ]
    },
    {
@@ -72,10 +96,26 @@
     },
     "speed": 25,
     "traits": [
-     "Darkvision 60 ft",
-     "Dwarven Resilience (poison)",
-     "Stonecunning",
-     "Dwarven Toughness (+1 HP/level)"
+     {
+      "name": "Darkvision",
+      "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+      "source": "race"
+     },
+     {
+      "name": "Dwarven Resilience",
+      "text": "Advantage on saves against poison, and resistance to poison damage.",
+      "source": "race"
+     },
+     {
+      "name": "Stonecunning",
+      "text": "Double proficiency on History checks about stonework.",
+      "source": "race"
+     },
+     {
+      "name": "Dwarven Toughness",
+      "text": "+1 hit point per level.",
+      "source": "race"
+     }
     ]
    },
    {
@@ -88,10 +128,26 @@
     },
     "speed": 25,
     "traits": [
-     "Lucky (reroll natural 1s)",
-     "Brave",
-     "Halfling Nimbleness",
-     "Naturally Stealthy"
+     {
+      "name": "Lucky",
+      "text": "When you roll a 1 on an attack, check or save, reroll it and use the new roll.",
+      "source": "race"
+     },
+     {
+      "name": "Brave",
+      "text": "Advantage on saves against being frightened.",
+      "source": "race"
+     },
+     {
+      "name": "Halfling Nimbleness",
+      "text": "You can move through the space of any creature larger than you.",
+      "source": "race"
+     },
+     {
+      "name": "Naturally Stealthy",
+      "text": "You can try to hide behind a creature at least one size larger than you.",
+      "source": "race"
+     }
     ]
    },
    {
@@ -104,10 +160,26 @@
     },
     "speed": 25,
     "traits": [
-     "Darkvision 60 ft",
-     "Gnome Cunning",
-     "Artificer's Lore",
-     "Tinker"
+     {
+      "name": "Darkvision",
+      "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+      "source": "race"
+     },
+     {
+      "name": "Gnome Cunning",
+      "text": "Advantage on INT, WIS and CHA saves against magic.",
+      "source": "race"
+     },
+     {
+      "name": "Artificer's Lore",
+      "text": "Double proficiency on History checks about magic items, alchemy and technology.",
+      "source": "race"
+     },
+     {
+      "name": "Tinker",
+      "text": "You can build tiny clockwork toys, fire starters and music boxes.",
+      "source": "race"
+     }
     ]
    },
    {
@@ -119,10 +191,21 @@
     },
     "speed": 30,
     "traits": [
-     "Darkvision 60 ft",
-     "Fey Ancestry",
-     "+1 to two other abilities",
-     "Two extra skills"
+     {
+      "name": "Darkvision",
+      "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+      "source": "race"
+     },
+     {
+      "name": "Fey Ancestry",
+      "text": "Advantage on saves against being charmed; magic cannot put you to sleep.",
+      "source": "race"
+     },
+     {
+      "name": "Versatile",
+      "text": "+1 to two other abilities and two extra skills.",
+      "source": "race"
+     }
     ]
    },
    {
@@ -135,10 +218,26 @@
     },
     "speed": 30,
     "traits": [
-     "Darkvision 60 ft",
-     "Menacing (Intimidation)",
-     "Relentless Endurance",
-     "Savage Attacks"
+     {
+      "name": "Darkvision",
+      "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+      "source": "race"
+     },
+     {
+      "name": "Menacing",
+      "text": "Proficient in Intimidation.",
+      "source": "race"
+     },
+     {
+      "name": "Relentless Endurance",
+      "text": "Once per long rest, when you drop to 0 HP but are not killed, you drop to 1 HP instead.",
+      "source": "race"
+     },
+     {
+      "name": "Savage Attacks",
+      "text": "On a melee critical hit, roll one of the weapon damage dice once more and add it.",
+      "source": "race"
+     }
     ]
    },
    {
@@ -151,9 +250,21 @@
     },
     "speed": 30,
     "traits": [
-     "Draconic Ancestry (red: fire)",
-     "Breath Weapon 2d6",
-     "Damage Resistance (fire)"
+     {
+      "name": "Draconic Ancestry",
+      "text": "Red dragon: your breath and resistance are fire.",
+      "source": "race"
+     },
+     {
+      "name": "Breath Weapon",
+      "text": "Action, once per short rest: a 15-ft cone of fire, 2d6 damage, DEX save (DC 8 + CON + proficiency) for half.",
+      "source": "race"
+     },
+     {
+      "name": "Damage Resistance",
+      "text": "You take half damage from fire.",
+      "source": "race"
+     }
     ]
    },
    {
@@ -166,9 +277,21 @@
     },
     "speed": 30,
     "traits": [
-     "Darkvision 60 ft",
-     "Hellish Resistance (fire)",
-     "Infernal Legacy (Thaumaturgy)"
+     {
+      "name": "Darkvision",
+      "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+      "source": "race"
+     },
+     {
+      "name": "Hellish Resistance",
+      "text": "You take half damage from fire.",
+      "source": "race"
+     },
+     {
+      "name": "Infernal Legacy",
+      "text": "You know the Thaumaturgy cantrip.",
+      "source": "race"
+     }
     ]
    }
   ],
@@ -303,15 +426,15 @@
  },
  "games": {
   "setup": {
-   "id": "41a866a2",
+   "id": "04e99f83",
    "state": {
-    "id": "41a866a2",
+    "id": "04e99f83",
     "title": "The Sunken Bell",
     "seq": 3,
     "scene": null,
     "characters": [
      {
-      "id": "2ae4aa",
+      "id": "c0c326",
       "name": "Mira",
       "player": "Veikko",
       "raceId": "halfling",
@@ -354,8 +477,12 @@
         "qty": 1
        },
        {
-        "name": "Shortbow + 20 arrows",
+        "name": "Shortbow",
         "qty": 1
+       },
+       {
+        "name": "Arrows",
+        "qty": 20
        },
        {
         "name": "Thieves' tools",
@@ -366,22 +493,51 @@
         "qty": 1
        },
        {
-        "name": "2 Daggers",
-        "qty": 1
+        "name": "Dagger",
+        "qty": 2
        }
       ],
       "gold": 10,
       "xp": 0,
       "conditions": [],
       "features": [
-       "Lucky (reroll natural 1s)",
-       "Brave",
-       "Halfling Nimbleness",
-       "Naturally Stealthy",
-       "Sneak Attack (1d6)",
-       "Expertise (Stealth, Thieves' tools)",
-       "Thieves' Cant"
+       {
+        "name": "Lucky",
+        "text": "When you roll a 1 on an attack, check or save, reroll it and use the new roll.",
+        "source": "race"
+       },
+       {
+        "name": "Brave",
+        "text": "Advantage on saves against being frightened.",
+        "source": "race"
+       },
+       {
+        "name": "Halfling Nimbleness",
+        "text": "You can move through the space of any creature larger than you.",
+        "source": "race"
+       },
+       {
+        "name": "Naturally Stealthy",
+        "text": "You can try to hide behind a creature at least one size larger than you.",
+        "source": "race"
+       },
+       {
+        "name": "Sneak Attack",
+        "text": "Once per turn, +1d6 damage with a finesse or ranged weapon when you have advantage or an ally is next to the target.",
+        "source": "class"
+       },
+       {
+        "name": "Expertise",
+        "text": "Double proficiency in Stealth and with thieves' tools.",
+        "source": "class"
+       },
+       {
+        "name": "Thieves' Cant",
+        "text": "A secret mix of slang and signs only rogues understand.",
+        "source": "class"
+       }
       ],
+      "spells": [],
       "notes": "",
       "resources": [
        {
@@ -396,10 +552,291 @@
       "deathSaves": {
        "successes": 0,
        "failures": 0
+      },
+      "sheet": {
+       "proficiency": 2,
+       "initiative": 3,
+       "passivePerception": 13,
+       "saves": [
+        {
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "ability": "con",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "ability": "int",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        }
+       ],
+       "skills": [
+        {
+         "name": "Acrobatics",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Animal Handling",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Arcana",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Athletics",
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Deception",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "History",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Insight",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Intimidation",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Investigation",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Medicine",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Nature",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Perception",
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "name": "Performance",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Persuasion",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Religion",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Sleight of Hand",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Stealth",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Survival",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        }
+       ],
+       "attacks": [
+        {
+         "name": "Rapier",
+         "weaponId": "rapier",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d8",
+         "bonus": 3,
+         "damage": "1d8+3",
+         "damageType": "piercing",
+         "properties": [
+          "finesse"
+         ],
+         "count": 1
+        },
+        {
+         "name": "Shortbow",
+         "weaponId": "shortbow",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d6",
+         "bonus": 3,
+         "damage": "1d6+3",
+         "damageType": "piercing",
+         "range": "80/320",
+         "properties": [
+          "two-handed"
+         ],
+         "count": 1,
+         "ammo": 20
+        },
+        {
+         "name": "Dagger",
+         "weaponId": "dagger",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d4",
+         "bonus": 3,
+         "damage": "1d4+3",
+         "damageType": "piercing",
+         "range": "20/60",
+         "properties": [
+          "finesse",
+          "light",
+          "thrown (20/60)"
+         ],
+         "count": 2
+        },
+        {
+         "name": "Unarmed strike",
+         "ability": "str",
+         "toHit": 1,
+         "bonus": 0,
+         "damage": "1",
+         "damageType": "bludgeoning",
+         "properties": [],
+         "count": 1
+        }
+       ],
+       "spells": [],
+       "features": [
+        {
+         "name": "Lucky",
+         "text": "When you roll a 1 on an attack, check or save, reroll it and use the new roll.",
+         "source": "race"
+        },
+        {
+         "name": "Brave",
+         "text": "Advantage on saves against being frightened.",
+         "source": "race"
+        },
+        {
+         "name": "Halfling Nimbleness",
+         "text": "You can move through the space of any creature larger than you.",
+         "source": "race"
+        },
+        {
+         "name": "Naturally Stealthy",
+         "text": "You can try to hide behind a creature at least one size larger than you.",
+         "source": "race"
+        },
+        {
+         "name": "Sneak Attack",
+         "text": "Once per turn, +1d6 damage with a finesse or ranged weapon when you have advantage or an ally is next to the target.",
+         "source": "class"
+        },
+        {
+         "name": "Expertise",
+         "text": "Double proficiency in Stealth and with thieves' tools.",
+         "source": "class"
+        },
+        {
+         "name": "Thieves' Cant",
+         "text": "A secret mix of slang and signs only rogues understand.",
+         "source": "class"
+        }
+       ],
+       "inventory": [
+        {
+         "name": "Leather armour",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Rapier",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Shortbow",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Arrows",
+         "qty": 20,
+         "kind": "ammo"
+        },
+        {
+         "name": "Thieves' tools",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Burglar's pack",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Dagger",
+         "qty": 2,
+         "kind": "weapon"
+        }
+       ]
       }
      },
      {
-      "id": "14af3d",
+      "id": "43233d",
       "name": "Torvald",
       "player": "Ann",
       "raceId": "dwarf",
@@ -444,8 +881,8 @@
         "qty": 1
        },
        {
-        "name": "2 Handaxes",
-        "qty": 1
+        "name": "Handaxe",
+        "qty": 2
        },
        {
         "name": "Explorer's pack",
@@ -456,13 +893,39 @@
       "xp": 0,
       "conditions": [],
       "features": [
-       "Darkvision 60 ft",
-       "Dwarven Resilience (poison)",
-       "Stonecunning",
-       "Dwarven Toughness (+1 HP/level)",
-       "Fighting Style: Defense",
-       "Second Wind (bonus action: heal 1d10 + level, once per rest)"
+       {
+        "name": "Darkvision",
+        "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+        "source": "race"
+       },
+       {
+        "name": "Dwarven Resilience",
+        "text": "Advantage on saves against poison, and resistance to poison damage.",
+        "source": "race"
+       },
+       {
+        "name": "Stonecunning",
+        "text": "Double proficiency on History checks about stonework.",
+        "source": "race"
+       },
+       {
+        "name": "Dwarven Toughness",
+        "text": "+1 hit point per level.",
+        "source": "race"
+       },
+       {
+        "name": "Fighting Style: Defense",
+        "text": "+1 AC while wearing armour (already counted).",
+        "source": "class"
+       },
+       {
+        "name": "Second Wind",
+        "text": "Bonus action: regain 1d10 + your level in hit points.",
+        "source": "class",
+        "resourceId": "second-wind"
+       }
       ],
+      "spells": [],
       "notes": "",
       "resources": [
        {
@@ -484,6 +947,257 @@
       "deathSaves": {
        "successes": 0,
        "failures": 0
+      },
+      "sheet": {
+       "proficiency": 2,
+       "initiative": 1,
+       "passivePerception": 13,
+       "saves": [
+        {
+         "ability": "str",
+         "mod": 4,
+         "proficient": true
+        },
+        {
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "con",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        }
+       ],
+       "skills": [
+        {
+         "name": "Acrobatics",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Animal Handling",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Arcana",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Athletics",
+         "ability": "str",
+         "mod": 4,
+         "proficient": true
+        },
+        {
+         "name": "Deception",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "History",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Insight",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Intimidation",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Investigation",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Medicine",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Nature",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Perception",
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "name": "Performance",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Persuasion",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Religion",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Sleight of Hand",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Stealth",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Survival",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        }
+       ],
+       "attacks": [
+        {
+         "name": "Longsword",
+         "weaponId": "longsword",
+         "ability": "str",
+         "toHit": 4,
+         "dice": "1d8",
+         "bonus": 2,
+         "damage": "1d8+2",
+         "damageType": "slashing",
+         "versatile": "1d10",
+         "properties": [
+          "versatile (1d10)"
+         ],
+         "count": 1
+        },
+        {
+         "name": "Handaxe",
+         "weaponId": "handaxe",
+         "ability": "str",
+         "toHit": 4,
+         "dice": "1d6",
+         "bonus": 2,
+         "damage": "1d6+2",
+         "damageType": "slashing",
+         "range": "20/60",
+         "properties": [
+          "light",
+          "thrown (20/60)"
+         ],
+         "count": 2
+        },
+        {
+         "name": "Unarmed strike",
+         "ability": "str",
+         "toHit": 4,
+         "bonus": 3,
+         "damage": "3",
+         "damageType": "bludgeoning",
+         "properties": [],
+         "count": 1
+        }
+       ],
+       "spells": [],
+       "features": [
+        {
+         "name": "Darkvision",
+         "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+         "source": "race"
+        },
+        {
+         "name": "Dwarven Resilience",
+         "text": "Advantage on saves against poison, and resistance to poison damage.",
+         "source": "race"
+        },
+        {
+         "name": "Stonecunning",
+         "text": "Double proficiency on History checks about stonework.",
+         "source": "race"
+        },
+        {
+         "name": "Dwarven Toughness",
+         "text": "+1 hit point per level.",
+         "source": "race"
+        },
+        {
+         "name": "Fighting Style: Defense",
+         "text": "+1 AC while wearing armour (already counted).",
+         "source": "class"
+        },
+        {
+         "name": "Second Wind",
+         "text": "Bonus action: regain 1d10 + your level in hit points.",
+         "source": "class",
+         "resourceId": "second-wind"
+        }
+       ],
+       "inventory": [
+        {
+         "name": "Chain mail",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Shield",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Longsword",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Handaxe",
+         "qty": 2,
+         "kind": "weapon"
+        },
+        {
+         "name": "Explorer's pack",
+         "qty": 1,
+         "kind": "gear"
+        }
+       ]
       }
      }
     ],
@@ -492,7 +1206,7 @@
     "log": [
      {
       "seq": 2,
-      "at": "2026-10-27T20:47:35.677Z",
+      "at": "2026-10-28T06:10:21.869Z",
       "from": "system",
       "kind": "info",
       "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
@@ -507,7 +1221,7 @@
      },
      {
       "seq": 3,
-      "at": "2026-10-27T20:47:35.679Z",
+      "at": "2026-10-28T06:10:21.871Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
@@ -533,14 +1247,14 @@
    "history": [
     {
      "seq": 2,
-     "at": "2026-10-27T20:47:35.677Z",
+     "at": "2026-10-28T06:10:21.869Z",
      "type": "character",
      "who": "Mira",
      "text": "Halfling (Lightfoot) Rogue"
     },
     {
      "seq": 3,
-     "at": "2026-10-27T20:47:35.679Z",
+     "at": "2026-10-28T06:10:21.871Z",
      "type": "character",
      "who": "Torvald",
      "text": "Dwarf (Hill) Fighter"
@@ -548,9 +1262,9 @@
    ]
   },
   "setupEmpty": {
-   "id": "b6b43f55",
+   "id": "79e0c27f",
    "state": {
-    "id": "b6b43f55",
+    "id": "79e0c27f",
     "title": "Fresh start",
     "seq": 1,
     "scene": null,
@@ -570,9 +1284,9 @@
    "history": []
   },
   "exploring": {
-   "id": "3304125b",
+   "id": "2e397bbd",
    "state": {
-    "id": "3304125b",
+    "id": "2e397bbd",
     "title": "The Drowned Lantern",
     "seq": 17,
     "scene": {
@@ -582,7 +1296,7 @@
     },
     "characters": [
      {
-      "id": "bf0370",
+      "id": "754f90",
       "name": "Mira",
       "player": "Veikko",
       "raceId": "halfling",
@@ -625,8 +1339,12 @@
         "qty": 1
        },
        {
-        "name": "Shortbow + 20 arrows",
+        "name": "Shortbow",
         "qty": 1
+       },
+       {
+        "name": "Arrows",
+        "qty": 20
        },
        {
         "name": "Thieves' tools",
@@ -637,22 +1355,51 @@
         "qty": 1
        },
        {
-        "name": "2 Daggers",
-        "qty": 1
+        "name": "Dagger",
+        "qty": 2
        }
       ],
       "gold": 10,
       "xp": 0,
       "conditions": [],
       "features": [
-       "Lucky (reroll natural 1s)",
-       "Brave",
-       "Halfling Nimbleness",
-       "Naturally Stealthy",
-       "Sneak Attack (1d6)",
-       "Expertise (Stealth, Thieves' tools)",
-       "Thieves' Cant"
+       {
+        "name": "Lucky",
+        "text": "When you roll a 1 on an attack, check or save, reroll it and use the new roll.",
+        "source": "race"
+       },
+       {
+        "name": "Brave",
+        "text": "Advantage on saves against being frightened.",
+        "source": "race"
+       },
+       {
+        "name": "Halfling Nimbleness",
+        "text": "You can move through the space of any creature larger than you.",
+        "source": "race"
+       },
+       {
+        "name": "Naturally Stealthy",
+        "text": "You can try to hide behind a creature at least one size larger than you.",
+        "source": "race"
+       },
+       {
+        "name": "Sneak Attack",
+        "text": "Once per turn, +1d6 damage with a finesse or ranged weapon when you have advantage or an ally is next to the target.",
+        "source": "class"
+       },
+       {
+        "name": "Expertise",
+        "text": "Double proficiency in Stealth and with thieves' tools.",
+        "source": "class"
+       },
+       {
+        "name": "Thieves' Cant",
+        "text": "A secret mix of slang and signs only rogues understand.",
+        "source": "class"
+       }
       ],
+      "spells": [],
       "notes": "",
       "resources": [
        {
@@ -667,10 +1414,291 @@
       "deathSaves": {
        "successes": 0,
        "failures": 0
+      },
+      "sheet": {
+       "proficiency": 2,
+       "initiative": 3,
+       "passivePerception": 13,
+       "saves": [
+        {
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "ability": "con",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "ability": "int",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        }
+       ],
+       "skills": [
+        {
+         "name": "Acrobatics",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Animal Handling",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Arcana",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Athletics",
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Deception",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "History",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Insight",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Intimidation",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Investigation",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Medicine",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Nature",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Perception",
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "name": "Performance",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Persuasion",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Religion",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Sleight of Hand",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Stealth",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Survival",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        }
+       ],
+       "attacks": [
+        {
+         "name": "Rapier",
+         "weaponId": "rapier",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d8",
+         "bonus": 3,
+         "damage": "1d8+3",
+         "damageType": "piercing",
+         "properties": [
+          "finesse"
+         ],
+         "count": 1
+        },
+        {
+         "name": "Shortbow",
+         "weaponId": "shortbow",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d6",
+         "bonus": 3,
+         "damage": "1d6+3",
+         "damageType": "piercing",
+         "range": "80/320",
+         "properties": [
+          "two-handed"
+         ],
+         "count": 1,
+         "ammo": 20
+        },
+        {
+         "name": "Dagger",
+         "weaponId": "dagger",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d4",
+         "bonus": 3,
+         "damage": "1d4+3",
+         "damageType": "piercing",
+         "range": "20/60",
+         "properties": [
+          "finesse",
+          "light",
+          "thrown (20/60)"
+         ],
+         "count": 2
+        },
+        {
+         "name": "Unarmed strike",
+         "ability": "str",
+         "toHit": 1,
+         "bonus": 0,
+         "damage": "1",
+         "damageType": "bludgeoning",
+         "properties": [],
+         "count": 1
+        }
+       ],
+       "spells": [],
+       "features": [
+        {
+         "name": "Lucky",
+         "text": "When you roll a 1 on an attack, check or save, reroll it and use the new roll.",
+         "source": "race"
+        },
+        {
+         "name": "Brave",
+         "text": "Advantage on saves against being frightened.",
+         "source": "race"
+        },
+        {
+         "name": "Halfling Nimbleness",
+         "text": "You can move through the space of any creature larger than you.",
+         "source": "race"
+        },
+        {
+         "name": "Naturally Stealthy",
+         "text": "You can try to hide behind a creature at least one size larger than you.",
+         "source": "race"
+        },
+        {
+         "name": "Sneak Attack",
+         "text": "Once per turn, +1d6 damage with a finesse or ranged weapon when you have advantage or an ally is next to the target.",
+         "source": "class"
+        },
+        {
+         "name": "Expertise",
+         "text": "Double proficiency in Stealth and with thieves' tools.",
+         "source": "class"
+        },
+        {
+         "name": "Thieves' Cant",
+         "text": "A secret mix of slang and signs only rogues understand.",
+         "source": "class"
+        }
+       ],
+       "inventory": [
+        {
+         "name": "Leather armour",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Rapier",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Shortbow",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Arrows",
+         "qty": 20,
+         "kind": "ammo"
+        },
+        {
+         "name": "Thieves' tools",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Burglar's pack",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Dagger",
+         "qty": 2,
+         "kind": "weapon"
+        }
+       ]
       }
      },
      {
-      "id": "5e81b5",
+      "id": "96d1bf",
       "name": "Torvald",
       "player": "Ann",
       "raceId": "dwarf",
@@ -715,8 +1743,8 @@
         "qty": 1
        },
        {
-        "name": "2 Handaxes",
-        "qty": 1
+        "name": "Handaxe",
+        "qty": 2
        },
        {
         "name": "Explorer's pack",
@@ -727,13 +1755,39 @@
       "xp": 0,
       "conditions": [],
       "features": [
-       "Darkvision 60 ft",
-       "Dwarven Resilience (poison)",
-       "Stonecunning",
-       "Dwarven Toughness (+1 HP/level)",
-       "Fighting Style: Defense",
-       "Second Wind (bonus action: heal 1d10 + level, once per rest)"
+       {
+        "name": "Darkvision",
+        "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+        "source": "race"
+       },
+       {
+        "name": "Dwarven Resilience",
+        "text": "Advantage on saves against poison, and resistance to poison damage.",
+        "source": "race"
+       },
+       {
+        "name": "Stonecunning",
+        "text": "Double proficiency on History checks about stonework.",
+        "source": "race"
+       },
+       {
+        "name": "Dwarven Toughness",
+        "text": "+1 hit point per level.",
+        "source": "race"
+       },
+       {
+        "name": "Fighting Style: Defense",
+        "text": "+1 AC while wearing armour (already counted).",
+        "source": "class"
+       },
+       {
+        "name": "Second Wind",
+        "text": "Bonus action: regain 1d10 + your level in hit points.",
+        "source": "class",
+        "resourceId": "second-wind"
+       }
       ],
+      "spells": [],
       "notes": "",
       "resources": [
        {
@@ -755,10 +1809,261 @@
       "deathSaves": {
        "successes": 0,
        "failures": 0
+      },
+      "sheet": {
+       "proficiency": 2,
+       "initiative": 1,
+       "passivePerception": 13,
+       "saves": [
+        {
+         "ability": "str",
+         "mod": 4,
+         "proficient": true
+        },
+        {
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "con",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        }
+       ],
+       "skills": [
+        {
+         "name": "Acrobatics",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Animal Handling",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Arcana",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Athletics",
+         "ability": "str",
+         "mod": 4,
+         "proficient": true
+        },
+        {
+         "name": "Deception",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "History",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Insight",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Intimidation",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Investigation",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Medicine",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Nature",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Perception",
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "name": "Performance",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Persuasion",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Religion",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Sleight of Hand",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Stealth",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Survival",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        }
+       ],
+       "attacks": [
+        {
+         "name": "Longsword",
+         "weaponId": "longsword",
+         "ability": "str",
+         "toHit": 4,
+         "dice": "1d8",
+         "bonus": 2,
+         "damage": "1d8+2",
+         "damageType": "slashing",
+         "versatile": "1d10",
+         "properties": [
+          "versatile (1d10)"
+         ],
+         "count": 1
+        },
+        {
+         "name": "Handaxe",
+         "weaponId": "handaxe",
+         "ability": "str",
+         "toHit": 4,
+         "dice": "1d6",
+         "bonus": 2,
+         "damage": "1d6+2",
+         "damageType": "slashing",
+         "range": "20/60",
+         "properties": [
+          "light",
+          "thrown (20/60)"
+         ],
+         "count": 2
+        },
+        {
+         "name": "Unarmed strike",
+         "ability": "str",
+         "toHit": 4,
+         "bonus": 3,
+         "damage": "3",
+         "damageType": "bludgeoning",
+         "properties": [],
+         "count": 1
+        }
+       ],
+       "spells": [],
+       "features": [
+        {
+         "name": "Darkvision",
+         "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+         "source": "race"
+        },
+        {
+         "name": "Dwarven Resilience",
+         "text": "Advantage on saves against poison, and resistance to poison damage.",
+         "source": "race"
+        },
+        {
+         "name": "Stonecunning",
+         "text": "Double proficiency on History checks about stonework.",
+         "source": "race"
+        },
+        {
+         "name": "Dwarven Toughness",
+         "text": "+1 hit point per level.",
+         "source": "race"
+        },
+        {
+         "name": "Fighting Style: Defense",
+         "text": "+1 AC while wearing armour (already counted).",
+         "source": "class"
+        },
+        {
+         "name": "Second Wind",
+         "text": "Bonus action: regain 1d10 + your level in hit points.",
+         "source": "class",
+         "resourceId": "second-wind"
+        }
+       ],
+       "inventory": [
+        {
+         "name": "Chain mail",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Shield",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Longsword",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Handaxe",
+         "qty": 2,
+         "kind": "weapon"
+        },
+        {
+         "name": "Explorer's pack",
+         "qty": 1,
+         "kind": "gear"
+        }
+       ]
       }
      },
      {
-      "id": "4f4da7",
+      "id": "c9cfa3",
       "name": "Elowen",
       "player": "Sam",
       "raceId": "elf",
@@ -812,13 +2117,123 @@
       "xp": 0,
       "conditions": [],
       "features": [
-       "Darkvision 60 ft",
-       "Keen Senses (Perception)",
-       "Fey Ancestry",
-       "Trance",
-       "One wizard cantrip",
-       "Spellcasting (INT): cantrips Fire Bolt, Mage Hand, Light; prepared from Magic Missile, Shield, Sleep, Burning Hands, Detect Magic, Mage Armor; 2 first-level slots",
-       "Arcane Recovery"
+       {
+        "name": "Darkvision",
+        "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+        "source": "race"
+       },
+       {
+        "name": "Keen Senses",
+        "text": "Proficient in Perception.",
+        "source": "race"
+       },
+       {
+        "name": "Fey Ancestry",
+        "text": "Advantage on saves against being charmed; magic cannot put you to sleep.",
+        "source": "race"
+       },
+       {
+        "name": "Trance",
+        "text": "Four hours of meditation give you the rest of eight hours of sleep.",
+        "source": "race"
+       },
+       {
+        "name": "Wizard cantrip",
+        "text": "You know one wizard cantrip, cast with INT.",
+        "source": "race"
+       },
+       {
+        "name": "Arcane Recovery",
+        "text": "Once a day after a short rest, regain a spent spell slot.",
+        "source": "class",
+        "resourceId": "arcane-recovery"
+       }
+      ],
+      "spells": [
+       {
+        "id": "fire-bolt",
+        "name": "Fire Bolt",
+        "level": 0,
+        "castingTime": "action",
+        "range": "120 ft",
+        "attack": "ranged",
+        "dice": "1d10",
+        "damageType": "fire",
+        "summary": "Hurl a mote of fire. Unattended flammable objects catch fire."
+       },
+       {
+        "id": "mage-hand",
+        "name": "Mage Hand",
+        "level": 0,
+        "castingTime": "action",
+        "range": "30 ft",
+        "summary": "A floating spectral hand that can carry up to 10 lb, open doors and fetch things for a minute."
+       },
+       {
+        "id": "light",
+        "name": "Light",
+        "level": 0,
+        "castingTime": "action",
+        "range": "Touch",
+        "summary": "An object shines like a torch (20 ft bright light) for an hour."
+       },
+       {
+        "id": "magic-missile",
+        "name": "Magic Missile",
+        "level": 1,
+        "castingTime": "action",
+        "range": "120 ft",
+        "dice": "1d4",
+        "bonus": 1,
+        "times": 3,
+        "damageType": "force",
+        "summary": "Three glowing darts that always hit; aim them at one creature or several."
+       },
+       {
+        "id": "shield",
+        "name": "Shield",
+        "level": 1,
+        "castingTime": "reaction",
+        "range": "Self",
+        "summary": "When you are hit: +5 AC until your next turn, including against that attack."
+       },
+       {
+        "id": "sleep",
+        "name": "Sleep",
+        "level": 1,
+        "castingTime": "action",
+        "range": "90 ft",
+        "dice": "5d8",
+        "summary": "Roll 5d8: creatures with that many hit points in total fall asleep, weakest first."
+       },
+       {
+        "id": "burning-hands",
+        "name": "Burning Hands",
+        "level": 1,
+        "castingTime": "action",
+        "range": "Self (15-ft cone)",
+        "save": "dex",
+        "dice": "3d6",
+        "damageType": "fire",
+        "summary": "A sheet of flame from your fingertips; half damage on a successful save."
+       },
+       {
+        "id": "detect-magic",
+        "name": "Detect Magic",
+        "level": 1,
+        "castingTime": "action",
+        "range": "Self",
+        "concentration": true,
+        "summary": "For 10 minutes you sense magic within 30 ft and can see its aura."
+       },
+       {
+        "id": "mage-armor",
+        "name": "Mage Armor",
+        "level": 1,
+        "castingTime": "action",
+        "range": "Touch",
+        "summary": "A creature without armour has AC 13 + DEX for 8 hours."
+       }
       ],
       "notes": "",
       "resources": [
@@ -848,6 +2263,339 @@
       "deathSaves": {
        "successes": 0,
        "failures": 0
+      },
+      "sheet": {
+       "proficiency": 2,
+       "initiative": 2,
+       "passivePerception": 13,
+       "saves": [
+        {
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "ability": "con",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "ability": "int",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        }
+       ],
+       "skills": [
+        {
+         "name": "Acrobatics",
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "name": "Animal Handling",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Arcana",
+         "ability": "int",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Athletics",
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Deception",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "History",
+         "ability": "int",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Insight",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Intimidation",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Investigation",
+         "ability": "int",
+         "mod": 3,
+         "proficient": false
+        },
+        {
+         "name": "Medicine",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Nature",
+         "ability": "int",
+         "mod": 3,
+         "proficient": false
+        },
+        {
+         "name": "Perception",
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "name": "Performance",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Persuasion",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Religion",
+         "ability": "int",
+         "mod": 3,
+         "proficient": false
+        },
+        {
+         "name": "Sleight of Hand",
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "name": "Stealth",
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "name": "Survival",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        }
+       ],
+       "attacks": [
+        {
+         "name": "Quarterstaff",
+         "weaponId": "quarterstaff",
+         "ability": "str",
+         "toHit": 1,
+         "dice": "1d6",
+         "bonus": -1,
+         "damage": "1d6-1",
+         "damageType": "bludgeoning",
+         "versatile": "1d8",
+         "properties": [
+          "versatile (1d8)"
+         ],
+         "count": 1
+        },
+        {
+         "name": "Unarmed strike",
+         "ability": "str",
+         "toHit": 1,
+         "bonus": 0,
+         "damage": "1",
+         "damageType": "bludgeoning",
+         "properties": [],
+         "count": 1
+        }
+       ],
+       "spellcasting": {
+        "ability": "int",
+        "attack": 5,
+        "saveDc": 13,
+        "slots": "spell-slots-1"
+       },
+       "spells": [
+        {
+         "id": "fire-bolt",
+         "name": "Fire Bolt",
+         "level": 0,
+         "castingTime": "action",
+         "range": "120 ft",
+         "attack": "ranged",
+         "dice": "1d10",
+         "damageType": "fire",
+         "summary": "Hurl a mote of fire. Unattended flammable objects catch fire.",
+         "toHit": 5,
+         "roll": "1d10"
+        },
+        {
+         "id": "mage-hand",
+         "name": "Mage Hand",
+         "level": 0,
+         "castingTime": "action",
+         "range": "30 ft",
+         "summary": "A floating spectral hand that can carry up to 10 lb, open doors and fetch things for a minute."
+        },
+        {
+         "id": "light",
+         "name": "Light",
+         "level": 0,
+         "castingTime": "action",
+         "range": "Touch",
+         "summary": "An object shines like a torch (20 ft bright light) for an hour."
+        },
+        {
+         "id": "magic-missile",
+         "name": "Magic Missile",
+         "level": 1,
+         "castingTime": "action",
+         "range": "120 ft",
+         "dice": "1d4",
+         "bonus": 1,
+         "times": 3,
+         "damageType": "force",
+         "summary": "Three glowing darts that always hit; aim them at one creature or several.",
+         "roll": "1d4+1 ×3",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "shield",
+         "name": "Shield",
+         "level": 1,
+         "castingTime": "reaction",
+         "range": "Self",
+         "summary": "When you are hit: +5 AC until your next turn, including against that attack.",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "sleep",
+         "name": "Sleep",
+         "level": 1,
+         "castingTime": "action",
+         "range": "90 ft",
+         "dice": "5d8",
+         "summary": "Roll 5d8: creatures with that many hit points in total fall asleep, weakest first.",
+         "roll": "5d8",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "burning-hands",
+         "name": "Burning Hands",
+         "level": 1,
+         "castingTime": "action",
+         "range": "Self (15-ft cone)",
+         "save": "dex",
+         "dice": "3d6",
+         "damageType": "fire",
+         "summary": "A sheet of flame from your fingertips; half damage on a successful save.",
+         "saveDc": 13,
+         "roll": "3d6",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "detect-magic",
+         "name": "Detect Magic",
+         "level": 1,
+         "castingTime": "action",
+         "range": "Self",
+         "concentration": true,
+         "summary": "For 10 minutes you sense magic within 30 ft and can see its aura.",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "mage-armor",
+         "name": "Mage Armor",
+         "level": 1,
+         "castingTime": "action",
+         "range": "Touch",
+         "summary": "A creature without armour has AC 13 + DEX for 8 hours.",
+         "resourceId": "spell-slots-1"
+        }
+       ],
+       "features": [
+        {
+         "name": "Darkvision",
+         "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+         "source": "race"
+        },
+        {
+         "name": "Keen Senses",
+         "text": "Proficient in Perception.",
+         "source": "race"
+        },
+        {
+         "name": "Fey Ancestry",
+         "text": "Advantage on saves against being charmed; magic cannot put you to sleep.",
+         "source": "race"
+        },
+        {
+         "name": "Trance",
+         "text": "Four hours of meditation give you the rest of eight hours of sleep.",
+         "source": "race"
+        },
+        {
+         "name": "Wizard cantrip",
+         "text": "You know one wizard cantrip, cast with INT.",
+         "source": "race"
+        },
+        {
+         "name": "Arcane Recovery",
+         "text": "Once a day after a short rest, regain a spent spell slot.",
+         "source": "class",
+         "resourceId": "arcane-recovery"
+        }
+       ],
+       "inventory": [
+        {
+         "name": "Quarterstaff",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Component pouch",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Spellbook",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Scholar's pack",
+         "qty": 1,
+         "kind": "gear"
+        }
+       ]
       }
      }
     ],
@@ -866,7 +2614,7 @@
     "log": [
      {
       "seq": 2,
-      "at": "2026-10-27T20:47:35.686Z",
+      "at": "2026-10-28T06:10:21.889Z",
       "from": "system",
       "kind": "info",
       "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
@@ -881,7 +2629,7 @@
      },
      {
       "seq": 3,
-      "at": "2026-10-27T20:47:35.687Z",
+      "at": "2026-10-28T06:10:21.891Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
@@ -896,7 +2644,7 @@
      },
      {
       "seq": 4,
-      "at": "2026-10-27T20:47:35.688Z",
+      "at": "2026-10-28T06:10:21.892Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen the Elf (High) Wizard joins the party.",
@@ -911,7 +2659,7 @@
      },
      {
       "seq": 5,
-      "at": "2026-10-27T20:47:35.689Z",
+      "at": "2026-10-28T06:10:21.894Z",
       "from": "system",
       "kind": "info",
       "text": "The adventure begins.",
@@ -922,53 +2670,53 @@
      },
      {
       "seq": 8,
-      "at": "2026-10-27T20:47:35.699Z",
+      "at": "2026-10-28T06:10:21.908Z",
       "from": "dm",
       "kind": "narration",
       "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
      },
      {
       "seq": 9,
-      "at": "2026-10-27T20:47:35.700Z",
+      "at": "2026-10-28T06:10:21.909Z",
       "from": "player",
-      "characterId": "bf0370",
+      "characterId": "754f90",
       "kind": "action",
       "text": "I slide onto a stool at the bar and order whatever is warm."
      },
      {
       "seq": 10,
-      "at": "2026-10-27T20:47:35.701Z",
+      "at": "2026-10-28T06:10:21.910Z",
       "from": "player",
-      "characterId": "5e81b5",
+      "characterId": "96d1bf",
       "kind": "speech",
       "text": "\"Who rings a bell under the sea, old man?\""
      },
      {
       "seq": 11,
-      "at": "2026-10-27T20:47:35.703Z",
+      "at": "2026-10-28T06:10:21.912Z",
       "from": "dm",
       "kind": "narration",
       "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
      },
      {
       "seq": 12,
-      "at": "2026-10-27T20:47:35.704Z",
+      "at": "2026-10-28T06:10:21.913Z",
       "from": "player",
-      "characterId": "4f4da7",
+      "characterId": "c9cfa3",
       "kind": "question",
       "text": "Can I tell if the dripping comes from a cellar?"
      },
      {
       "seq": 13,
-      "at": "2026-10-27T20:47:35.706Z",
+      "at": "2026-10-28T06:10:21.915Z",
       "from": "dm",
-      "characterId": "4f4da7",
+      "characterId": "c9cfa3",
       "kind": "answer",
       "text": "You can try. Listen closely to where it comes from."
      },
      {
       "seq": 15,
-      "at": "2026-10-27T20:47:35.710Z",
+      "at": "2026-10-28T06:10:21.921Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen rolled Wisdom (Perception) check: 14 +3 = 17 — success",
@@ -989,7 +2737,7 @@
      },
      {
       "seq": 16,
-      "at": "2026-10-27T20:47:35.712Z",
+      "at": "2026-10-28T06:10:21.923Z",
       "from": "dm",
       "kind": "narration",
       "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
@@ -997,8 +2745,8 @@
     ],
     "pendingRolls": [
      {
-      "rollId": "863f8fb5",
-      "characterId": "bf0370",
+      "rollId": "7ce33c3c",
+      "characterId": "754f90",
       "label": "Dexterity (Stealth) check",
       "dice": "1d20",
       "modifier": 5,
@@ -1009,8 +2757,8 @@
     ],
     "rolls": [
      {
-      "rollId": "1344eb89",
-      "characterId": "4f4da7",
+      "rollId": "66fe57b7",
+      "characterId": "c9cfa3",
       "label": "Wisdom (Perception) check",
       "dice": "1d20",
       "modifier": 3,
@@ -1042,46 +2790,46 @@
    "history": [
     {
      "seq": 2,
-     "at": "2026-10-27T20:47:35.686Z",
+     "at": "2026-10-28T06:10:21.889Z",
      "type": "character",
      "who": "Mira",
      "text": "Halfling (Lightfoot) Rogue"
     },
     {
      "seq": 3,
-     "at": "2026-10-27T20:47:35.687Z",
+     "at": "2026-10-28T06:10:21.891Z",
      "type": "character",
      "who": "Torvald",
      "text": "Dwarf (Hill) Fighter"
     },
     {
      "seq": 4,
-     "at": "2026-10-27T20:47:35.688Z",
+     "at": "2026-10-28T06:10:21.892Z",
      "type": "character",
      "who": "Elowen",
      "text": "Elf (High) Wizard"
     },
     {
      "seq": 5,
-     "at": "2026-10-27T20:47:35.689Z",
+     "at": "2026-10-28T06:10:21.894Z",
      "type": "started",
      "text": ""
     },
     {
      "seq": 6,
-     "at": "2026-10-27T20:47:35.692Z",
+     "at": "2026-10-28T06:10:21.900Z",
      "type": "scene",
      "text": "The Drowned Lantern — taproom"
     },
     {
      "seq": 7,
-     "at": "2026-10-27T20:47:35.696Z",
+     "at": "2026-10-28T06:10:21.905Z",
      "type": "sketch",
      "text": "The taproom of the Drowned Lantern"
     },
     {
      "seq": 8,
-     "at": "2026-10-27T20:47:35.699Z",
+     "at": "2026-10-28T06:10:21.908Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -1089,7 +2837,7 @@
     },
     {
      "seq": 9,
-     "at": "2026-10-27T20:47:35.700Z",
+     "at": "2026-10-28T06:10:21.909Z",
      "type": "player",
      "kind": "action",
      "who": "Mira",
@@ -1097,7 +2845,7 @@
     },
     {
      "seq": 10,
-     "at": "2026-10-27T20:47:35.701Z",
+     "at": "2026-10-28T06:10:21.910Z",
      "type": "player",
      "kind": "speech",
      "who": "Torvald",
@@ -1105,7 +2853,7 @@
     },
     {
      "seq": 11,
-     "at": "2026-10-27T20:47:35.703Z",
+     "at": "2026-10-28T06:10:21.912Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -1113,7 +2861,7 @@
     },
     {
      "seq": 12,
-     "at": "2026-10-27T20:47:35.704Z",
+     "at": "2026-10-28T06:10:21.913Z",
      "type": "player",
      "kind": "question",
      "who": "Elowen",
@@ -1121,7 +2869,7 @@
     },
     {
      "seq": 13,
-     "at": "2026-10-27T20:47:35.706Z",
+     "at": "2026-10-28T06:10:21.915Z",
      "type": "dm",
      "kind": "answer",
      "who": null,
@@ -1129,14 +2877,14 @@
     },
     {
      "seq": 14,
-     "at": "2026-10-27T20:47:35.708Z",
+     "at": "2026-10-28T06:10:21.918Z",
      "type": "rollRequested",
      "who": "Elowen",
      "text": "Wisdom (Perception) check"
     },
     {
      "seq": 15,
-     "at": "2026-10-27T20:47:35.710Z",
+     "at": "2026-10-28T06:10:21.921Z",
      "type": "roll",
      "text": "Wisdom (Perception) check: 14 → 17",
      "label": "Wisdom (Perception) check",
@@ -1144,7 +2892,7 @@
     },
     {
      "seq": 16,
-     "at": "2026-10-27T20:47:35.712Z",
+     "at": "2026-10-28T06:10:21.923Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -1152,7 +2900,7 @@
     },
     {
      "seq": 17,
-     "at": "2026-10-27T20:47:35.715Z",
+     "at": "2026-10-28T06:10:21.925Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Dexterity (Stealth) check"
@@ -1160,9 +2908,9 @@
    ]
   },
   "initiative": {
-   "id": "3304125b",
+   "id": "2e397bbd",
    "state": {
-    "id": "3304125b",
+    "id": "2e397bbd",
     "title": "The Drowned Lantern",
     "seq": 24,
     "scene": {
@@ -1172,7 +2920,7 @@
     },
     "characters": [
      {
-      "id": "bf0370",
+      "id": "754f90",
       "name": "Mira",
       "player": "Veikko",
       "raceId": "halfling",
@@ -1215,8 +2963,12 @@
         "qty": 1
        },
        {
-        "name": "Shortbow + 20 arrows",
+        "name": "Shortbow",
         "qty": 1
+       },
+       {
+        "name": "Arrows",
+        "qty": 20
        },
        {
         "name": "Thieves' tools",
@@ -1227,22 +2979,51 @@
         "qty": 1
        },
        {
-        "name": "2 Daggers",
-        "qty": 1
+        "name": "Dagger",
+        "qty": 2
        }
       ],
       "gold": 10,
       "xp": 0,
       "conditions": [],
       "features": [
-       "Lucky (reroll natural 1s)",
-       "Brave",
-       "Halfling Nimbleness",
-       "Naturally Stealthy",
-       "Sneak Attack (1d6)",
-       "Expertise (Stealth, Thieves' tools)",
-       "Thieves' Cant"
+       {
+        "name": "Lucky",
+        "text": "When you roll a 1 on an attack, check or save, reroll it and use the new roll.",
+        "source": "race"
+       },
+       {
+        "name": "Brave",
+        "text": "Advantage on saves against being frightened.",
+        "source": "race"
+       },
+       {
+        "name": "Halfling Nimbleness",
+        "text": "You can move through the space of any creature larger than you.",
+        "source": "race"
+       },
+       {
+        "name": "Naturally Stealthy",
+        "text": "You can try to hide behind a creature at least one size larger than you.",
+        "source": "race"
+       },
+       {
+        "name": "Sneak Attack",
+        "text": "Once per turn, +1d6 damage with a finesse or ranged weapon when you have advantage or an ally is next to the target.",
+        "source": "class"
+       },
+       {
+        "name": "Expertise",
+        "text": "Double proficiency in Stealth and with thieves' tools.",
+        "source": "class"
+       },
+       {
+        "name": "Thieves' Cant",
+        "text": "A secret mix of slang and signs only rogues understand.",
+        "source": "class"
+       }
       ],
+      "spells": [],
       "notes": "",
       "resources": [
        {
@@ -1257,10 +3038,291 @@
       "deathSaves": {
        "successes": 0,
        "failures": 0
+      },
+      "sheet": {
+       "proficiency": 2,
+       "initiative": 3,
+       "passivePerception": 13,
+       "saves": [
+        {
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "ability": "con",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "ability": "int",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        }
+       ],
+       "skills": [
+        {
+         "name": "Acrobatics",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Animal Handling",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Arcana",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Athletics",
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Deception",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "History",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Insight",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Intimidation",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Investigation",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Medicine",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Nature",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Perception",
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "name": "Performance",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Persuasion",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Religion",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Sleight of Hand",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Stealth",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Survival",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        }
+       ],
+       "attacks": [
+        {
+         "name": "Rapier",
+         "weaponId": "rapier",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d8",
+         "bonus": 3,
+         "damage": "1d8+3",
+         "damageType": "piercing",
+         "properties": [
+          "finesse"
+         ],
+         "count": 1
+        },
+        {
+         "name": "Shortbow",
+         "weaponId": "shortbow",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d6",
+         "bonus": 3,
+         "damage": "1d6+3",
+         "damageType": "piercing",
+         "range": "80/320",
+         "properties": [
+          "two-handed"
+         ],
+         "count": 1,
+         "ammo": 20
+        },
+        {
+         "name": "Dagger",
+         "weaponId": "dagger",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d4",
+         "bonus": 3,
+         "damage": "1d4+3",
+         "damageType": "piercing",
+         "range": "20/60",
+         "properties": [
+          "finesse",
+          "light",
+          "thrown (20/60)"
+         ],
+         "count": 2
+        },
+        {
+         "name": "Unarmed strike",
+         "ability": "str",
+         "toHit": 1,
+         "bonus": 0,
+         "damage": "1",
+         "damageType": "bludgeoning",
+         "properties": [],
+         "count": 1
+        }
+       ],
+       "spells": [],
+       "features": [
+        {
+         "name": "Lucky",
+         "text": "When you roll a 1 on an attack, check or save, reroll it and use the new roll.",
+         "source": "race"
+        },
+        {
+         "name": "Brave",
+         "text": "Advantage on saves against being frightened.",
+         "source": "race"
+        },
+        {
+         "name": "Halfling Nimbleness",
+         "text": "You can move through the space of any creature larger than you.",
+         "source": "race"
+        },
+        {
+         "name": "Naturally Stealthy",
+         "text": "You can try to hide behind a creature at least one size larger than you.",
+         "source": "race"
+        },
+        {
+         "name": "Sneak Attack",
+         "text": "Once per turn, +1d6 damage with a finesse or ranged weapon when you have advantage or an ally is next to the target.",
+         "source": "class"
+        },
+        {
+         "name": "Expertise",
+         "text": "Double proficiency in Stealth and with thieves' tools.",
+         "source": "class"
+        },
+        {
+         "name": "Thieves' Cant",
+         "text": "A secret mix of slang and signs only rogues understand.",
+         "source": "class"
+        }
+       ],
+       "inventory": [
+        {
+         "name": "Leather armour",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Rapier",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Shortbow",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Arrows",
+         "qty": 20,
+         "kind": "ammo"
+        },
+        {
+         "name": "Thieves' tools",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Burglar's pack",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Dagger",
+         "qty": 2,
+         "kind": "weapon"
+        }
+       ]
       }
      },
      {
-      "id": "5e81b5",
+      "id": "96d1bf",
       "name": "Torvald",
       "player": "Ann",
       "raceId": "dwarf",
@@ -1305,8 +3367,8 @@
         "qty": 1
        },
        {
-        "name": "2 Handaxes",
-        "qty": 1
+        "name": "Handaxe",
+        "qty": 2
        },
        {
         "name": "Explorer's pack",
@@ -1317,13 +3379,39 @@
       "xp": 0,
       "conditions": [],
       "features": [
-       "Darkvision 60 ft",
-       "Dwarven Resilience (poison)",
-       "Stonecunning",
-       "Dwarven Toughness (+1 HP/level)",
-       "Fighting Style: Defense",
-       "Second Wind (bonus action: heal 1d10 + level, once per rest)"
+       {
+        "name": "Darkvision",
+        "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+        "source": "race"
+       },
+       {
+        "name": "Dwarven Resilience",
+        "text": "Advantage on saves against poison, and resistance to poison damage.",
+        "source": "race"
+       },
+       {
+        "name": "Stonecunning",
+        "text": "Double proficiency on History checks about stonework.",
+        "source": "race"
+       },
+       {
+        "name": "Dwarven Toughness",
+        "text": "+1 hit point per level.",
+        "source": "race"
+       },
+       {
+        "name": "Fighting Style: Defense",
+        "text": "+1 AC while wearing armour (already counted).",
+        "source": "class"
+       },
+       {
+        "name": "Second Wind",
+        "text": "Bonus action: regain 1d10 + your level in hit points.",
+        "source": "class",
+        "resourceId": "second-wind"
+       }
       ],
+      "spells": [],
       "notes": "",
       "resources": [
        {
@@ -1345,10 +3433,261 @@
       "deathSaves": {
        "successes": 0,
        "failures": 0
+      },
+      "sheet": {
+       "proficiency": 2,
+       "initiative": 1,
+       "passivePerception": 13,
+       "saves": [
+        {
+         "ability": "str",
+         "mod": 4,
+         "proficient": true
+        },
+        {
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "con",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        }
+       ],
+       "skills": [
+        {
+         "name": "Acrobatics",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Animal Handling",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Arcana",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Athletics",
+         "ability": "str",
+         "mod": 4,
+         "proficient": true
+        },
+        {
+         "name": "Deception",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "History",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Insight",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Intimidation",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Investigation",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Medicine",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Nature",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Perception",
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "name": "Performance",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Persuasion",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Religion",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Sleight of Hand",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Stealth",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Survival",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        }
+       ],
+       "attacks": [
+        {
+         "name": "Longsword",
+         "weaponId": "longsword",
+         "ability": "str",
+         "toHit": 4,
+         "dice": "1d8",
+         "bonus": 2,
+         "damage": "1d8+2",
+         "damageType": "slashing",
+         "versatile": "1d10",
+         "properties": [
+          "versatile (1d10)"
+         ],
+         "count": 1
+        },
+        {
+         "name": "Handaxe",
+         "weaponId": "handaxe",
+         "ability": "str",
+         "toHit": 4,
+         "dice": "1d6",
+         "bonus": 2,
+         "damage": "1d6+2",
+         "damageType": "slashing",
+         "range": "20/60",
+         "properties": [
+          "light",
+          "thrown (20/60)"
+         ],
+         "count": 2
+        },
+        {
+         "name": "Unarmed strike",
+         "ability": "str",
+         "toHit": 4,
+         "bonus": 3,
+         "damage": "3",
+         "damageType": "bludgeoning",
+         "properties": [],
+         "count": 1
+        }
+       ],
+       "spells": [],
+       "features": [
+        {
+         "name": "Darkvision",
+         "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+         "source": "race"
+        },
+        {
+         "name": "Dwarven Resilience",
+         "text": "Advantage on saves against poison, and resistance to poison damage.",
+         "source": "race"
+        },
+        {
+         "name": "Stonecunning",
+         "text": "Double proficiency on History checks about stonework.",
+         "source": "race"
+        },
+        {
+         "name": "Dwarven Toughness",
+         "text": "+1 hit point per level.",
+         "source": "race"
+        },
+        {
+         "name": "Fighting Style: Defense",
+         "text": "+1 AC while wearing armour (already counted).",
+         "source": "class"
+        },
+        {
+         "name": "Second Wind",
+         "text": "Bonus action: regain 1d10 + your level in hit points.",
+         "source": "class",
+         "resourceId": "second-wind"
+        }
+       ],
+       "inventory": [
+        {
+         "name": "Chain mail",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Shield",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Longsword",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Handaxe",
+         "qty": 2,
+         "kind": "weapon"
+        },
+        {
+         "name": "Explorer's pack",
+         "qty": 1,
+         "kind": "gear"
+        }
+       ]
       }
      },
      {
-      "id": "4f4da7",
+      "id": "c9cfa3",
       "name": "Elowen",
       "player": "Sam",
       "raceId": "elf",
@@ -1402,13 +3741,123 @@
       "xp": 0,
       "conditions": [],
       "features": [
-       "Darkvision 60 ft",
-       "Keen Senses (Perception)",
-       "Fey Ancestry",
-       "Trance",
-       "One wizard cantrip",
-       "Spellcasting (INT): cantrips Fire Bolt, Mage Hand, Light; prepared from Magic Missile, Shield, Sleep, Burning Hands, Detect Magic, Mage Armor; 2 first-level slots",
-       "Arcane Recovery"
+       {
+        "name": "Darkvision",
+        "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+        "source": "race"
+       },
+       {
+        "name": "Keen Senses",
+        "text": "Proficient in Perception.",
+        "source": "race"
+       },
+       {
+        "name": "Fey Ancestry",
+        "text": "Advantage on saves against being charmed; magic cannot put you to sleep.",
+        "source": "race"
+       },
+       {
+        "name": "Trance",
+        "text": "Four hours of meditation give you the rest of eight hours of sleep.",
+        "source": "race"
+       },
+       {
+        "name": "Wizard cantrip",
+        "text": "You know one wizard cantrip, cast with INT.",
+        "source": "race"
+       },
+       {
+        "name": "Arcane Recovery",
+        "text": "Once a day after a short rest, regain a spent spell slot.",
+        "source": "class",
+        "resourceId": "arcane-recovery"
+       }
+      ],
+      "spells": [
+       {
+        "id": "fire-bolt",
+        "name": "Fire Bolt",
+        "level": 0,
+        "castingTime": "action",
+        "range": "120 ft",
+        "attack": "ranged",
+        "dice": "1d10",
+        "damageType": "fire",
+        "summary": "Hurl a mote of fire. Unattended flammable objects catch fire."
+       },
+       {
+        "id": "mage-hand",
+        "name": "Mage Hand",
+        "level": 0,
+        "castingTime": "action",
+        "range": "30 ft",
+        "summary": "A floating spectral hand that can carry up to 10 lb, open doors and fetch things for a minute."
+       },
+       {
+        "id": "light",
+        "name": "Light",
+        "level": 0,
+        "castingTime": "action",
+        "range": "Touch",
+        "summary": "An object shines like a torch (20 ft bright light) for an hour."
+       },
+       {
+        "id": "magic-missile",
+        "name": "Magic Missile",
+        "level": 1,
+        "castingTime": "action",
+        "range": "120 ft",
+        "dice": "1d4",
+        "bonus": 1,
+        "times": 3,
+        "damageType": "force",
+        "summary": "Three glowing darts that always hit; aim them at one creature or several."
+       },
+       {
+        "id": "shield",
+        "name": "Shield",
+        "level": 1,
+        "castingTime": "reaction",
+        "range": "Self",
+        "summary": "When you are hit: +5 AC until your next turn, including against that attack."
+       },
+       {
+        "id": "sleep",
+        "name": "Sleep",
+        "level": 1,
+        "castingTime": "action",
+        "range": "90 ft",
+        "dice": "5d8",
+        "summary": "Roll 5d8: creatures with that many hit points in total fall asleep, weakest first."
+       },
+       {
+        "id": "burning-hands",
+        "name": "Burning Hands",
+        "level": 1,
+        "castingTime": "action",
+        "range": "Self (15-ft cone)",
+        "save": "dex",
+        "dice": "3d6",
+        "damageType": "fire",
+        "summary": "A sheet of flame from your fingertips; half damage on a successful save."
+       },
+       {
+        "id": "detect-magic",
+        "name": "Detect Magic",
+        "level": 1,
+        "castingTime": "action",
+        "range": "Self",
+        "concentration": true,
+        "summary": "For 10 minutes you sense magic within 30 ft and can see its aura."
+       },
+       {
+        "id": "mage-armor",
+        "name": "Mage Armor",
+        "level": 1,
+        "castingTime": "action",
+        "range": "Touch",
+        "summary": "A creature without armour has AC 13 + DEX for 8 hours."
+       }
       ],
       "notes": "",
       "resources": [
@@ -1438,6 +3887,339 @@
       "deathSaves": {
        "successes": 0,
        "failures": 0
+      },
+      "sheet": {
+       "proficiency": 2,
+       "initiative": 2,
+       "passivePerception": 13,
+       "saves": [
+        {
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "ability": "con",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "ability": "int",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        }
+       ],
+       "skills": [
+        {
+         "name": "Acrobatics",
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "name": "Animal Handling",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Arcana",
+         "ability": "int",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Athletics",
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Deception",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "History",
+         "ability": "int",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Insight",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Intimidation",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Investigation",
+         "ability": "int",
+         "mod": 3,
+         "proficient": false
+        },
+        {
+         "name": "Medicine",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Nature",
+         "ability": "int",
+         "mod": 3,
+         "proficient": false
+        },
+        {
+         "name": "Perception",
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "name": "Performance",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Persuasion",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Religion",
+         "ability": "int",
+         "mod": 3,
+         "proficient": false
+        },
+        {
+         "name": "Sleight of Hand",
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "name": "Stealth",
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "name": "Survival",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        }
+       ],
+       "attacks": [
+        {
+         "name": "Quarterstaff",
+         "weaponId": "quarterstaff",
+         "ability": "str",
+         "toHit": 1,
+         "dice": "1d6",
+         "bonus": -1,
+         "damage": "1d6-1",
+         "damageType": "bludgeoning",
+         "versatile": "1d8",
+         "properties": [
+          "versatile (1d8)"
+         ],
+         "count": 1
+        },
+        {
+         "name": "Unarmed strike",
+         "ability": "str",
+         "toHit": 1,
+         "bonus": 0,
+         "damage": "1",
+         "damageType": "bludgeoning",
+         "properties": [],
+         "count": 1
+        }
+       ],
+       "spellcasting": {
+        "ability": "int",
+        "attack": 5,
+        "saveDc": 13,
+        "slots": "spell-slots-1"
+       },
+       "spells": [
+        {
+         "id": "fire-bolt",
+         "name": "Fire Bolt",
+         "level": 0,
+         "castingTime": "action",
+         "range": "120 ft",
+         "attack": "ranged",
+         "dice": "1d10",
+         "damageType": "fire",
+         "summary": "Hurl a mote of fire. Unattended flammable objects catch fire.",
+         "toHit": 5,
+         "roll": "1d10"
+        },
+        {
+         "id": "mage-hand",
+         "name": "Mage Hand",
+         "level": 0,
+         "castingTime": "action",
+         "range": "30 ft",
+         "summary": "A floating spectral hand that can carry up to 10 lb, open doors and fetch things for a minute."
+        },
+        {
+         "id": "light",
+         "name": "Light",
+         "level": 0,
+         "castingTime": "action",
+         "range": "Touch",
+         "summary": "An object shines like a torch (20 ft bright light) for an hour."
+        },
+        {
+         "id": "magic-missile",
+         "name": "Magic Missile",
+         "level": 1,
+         "castingTime": "action",
+         "range": "120 ft",
+         "dice": "1d4",
+         "bonus": 1,
+         "times": 3,
+         "damageType": "force",
+         "summary": "Three glowing darts that always hit; aim them at one creature or several.",
+         "roll": "1d4+1 ×3",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "shield",
+         "name": "Shield",
+         "level": 1,
+         "castingTime": "reaction",
+         "range": "Self",
+         "summary": "When you are hit: +5 AC until your next turn, including against that attack.",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "sleep",
+         "name": "Sleep",
+         "level": 1,
+         "castingTime": "action",
+         "range": "90 ft",
+         "dice": "5d8",
+         "summary": "Roll 5d8: creatures with that many hit points in total fall asleep, weakest first.",
+         "roll": "5d8",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "burning-hands",
+         "name": "Burning Hands",
+         "level": 1,
+         "castingTime": "action",
+         "range": "Self (15-ft cone)",
+         "save": "dex",
+         "dice": "3d6",
+         "damageType": "fire",
+         "summary": "A sheet of flame from your fingertips; half damage on a successful save.",
+         "saveDc": 13,
+         "roll": "3d6",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "detect-magic",
+         "name": "Detect Magic",
+         "level": 1,
+         "castingTime": "action",
+         "range": "Self",
+         "concentration": true,
+         "summary": "For 10 minutes you sense magic within 30 ft and can see its aura.",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "mage-armor",
+         "name": "Mage Armor",
+         "level": 1,
+         "castingTime": "action",
+         "range": "Touch",
+         "summary": "A creature without armour has AC 13 + DEX for 8 hours.",
+         "resourceId": "spell-slots-1"
+        }
+       ],
+       "features": [
+        {
+         "name": "Darkvision",
+         "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+         "source": "race"
+        },
+        {
+         "name": "Keen Senses",
+         "text": "Proficient in Perception.",
+         "source": "race"
+        },
+        {
+         "name": "Fey Ancestry",
+         "text": "Advantage on saves against being charmed; magic cannot put you to sleep.",
+         "source": "race"
+        },
+        {
+         "name": "Trance",
+         "text": "Four hours of meditation give you the rest of eight hours of sleep.",
+         "source": "race"
+        },
+        {
+         "name": "Wizard cantrip",
+         "text": "You know one wizard cantrip, cast with INT.",
+         "source": "race"
+        },
+        {
+         "name": "Arcane Recovery",
+         "text": "Once a day after a short rest, regain a spent spell slot.",
+         "source": "class",
+         "resourceId": "arcane-recovery"
+        }
+       ],
+       "inventory": [
+        {
+         "name": "Quarterstaff",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Component pouch",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Spellbook",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Scholar's pack",
+         "qty": 1,
+         "kind": "gear"
+        }
+       ]
       }
      }
     ],
@@ -1489,21 +4271,21 @@
       {
        "ref": {
         "kind": "hero",
-        "id": "bf0370"
+        "id": "754f90"
        },
        "ready": false
       },
       {
        "ref": {
         "kind": "hero",
-        "id": "5e81b5"
+        "id": "96d1bf"
        },
        "ready": false
       },
       {
        "ref": {
         "kind": "hero",
-        "id": "4f4da7"
+        "id": "c9cfa3"
        },
        "ready": false
       },
@@ -1519,7 +4301,7 @@
     "log": [
      {
       "seq": 2,
-      "at": "2026-10-27T20:47:35.686Z",
+      "at": "2026-10-28T06:10:21.889Z",
       "from": "system",
       "kind": "info",
       "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
@@ -1534,7 +4316,7 @@
      },
      {
       "seq": 3,
-      "at": "2026-10-27T20:47:35.687Z",
+      "at": "2026-10-28T06:10:21.891Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
@@ -1549,7 +4331,7 @@
      },
      {
       "seq": 4,
-      "at": "2026-10-27T20:47:35.688Z",
+      "at": "2026-10-28T06:10:21.892Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen the Elf (High) Wizard joins the party.",
@@ -1564,7 +4346,7 @@
      },
      {
       "seq": 5,
-      "at": "2026-10-27T20:47:35.689Z",
+      "at": "2026-10-28T06:10:21.894Z",
       "from": "system",
       "kind": "info",
       "text": "The adventure begins.",
@@ -1575,53 +4357,53 @@
      },
      {
       "seq": 8,
-      "at": "2026-10-27T20:47:35.699Z",
+      "at": "2026-10-28T06:10:21.908Z",
       "from": "dm",
       "kind": "narration",
       "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
      },
      {
       "seq": 9,
-      "at": "2026-10-27T20:47:35.700Z",
+      "at": "2026-10-28T06:10:21.909Z",
       "from": "player",
-      "characterId": "bf0370",
+      "characterId": "754f90",
       "kind": "action",
       "text": "I slide onto a stool at the bar and order whatever is warm."
      },
      {
       "seq": 10,
-      "at": "2026-10-27T20:47:35.701Z",
+      "at": "2026-10-28T06:10:21.910Z",
       "from": "player",
-      "characterId": "5e81b5",
+      "characterId": "96d1bf",
       "kind": "speech",
       "text": "\"Who rings a bell under the sea, old man?\""
      },
      {
       "seq": 11,
-      "at": "2026-10-27T20:47:35.703Z",
+      "at": "2026-10-28T06:10:21.912Z",
       "from": "dm",
       "kind": "narration",
       "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
      },
      {
       "seq": 12,
-      "at": "2026-10-27T20:47:35.704Z",
+      "at": "2026-10-28T06:10:21.913Z",
       "from": "player",
-      "characterId": "4f4da7",
+      "characterId": "c9cfa3",
       "kind": "question",
       "text": "Can I tell if the dripping comes from a cellar?"
      },
      {
       "seq": 13,
-      "at": "2026-10-27T20:47:35.706Z",
+      "at": "2026-10-28T06:10:21.915Z",
       "from": "dm",
-      "characterId": "4f4da7",
+      "characterId": "c9cfa3",
       "kind": "answer",
       "text": "You can try. Listen closely to where it comes from."
      },
      {
       "seq": 15,
-      "at": "2026-10-27T20:47:35.710Z",
+      "at": "2026-10-28T06:10:21.921Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen rolled Wisdom (Perception) check: 14 +3 = 17 — success",
@@ -1642,14 +4424,14 @@
      },
      {
       "seq": 16,
-      "at": "2026-10-27T20:47:35.712Z",
+      "at": "2026-10-28T06:10:21.923Z",
       "from": "dm",
       "kind": "narration",
       "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
      },
      {
       "seq": 18,
-      "at": "2026-10-27T20:47:35.717Z",
+      "at": "2026-10-28T06:10:21.930Z",
       "from": "system",
       "kind": "info",
       "text": "Mira rolled Dexterity (Stealth) check: 6 & 17 +5 = 22",
@@ -1670,14 +4452,14 @@
      },
      {
       "seq": 19,
-      "at": "2026-10-27T20:47:35.719Z",
+      "at": "2026-10-28T06:10:21.932Z",
       "from": "dm",
       "kind": "narration",
       "text": "The trapdoor bursts open. Three goblins, dripping with harbour water, scramble up with knives drawn!"
      },
      {
       "seq": 20,
-      "at": "2026-10-27T20:47:35.721Z",
+      "at": "2026-10-28T06:10:21.935Z",
       "from": "system",
       "kind": "info",
       "text": "Goblin is here.",
@@ -1692,7 +4474,7 @@
      },
      {
       "seq": 21,
-      "at": "2026-10-27T20:47:35.724Z",
+      "at": "2026-10-28T06:10:21.939Z",
       "from": "system",
       "kind": "info",
       "text": "Fight!",
@@ -1704,8 +4486,8 @@
     ],
     "pendingRolls": [
      {
-      "rollId": "init-bf0370-20",
-      "characterId": "bf0370",
+      "rollId": "init-754f90-20",
+      "characterId": "754f90",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 3,
@@ -1715,8 +4497,8 @@
       "requestedSeq": 22
      },
      {
-      "rollId": "init-5e81b5-20",
-      "characterId": "5e81b5",
+      "rollId": "init-96d1bf-20",
+      "characterId": "96d1bf",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 1,
@@ -1726,8 +4508,8 @@
       "requestedSeq": 23
      },
      {
-      "rollId": "init-4f4da7-20",
-      "characterId": "4f4da7",
+      "rollId": "init-c9cfa3-20",
+      "characterId": "c9cfa3",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 2,
@@ -1739,8 +4521,8 @@
     ],
     "rolls": [
      {
-      "rollId": "1344eb89",
-      "characterId": "4f4da7",
+      "rollId": "66fe57b7",
+      "characterId": "c9cfa3",
       "label": "Wisdom (Perception) check",
       "dice": "1d20",
       "modifier": 3,
@@ -1756,8 +4538,8 @@
       "byDm": false
      },
      {
-      "rollId": "863f8fb5",
-      "characterId": "bf0370",
+      "rollId": "7ce33c3c",
+      "characterId": "754f90",
       "label": "Dexterity (Stealth) check",
       "dice": "1d20",
       "modifier": 5,
@@ -1789,46 +4571,46 @@
    "history": [
     {
      "seq": 2,
-     "at": "2026-10-27T20:47:35.686Z",
+     "at": "2026-10-28T06:10:21.889Z",
      "type": "character",
      "who": "Mira",
      "text": "Halfling (Lightfoot) Rogue"
     },
     {
      "seq": 3,
-     "at": "2026-10-27T20:47:35.687Z",
+     "at": "2026-10-28T06:10:21.891Z",
      "type": "character",
      "who": "Torvald",
      "text": "Dwarf (Hill) Fighter"
     },
     {
      "seq": 4,
-     "at": "2026-10-27T20:47:35.688Z",
+     "at": "2026-10-28T06:10:21.892Z",
      "type": "character",
      "who": "Elowen",
      "text": "Elf (High) Wizard"
     },
     {
      "seq": 5,
-     "at": "2026-10-27T20:47:35.689Z",
+     "at": "2026-10-28T06:10:21.894Z",
      "type": "started",
      "text": ""
     },
     {
      "seq": 6,
-     "at": "2026-10-27T20:47:35.692Z",
+     "at": "2026-10-28T06:10:21.900Z",
      "type": "scene",
      "text": "The Drowned Lantern — taproom"
     },
     {
      "seq": 7,
-     "at": "2026-10-27T20:47:35.696Z",
+     "at": "2026-10-28T06:10:21.905Z",
      "type": "sketch",
      "text": "The taproom of the Drowned Lantern"
     },
     {
      "seq": 8,
-     "at": "2026-10-27T20:47:35.699Z",
+     "at": "2026-10-28T06:10:21.908Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -1836,7 +4618,7 @@
     },
     {
      "seq": 9,
-     "at": "2026-10-27T20:47:35.700Z",
+     "at": "2026-10-28T06:10:21.909Z",
      "type": "player",
      "kind": "action",
      "who": "Mira",
@@ -1844,7 +4626,7 @@
     },
     {
      "seq": 10,
-     "at": "2026-10-27T20:47:35.701Z",
+     "at": "2026-10-28T06:10:21.910Z",
      "type": "player",
      "kind": "speech",
      "who": "Torvald",
@@ -1852,7 +4634,7 @@
     },
     {
      "seq": 11,
-     "at": "2026-10-27T20:47:35.703Z",
+     "at": "2026-10-28T06:10:21.912Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -1860,7 +4642,7 @@
     },
     {
      "seq": 12,
-     "at": "2026-10-27T20:47:35.704Z",
+     "at": "2026-10-28T06:10:21.913Z",
      "type": "player",
      "kind": "question",
      "who": "Elowen",
@@ -1868,7 +4650,7 @@
     },
     {
      "seq": 13,
-     "at": "2026-10-27T20:47:35.706Z",
+     "at": "2026-10-28T06:10:21.915Z",
      "type": "dm",
      "kind": "answer",
      "who": null,
@@ -1876,14 +4658,14 @@
     },
     {
      "seq": 14,
-     "at": "2026-10-27T20:47:35.708Z",
+     "at": "2026-10-28T06:10:21.918Z",
      "type": "rollRequested",
      "who": "Elowen",
      "text": "Wisdom (Perception) check"
     },
     {
      "seq": 15,
-     "at": "2026-10-27T20:47:35.710Z",
+     "at": "2026-10-28T06:10:21.921Z",
      "type": "roll",
      "text": "Wisdom (Perception) check: 14 → 17",
      "label": "Wisdom (Perception) check",
@@ -1891,7 +4673,7 @@
     },
     {
      "seq": 16,
-     "at": "2026-10-27T20:47:35.712Z",
+     "at": "2026-10-28T06:10:21.923Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -1899,14 +4681,14 @@
     },
     {
      "seq": 17,
-     "at": "2026-10-27T20:47:35.715Z",
+     "at": "2026-10-28T06:10:21.925Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Dexterity (Stealth) check"
     },
     {
      "seq": 18,
-     "at": "2026-10-27T20:47:35.717Z",
+     "at": "2026-10-28T06:10:21.930Z",
      "type": "roll",
      "text": "Dexterity (Stealth) check: 6 & 17 → 22",
      "label": "Dexterity (Stealth) check",
@@ -1914,7 +4696,7 @@
     },
     {
      "seq": 19,
-     "at": "2026-10-27T20:47:35.719Z",
+     "at": "2026-10-28T06:10:21.932Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -1922,7 +4704,7 @@
     },
     {
      "seq": 22,
-     "at": "2026-10-27T20:47:35.724Z",
+     "at": "2026-10-28T06:10:21.939Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Initiative",
@@ -1930,7 +4712,7 @@
     },
     {
      "seq": 23,
-     "at": "2026-10-27T20:47:35.724Z",
+     "at": "2026-10-28T06:10:21.940Z",
      "type": "rollRequested",
      "who": "Torvald",
      "text": "Initiative",
@@ -1938,7 +4720,7 @@
     },
     {
      "seq": 24,
-     "at": "2026-10-27T20:47:35.724Z",
+     "at": "2026-10-28T06:10:21.940Z",
      "type": "rollRequested",
      "who": "Elowen",
      "text": "Initiative",
@@ -1947,9 +4729,9 @@
    ]
   },
   "combat": {
-   "id": "3304125b",
+   "id": "2e397bbd",
    "state": {
-    "id": "3304125b",
+    "id": "2e397bbd",
     "title": "The Drowned Lantern",
     "seq": 32,
     "scene": {
@@ -1959,7 +4741,7 @@
     },
     "characters": [
      {
-      "id": "bf0370",
+      "id": "754f90",
       "name": "Mira",
       "player": "Veikko",
       "raceId": "halfling",
@@ -2002,8 +4784,12 @@
         "qty": 1
        },
        {
-        "name": "Shortbow + 20 arrows",
+        "name": "Shortbow",
         "qty": 1
+       },
+       {
+        "name": "Arrows",
+        "qty": 20
        },
        {
         "name": "Thieves' tools",
@@ -2014,22 +4800,51 @@
         "qty": 1
        },
        {
-        "name": "2 Daggers",
-        "qty": 1
+        "name": "Dagger",
+        "qty": 2
        }
       ],
       "gold": 10,
       "xp": 0,
       "conditions": [],
       "features": [
-       "Lucky (reroll natural 1s)",
-       "Brave",
-       "Halfling Nimbleness",
-       "Naturally Stealthy",
-       "Sneak Attack (1d6)",
-       "Expertise (Stealth, Thieves' tools)",
-       "Thieves' Cant"
+       {
+        "name": "Lucky",
+        "text": "When you roll a 1 on an attack, check or save, reroll it and use the new roll.",
+        "source": "race"
+       },
+       {
+        "name": "Brave",
+        "text": "Advantage on saves against being frightened.",
+        "source": "race"
+       },
+       {
+        "name": "Halfling Nimbleness",
+        "text": "You can move through the space of any creature larger than you.",
+        "source": "race"
+       },
+       {
+        "name": "Naturally Stealthy",
+        "text": "You can try to hide behind a creature at least one size larger than you.",
+        "source": "race"
+       },
+       {
+        "name": "Sneak Attack",
+        "text": "Once per turn, +1d6 damage with a finesse or ranged weapon when you have advantage or an ally is next to the target.",
+        "source": "class"
+       },
+       {
+        "name": "Expertise",
+        "text": "Double proficiency in Stealth and with thieves' tools.",
+        "source": "class"
+       },
+       {
+        "name": "Thieves' Cant",
+        "text": "A secret mix of slang and signs only rogues understand.",
+        "source": "class"
+       }
       ],
+      "spells": [],
       "notes": "",
       "resources": [
        {
@@ -2044,10 +4859,291 @@
       "deathSaves": {
        "successes": 0,
        "failures": 0
+      },
+      "sheet": {
+       "proficiency": 2,
+       "initiative": 3,
+       "passivePerception": 13,
+       "saves": [
+        {
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "ability": "con",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "ability": "int",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        }
+       ],
+       "skills": [
+        {
+         "name": "Acrobatics",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Animal Handling",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Arcana",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Athletics",
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Deception",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "History",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Insight",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Intimidation",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Investigation",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Medicine",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Nature",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Perception",
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "name": "Performance",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Persuasion",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Religion",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Sleight of Hand",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Stealth",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Survival",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        }
+       ],
+       "attacks": [
+        {
+         "name": "Rapier",
+         "weaponId": "rapier",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d8",
+         "bonus": 3,
+         "damage": "1d8+3",
+         "damageType": "piercing",
+         "properties": [
+          "finesse"
+         ],
+         "count": 1
+        },
+        {
+         "name": "Shortbow",
+         "weaponId": "shortbow",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d6",
+         "bonus": 3,
+         "damage": "1d6+3",
+         "damageType": "piercing",
+         "range": "80/320",
+         "properties": [
+          "two-handed"
+         ],
+         "count": 1,
+         "ammo": 20
+        },
+        {
+         "name": "Dagger",
+         "weaponId": "dagger",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d4",
+         "bonus": 3,
+         "damage": "1d4+3",
+         "damageType": "piercing",
+         "range": "20/60",
+         "properties": [
+          "finesse",
+          "light",
+          "thrown (20/60)"
+         ],
+         "count": 2
+        },
+        {
+         "name": "Unarmed strike",
+         "ability": "str",
+         "toHit": 1,
+         "bonus": 0,
+         "damage": "1",
+         "damageType": "bludgeoning",
+         "properties": [],
+         "count": 1
+        }
+       ],
+       "spells": [],
+       "features": [
+        {
+         "name": "Lucky",
+         "text": "When you roll a 1 on an attack, check or save, reroll it and use the new roll.",
+         "source": "race"
+        },
+        {
+         "name": "Brave",
+         "text": "Advantage on saves against being frightened.",
+         "source": "race"
+        },
+        {
+         "name": "Halfling Nimbleness",
+         "text": "You can move through the space of any creature larger than you.",
+         "source": "race"
+        },
+        {
+         "name": "Naturally Stealthy",
+         "text": "You can try to hide behind a creature at least one size larger than you.",
+         "source": "race"
+        },
+        {
+         "name": "Sneak Attack",
+         "text": "Once per turn, +1d6 damage with a finesse or ranged weapon when you have advantage or an ally is next to the target.",
+         "source": "class"
+        },
+        {
+         "name": "Expertise",
+         "text": "Double proficiency in Stealth and with thieves' tools.",
+         "source": "class"
+        },
+        {
+         "name": "Thieves' Cant",
+         "text": "A secret mix of slang and signs only rogues understand.",
+         "source": "class"
+        }
+       ],
+       "inventory": [
+        {
+         "name": "Leather armour",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Rapier",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Shortbow",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Arrows",
+         "qty": 20,
+         "kind": "ammo"
+        },
+        {
+         "name": "Thieves' tools",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Burglar's pack",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Dagger",
+         "qty": 2,
+         "kind": "weapon"
+        }
+       ]
       }
      },
      {
-      "id": "5e81b5",
+      "id": "96d1bf",
       "name": "Torvald",
       "player": "Ann",
       "raceId": "dwarf",
@@ -2092,8 +5188,8 @@
         "qty": 1
        },
        {
-        "name": "2 Handaxes",
-        "qty": 1
+        "name": "Handaxe",
+        "qty": 2
        },
        {
         "name": "Explorer's pack",
@@ -2104,13 +5200,39 @@
       "xp": 0,
       "conditions": [],
       "features": [
-       "Darkvision 60 ft",
-       "Dwarven Resilience (poison)",
-       "Stonecunning",
-       "Dwarven Toughness (+1 HP/level)",
-       "Fighting Style: Defense",
-       "Second Wind (bonus action: heal 1d10 + level, once per rest)"
+       {
+        "name": "Darkvision",
+        "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+        "source": "race"
+       },
+       {
+        "name": "Dwarven Resilience",
+        "text": "Advantage on saves against poison, and resistance to poison damage.",
+        "source": "race"
+       },
+       {
+        "name": "Stonecunning",
+        "text": "Double proficiency on History checks about stonework.",
+        "source": "race"
+       },
+       {
+        "name": "Dwarven Toughness",
+        "text": "+1 hit point per level.",
+        "source": "race"
+       },
+       {
+        "name": "Fighting Style: Defense",
+        "text": "+1 AC while wearing armour (already counted).",
+        "source": "class"
+       },
+       {
+        "name": "Second Wind",
+        "text": "Bonus action: regain 1d10 + your level in hit points.",
+        "source": "class",
+        "resourceId": "second-wind"
+       }
       ],
+      "spells": [],
       "notes": "",
       "resources": [
        {
@@ -2132,10 +5254,261 @@
       "deathSaves": {
        "successes": 0,
        "failures": 0
+      },
+      "sheet": {
+       "proficiency": 2,
+       "initiative": 1,
+       "passivePerception": 13,
+       "saves": [
+        {
+         "ability": "str",
+         "mod": 4,
+         "proficient": true
+        },
+        {
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "con",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        }
+       ],
+       "skills": [
+        {
+         "name": "Acrobatics",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Animal Handling",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Arcana",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Athletics",
+         "ability": "str",
+         "mod": 4,
+         "proficient": true
+        },
+        {
+         "name": "Deception",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "History",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Insight",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Intimidation",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Investigation",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Medicine",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Nature",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Perception",
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "name": "Performance",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Persuasion",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Religion",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Sleight of Hand",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Stealth",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Survival",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        }
+       ],
+       "attacks": [
+        {
+         "name": "Longsword",
+         "weaponId": "longsword",
+         "ability": "str",
+         "toHit": 4,
+         "dice": "1d8",
+         "bonus": 2,
+         "damage": "1d8+2",
+         "damageType": "slashing",
+         "versatile": "1d10",
+         "properties": [
+          "versatile (1d10)"
+         ],
+         "count": 1
+        },
+        {
+         "name": "Handaxe",
+         "weaponId": "handaxe",
+         "ability": "str",
+         "toHit": 4,
+         "dice": "1d6",
+         "bonus": 2,
+         "damage": "1d6+2",
+         "damageType": "slashing",
+         "range": "20/60",
+         "properties": [
+          "light",
+          "thrown (20/60)"
+         ],
+         "count": 2
+        },
+        {
+         "name": "Unarmed strike",
+         "ability": "str",
+         "toHit": 4,
+         "bonus": 3,
+         "damage": "3",
+         "damageType": "bludgeoning",
+         "properties": [],
+         "count": 1
+        }
+       ],
+       "spells": [],
+       "features": [
+        {
+         "name": "Darkvision",
+         "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+         "source": "race"
+        },
+        {
+         "name": "Dwarven Resilience",
+         "text": "Advantage on saves against poison, and resistance to poison damage.",
+         "source": "race"
+        },
+        {
+         "name": "Stonecunning",
+         "text": "Double proficiency on History checks about stonework.",
+         "source": "race"
+        },
+        {
+         "name": "Dwarven Toughness",
+         "text": "+1 hit point per level.",
+         "source": "race"
+        },
+        {
+         "name": "Fighting Style: Defense",
+         "text": "+1 AC while wearing armour (already counted).",
+         "source": "class"
+        },
+        {
+         "name": "Second Wind",
+         "text": "Bonus action: regain 1d10 + your level in hit points.",
+         "source": "class",
+         "resourceId": "second-wind"
+        }
+       ],
+       "inventory": [
+        {
+         "name": "Chain mail",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Shield",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Longsword",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Handaxe",
+         "qty": 2,
+         "kind": "weapon"
+        },
+        {
+         "name": "Explorer's pack",
+         "qty": 1,
+         "kind": "gear"
+        }
+       ]
       }
      },
      {
-      "id": "4f4da7",
+      "id": "c9cfa3",
       "name": "Elowen",
       "player": "Sam",
       "raceId": "elf",
@@ -2191,13 +5564,123 @@
        "Frightened"
       ],
       "features": [
-       "Darkvision 60 ft",
-       "Keen Senses (Perception)",
-       "Fey Ancestry",
-       "Trance",
-       "One wizard cantrip",
-       "Spellcasting (INT): cantrips Fire Bolt, Mage Hand, Light; prepared from Magic Missile, Shield, Sleep, Burning Hands, Detect Magic, Mage Armor; 2 first-level slots",
-       "Arcane Recovery"
+       {
+        "name": "Darkvision",
+        "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+        "source": "race"
+       },
+       {
+        "name": "Keen Senses",
+        "text": "Proficient in Perception.",
+        "source": "race"
+       },
+       {
+        "name": "Fey Ancestry",
+        "text": "Advantage on saves against being charmed; magic cannot put you to sleep.",
+        "source": "race"
+       },
+       {
+        "name": "Trance",
+        "text": "Four hours of meditation give you the rest of eight hours of sleep.",
+        "source": "race"
+       },
+       {
+        "name": "Wizard cantrip",
+        "text": "You know one wizard cantrip, cast with INT.",
+        "source": "race"
+       },
+       {
+        "name": "Arcane Recovery",
+        "text": "Once a day after a short rest, regain a spent spell slot.",
+        "source": "class",
+        "resourceId": "arcane-recovery"
+       }
+      ],
+      "spells": [
+       {
+        "id": "fire-bolt",
+        "name": "Fire Bolt",
+        "level": 0,
+        "castingTime": "action",
+        "range": "120 ft",
+        "attack": "ranged",
+        "dice": "1d10",
+        "damageType": "fire",
+        "summary": "Hurl a mote of fire. Unattended flammable objects catch fire."
+       },
+       {
+        "id": "mage-hand",
+        "name": "Mage Hand",
+        "level": 0,
+        "castingTime": "action",
+        "range": "30 ft",
+        "summary": "A floating spectral hand that can carry up to 10 lb, open doors and fetch things for a minute."
+       },
+       {
+        "id": "light",
+        "name": "Light",
+        "level": 0,
+        "castingTime": "action",
+        "range": "Touch",
+        "summary": "An object shines like a torch (20 ft bright light) for an hour."
+       },
+       {
+        "id": "magic-missile",
+        "name": "Magic Missile",
+        "level": 1,
+        "castingTime": "action",
+        "range": "120 ft",
+        "dice": "1d4",
+        "bonus": 1,
+        "times": 3,
+        "damageType": "force",
+        "summary": "Three glowing darts that always hit; aim them at one creature or several."
+       },
+       {
+        "id": "shield",
+        "name": "Shield",
+        "level": 1,
+        "castingTime": "reaction",
+        "range": "Self",
+        "summary": "When you are hit: +5 AC until your next turn, including against that attack."
+       },
+       {
+        "id": "sleep",
+        "name": "Sleep",
+        "level": 1,
+        "castingTime": "action",
+        "range": "90 ft",
+        "dice": "5d8",
+        "summary": "Roll 5d8: creatures with that many hit points in total fall asleep, weakest first."
+       },
+       {
+        "id": "burning-hands",
+        "name": "Burning Hands",
+        "level": 1,
+        "castingTime": "action",
+        "range": "Self (15-ft cone)",
+        "save": "dex",
+        "dice": "3d6",
+        "damageType": "fire",
+        "summary": "A sheet of flame from your fingertips; half damage on a successful save."
+       },
+       {
+        "id": "detect-magic",
+        "name": "Detect Magic",
+        "level": 1,
+        "castingTime": "action",
+        "range": "Self",
+        "concentration": true,
+        "summary": "For 10 minutes you sense magic within 30 ft and can see its aura."
+       },
+       {
+        "id": "mage-armor",
+        "name": "Mage Armor",
+        "level": 1,
+        "castingTime": "action",
+        "range": "Touch",
+        "summary": "A creature without armour has AC 13 + DEX for 8 hours."
+       }
       ],
       "notes": "",
       "resources": [
@@ -2227,6 +5710,339 @@
       "deathSaves": {
        "successes": 0,
        "failures": 0
+      },
+      "sheet": {
+       "proficiency": 2,
+       "initiative": 2,
+       "passivePerception": 13,
+       "saves": [
+        {
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "ability": "con",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "ability": "int",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        }
+       ],
+       "skills": [
+        {
+         "name": "Acrobatics",
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "name": "Animal Handling",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Arcana",
+         "ability": "int",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Athletics",
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Deception",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "History",
+         "ability": "int",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Insight",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Intimidation",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Investigation",
+         "ability": "int",
+         "mod": 3,
+         "proficient": false
+        },
+        {
+         "name": "Medicine",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Nature",
+         "ability": "int",
+         "mod": 3,
+         "proficient": false
+        },
+        {
+         "name": "Perception",
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "name": "Performance",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Persuasion",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Religion",
+         "ability": "int",
+         "mod": 3,
+         "proficient": false
+        },
+        {
+         "name": "Sleight of Hand",
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "name": "Stealth",
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "name": "Survival",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        }
+       ],
+       "attacks": [
+        {
+         "name": "Quarterstaff",
+         "weaponId": "quarterstaff",
+         "ability": "str",
+         "toHit": 1,
+         "dice": "1d6",
+         "bonus": -1,
+         "damage": "1d6-1",
+         "damageType": "bludgeoning",
+         "versatile": "1d8",
+         "properties": [
+          "versatile (1d8)"
+         ],
+         "count": 1
+        },
+        {
+         "name": "Unarmed strike",
+         "ability": "str",
+         "toHit": 1,
+         "bonus": 0,
+         "damage": "1",
+         "damageType": "bludgeoning",
+         "properties": [],
+         "count": 1
+        }
+       ],
+       "spellcasting": {
+        "ability": "int",
+        "attack": 5,
+        "saveDc": 13,
+        "slots": "spell-slots-1"
+       },
+       "spells": [
+        {
+         "id": "fire-bolt",
+         "name": "Fire Bolt",
+         "level": 0,
+         "castingTime": "action",
+         "range": "120 ft",
+         "attack": "ranged",
+         "dice": "1d10",
+         "damageType": "fire",
+         "summary": "Hurl a mote of fire. Unattended flammable objects catch fire.",
+         "toHit": 5,
+         "roll": "1d10"
+        },
+        {
+         "id": "mage-hand",
+         "name": "Mage Hand",
+         "level": 0,
+         "castingTime": "action",
+         "range": "30 ft",
+         "summary": "A floating spectral hand that can carry up to 10 lb, open doors and fetch things for a minute."
+        },
+        {
+         "id": "light",
+         "name": "Light",
+         "level": 0,
+         "castingTime": "action",
+         "range": "Touch",
+         "summary": "An object shines like a torch (20 ft bright light) for an hour."
+        },
+        {
+         "id": "magic-missile",
+         "name": "Magic Missile",
+         "level": 1,
+         "castingTime": "action",
+         "range": "120 ft",
+         "dice": "1d4",
+         "bonus": 1,
+         "times": 3,
+         "damageType": "force",
+         "summary": "Three glowing darts that always hit; aim them at one creature or several.",
+         "roll": "1d4+1 ×3",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "shield",
+         "name": "Shield",
+         "level": 1,
+         "castingTime": "reaction",
+         "range": "Self",
+         "summary": "When you are hit: +5 AC until your next turn, including against that attack.",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "sleep",
+         "name": "Sleep",
+         "level": 1,
+         "castingTime": "action",
+         "range": "90 ft",
+         "dice": "5d8",
+         "summary": "Roll 5d8: creatures with that many hit points in total fall asleep, weakest first.",
+         "roll": "5d8",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "burning-hands",
+         "name": "Burning Hands",
+         "level": 1,
+         "castingTime": "action",
+         "range": "Self (15-ft cone)",
+         "save": "dex",
+         "dice": "3d6",
+         "damageType": "fire",
+         "summary": "A sheet of flame from your fingertips; half damage on a successful save.",
+         "saveDc": 13,
+         "roll": "3d6",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "detect-magic",
+         "name": "Detect Magic",
+         "level": 1,
+         "castingTime": "action",
+         "range": "Self",
+         "concentration": true,
+         "summary": "For 10 minutes you sense magic within 30 ft and can see its aura.",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "mage-armor",
+         "name": "Mage Armor",
+         "level": 1,
+         "castingTime": "action",
+         "range": "Touch",
+         "summary": "A creature without armour has AC 13 + DEX for 8 hours.",
+         "resourceId": "spell-slots-1"
+        }
+       ],
+       "features": [
+        {
+         "name": "Darkvision",
+         "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+         "source": "race"
+        },
+        {
+         "name": "Keen Senses",
+         "text": "Proficient in Perception.",
+         "source": "race"
+        },
+        {
+         "name": "Fey Ancestry",
+         "text": "Advantage on saves against being charmed; magic cannot put you to sleep.",
+         "source": "race"
+        },
+        {
+         "name": "Trance",
+         "text": "Four hours of meditation give you the rest of eight hours of sleep.",
+         "source": "race"
+        },
+        {
+         "name": "Wizard cantrip",
+         "text": "You know one wizard cantrip, cast with INT.",
+         "source": "race"
+        },
+        {
+         "name": "Arcane Recovery",
+         "text": "Once a day after a short rest, regain a spent spell slot.",
+         "source": "class",
+         "resourceId": "arcane-recovery"
+        }
+       ],
+       "inventory": [
+        {
+         "name": "Quarterstaff",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Component pouch",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Spellbook",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Scholar's pack",
+         "qty": 1,
+         "kind": "gear"
+        }
+       ]
       }
      }
     ],
@@ -2278,7 +6094,7 @@
       {
        "ref": {
         "kind": "hero",
-        "id": "bf0370"
+        "id": "754f90"
        },
        "ready": true
       },
@@ -2292,14 +6108,14 @@
       {
        "ref": {
         "kind": "hero",
-        "id": "4f4da7"
+        "id": "c9cfa3"
        },
        "ready": true
       },
       {
        "ref": {
         "kind": "hero",
-        "id": "5e81b5"
+        "id": "96d1bf"
        },
        "ready": true
       }
@@ -2308,7 +6124,7 @@
     "log": [
      {
       "seq": 2,
-      "at": "2026-10-27T20:47:35.686Z",
+      "at": "2026-10-28T06:10:21.889Z",
       "from": "system",
       "kind": "info",
       "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
@@ -2323,7 +6139,7 @@
      },
      {
       "seq": 3,
-      "at": "2026-10-27T20:47:35.687Z",
+      "at": "2026-10-28T06:10:21.891Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
@@ -2338,7 +6154,7 @@
      },
      {
       "seq": 4,
-      "at": "2026-10-27T20:47:35.688Z",
+      "at": "2026-10-28T06:10:21.892Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen the Elf (High) Wizard joins the party.",
@@ -2353,7 +6169,7 @@
      },
      {
       "seq": 5,
-      "at": "2026-10-27T20:47:35.689Z",
+      "at": "2026-10-28T06:10:21.894Z",
       "from": "system",
       "kind": "info",
       "text": "The adventure begins.",
@@ -2364,53 +6180,53 @@
      },
      {
       "seq": 8,
-      "at": "2026-10-27T20:47:35.699Z",
+      "at": "2026-10-28T06:10:21.908Z",
       "from": "dm",
       "kind": "narration",
       "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
      },
      {
       "seq": 9,
-      "at": "2026-10-27T20:47:35.700Z",
+      "at": "2026-10-28T06:10:21.909Z",
       "from": "player",
-      "characterId": "bf0370",
+      "characterId": "754f90",
       "kind": "action",
       "text": "I slide onto a stool at the bar and order whatever is warm."
      },
      {
       "seq": 10,
-      "at": "2026-10-27T20:47:35.701Z",
+      "at": "2026-10-28T06:10:21.910Z",
       "from": "player",
-      "characterId": "5e81b5",
+      "characterId": "96d1bf",
       "kind": "speech",
       "text": "\"Who rings a bell under the sea, old man?\""
      },
      {
       "seq": 11,
-      "at": "2026-10-27T20:47:35.703Z",
+      "at": "2026-10-28T06:10:21.912Z",
       "from": "dm",
       "kind": "narration",
       "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
      },
      {
       "seq": 12,
-      "at": "2026-10-27T20:47:35.704Z",
+      "at": "2026-10-28T06:10:21.913Z",
       "from": "player",
-      "characterId": "4f4da7",
+      "characterId": "c9cfa3",
       "kind": "question",
       "text": "Can I tell if the dripping comes from a cellar?"
      },
      {
       "seq": 13,
-      "at": "2026-10-27T20:47:35.706Z",
+      "at": "2026-10-28T06:10:21.915Z",
       "from": "dm",
-      "characterId": "4f4da7",
+      "characterId": "c9cfa3",
       "kind": "answer",
       "text": "You can try. Listen closely to where it comes from."
      },
      {
       "seq": 15,
-      "at": "2026-10-27T20:47:35.710Z",
+      "at": "2026-10-28T06:10:21.921Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen rolled Wisdom (Perception) check: 14 +3 = 17 — success",
@@ -2431,14 +6247,14 @@
      },
      {
       "seq": 16,
-      "at": "2026-10-27T20:47:35.712Z",
+      "at": "2026-10-28T06:10:21.923Z",
       "from": "dm",
       "kind": "narration",
       "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
      },
      {
       "seq": 18,
-      "at": "2026-10-27T20:47:35.717Z",
+      "at": "2026-10-28T06:10:21.930Z",
       "from": "system",
       "kind": "info",
       "text": "Mira rolled Dexterity (Stealth) check: 6 & 17 +5 = 22",
@@ -2459,14 +6275,14 @@
      },
      {
       "seq": 19,
-      "at": "2026-10-27T20:47:35.719Z",
+      "at": "2026-10-28T06:10:21.932Z",
       "from": "dm",
       "kind": "narration",
       "text": "The trapdoor bursts open. Three goblins, dripping with harbour water, scramble up with knives drawn!"
      },
      {
       "seq": 20,
-      "at": "2026-10-27T20:47:35.721Z",
+      "at": "2026-10-28T06:10:21.935Z",
       "from": "system",
       "kind": "info",
       "text": "Goblin is here.",
@@ -2481,7 +6297,7 @@
      },
      {
       "seq": 21,
-      "at": "2026-10-27T20:47:35.724Z",
+      "at": "2026-10-28T06:10:21.939Z",
       "from": "system",
       "kind": "info",
       "text": "Fight!",
@@ -2492,7 +6308,7 @@
      },
      {
       "seq": 25,
-      "at": "2026-10-27T20:47:35.727Z",
+      "at": "2026-10-28T06:10:21.943Z",
       "from": "system",
       "kind": "info",
       "text": "Mira rolled Initiative: 18 +3 = 21",
@@ -2513,7 +6329,7 @@
      },
      {
       "seq": 26,
-      "at": "2026-10-27T20:47:35.728Z",
+      "at": "2026-10-28T06:10:21.944Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald rolled Initiative: 4 +1 = 5",
@@ -2534,7 +6350,7 @@
      },
      {
       "seq": 27,
-      "at": "2026-10-27T20:47:35.728Z",
+      "at": "2026-10-28T06:10:21.945Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen rolled Initiative: 11 +2 = 13",
@@ -2555,7 +6371,7 @@
      },
      {
       "seq": 27,
-      "at": "2026-10-27T20:47:35.728Z",
+      "at": "2026-10-28T06:10:21.945Z",
       "from": "system",
       "kind": "info",
       "text": "Turn order: Mira, Goblin, Elowen, Torvald.",
@@ -2573,7 +6389,7 @@
      },
      {
       "seq": 28,
-      "at": "2026-10-27T20:47:35.731Z",
+      "at": "2026-10-28T06:10:21.947Z",
       "from": "system",
       "kind": "info",
       "text": "Goblin: now bloodied",
@@ -2587,7 +6403,7 @@
      },
      {
       "seq": 29,
-      "at": "2026-10-27T20:47:35.733Z",
+      "at": "2026-10-28T06:10:21.949Z",
       "from": "system",
       "kind": "info",
       "text": "Goblin is defeated.",
@@ -2600,7 +6416,7 @@
      },
      {
       "seq": 30,
-      "at": "2026-10-27T20:47:35.735Z",
+      "at": "2026-10-28T06:10:21.952Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald: hp 14 → 8 (goblin knife)",
@@ -2620,7 +6436,7 @@
      },
      {
       "seq": 31,
-      "at": "2026-10-27T20:47:35.737Z",
+      "at": "2026-10-28T06:10:21.955Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen: condOn Frightened (a goblin shriek)",
@@ -2641,8 +6457,8 @@
     ],
     "pendingRolls": [
      {
-      "rollId": "e1664e6d",
-      "characterId": "5e81b5",
+      "rollId": "c22d3b94",
+      "characterId": "96d1bf",
       "label": "Battleaxe attack",
       "dice": "1d20",
       "modifier": 5,
@@ -2653,8 +6469,8 @@
     ],
     "rolls": [
      {
-      "rollId": "1344eb89",
-      "characterId": "4f4da7",
+      "rollId": "66fe57b7",
+      "characterId": "c9cfa3",
       "label": "Wisdom (Perception) check",
       "dice": "1d20",
       "modifier": 3,
@@ -2670,8 +6486,8 @@
       "byDm": false
      },
      {
-      "rollId": "863f8fb5",
-      "characterId": "bf0370",
+      "rollId": "7ce33c3c",
+      "characterId": "754f90",
       "label": "Dexterity (Stealth) check",
       "dice": "1d20",
       "modifier": 5,
@@ -2687,8 +6503,8 @@
       "byDm": false
      },
      {
-      "rollId": "init-bf0370-20",
-      "characterId": "bf0370",
+      "rollId": "init-754f90-20",
+      "characterId": "754f90",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 3,
@@ -2704,8 +6520,8 @@
       "byDm": false
      },
      {
-      "rollId": "init-5e81b5-20",
-      "characterId": "5e81b5",
+      "rollId": "init-96d1bf-20",
+      "characterId": "96d1bf",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 1,
@@ -2721,8 +6537,8 @@
       "byDm": false
      },
      {
-      "rollId": "init-4f4da7-20",
-      "characterId": "4f4da7",
+      "rollId": "init-c9cfa3-20",
+      "characterId": "c9cfa3",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 2,
@@ -2754,46 +6570,46 @@
    "history": [
     {
      "seq": 2,
-     "at": "2026-10-27T20:47:35.686Z",
+     "at": "2026-10-28T06:10:21.889Z",
      "type": "character",
      "who": "Mira",
      "text": "Halfling (Lightfoot) Rogue"
     },
     {
      "seq": 3,
-     "at": "2026-10-27T20:47:35.687Z",
+     "at": "2026-10-28T06:10:21.891Z",
      "type": "character",
      "who": "Torvald",
      "text": "Dwarf (Hill) Fighter"
     },
     {
      "seq": 4,
-     "at": "2026-10-27T20:47:35.688Z",
+     "at": "2026-10-28T06:10:21.892Z",
      "type": "character",
      "who": "Elowen",
      "text": "Elf (High) Wizard"
     },
     {
      "seq": 5,
-     "at": "2026-10-27T20:47:35.689Z",
+     "at": "2026-10-28T06:10:21.894Z",
      "type": "started",
      "text": ""
     },
     {
      "seq": 6,
-     "at": "2026-10-27T20:47:35.692Z",
+     "at": "2026-10-28T06:10:21.900Z",
      "type": "scene",
      "text": "The Drowned Lantern — taproom"
     },
     {
      "seq": 7,
-     "at": "2026-10-27T20:47:35.696Z",
+     "at": "2026-10-28T06:10:21.905Z",
      "type": "sketch",
      "text": "The taproom of the Drowned Lantern"
     },
     {
      "seq": 8,
-     "at": "2026-10-27T20:47:35.699Z",
+     "at": "2026-10-28T06:10:21.908Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -2801,7 +6617,7 @@
     },
     {
      "seq": 9,
-     "at": "2026-10-27T20:47:35.700Z",
+     "at": "2026-10-28T06:10:21.909Z",
      "type": "player",
      "kind": "action",
      "who": "Mira",
@@ -2809,7 +6625,7 @@
     },
     {
      "seq": 10,
-     "at": "2026-10-27T20:47:35.701Z",
+     "at": "2026-10-28T06:10:21.910Z",
      "type": "player",
      "kind": "speech",
      "who": "Torvald",
@@ -2817,7 +6633,7 @@
     },
     {
      "seq": 11,
-     "at": "2026-10-27T20:47:35.703Z",
+     "at": "2026-10-28T06:10:21.912Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -2825,7 +6641,7 @@
     },
     {
      "seq": 12,
-     "at": "2026-10-27T20:47:35.704Z",
+     "at": "2026-10-28T06:10:21.913Z",
      "type": "player",
      "kind": "question",
      "who": "Elowen",
@@ -2833,7 +6649,7 @@
     },
     {
      "seq": 13,
-     "at": "2026-10-27T20:47:35.706Z",
+     "at": "2026-10-28T06:10:21.915Z",
      "type": "dm",
      "kind": "answer",
      "who": null,
@@ -2841,14 +6657,14 @@
     },
     {
      "seq": 14,
-     "at": "2026-10-27T20:47:35.708Z",
+     "at": "2026-10-28T06:10:21.918Z",
      "type": "rollRequested",
      "who": "Elowen",
      "text": "Wisdom (Perception) check"
     },
     {
      "seq": 15,
-     "at": "2026-10-27T20:47:35.710Z",
+     "at": "2026-10-28T06:10:21.921Z",
      "type": "roll",
      "text": "Wisdom (Perception) check: 14 → 17",
      "label": "Wisdom (Perception) check",
@@ -2856,7 +6672,7 @@
     },
     {
      "seq": 16,
-     "at": "2026-10-27T20:47:35.712Z",
+     "at": "2026-10-28T06:10:21.923Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -2864,14 +6680,14 @@
     },
     {
      "seq": 17,
-     "at": "2026-10-27T20:47:35.715Z",
+     "at": "2026-10-28T06:10:21.925Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Dexterity (Stealth) check"
     },
     {
      "seq": 18,
-     "at": "2026-10-27T20:47:35.717Z",
+     "at": "2026-10-28T06:10:21.930Z",
      "type": "roll",
      "text": "Dexterity (Stealth) check: 6 & 17 → 22",
      "label": "Dexterity (Stealth) check",
@@ -2879,7 +6695,7 @@
     },
     {
      "seq": 19,
-     "at": "2026-10-27T20:47:35.719Z",
+     "at": "2026-10-28T06:10:21.932Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -2887,7 +6703,7 @@
     },
     {
      "seq": 22,
-     "at": "2026-10-27T20:47:35.724Z",
+     "at": "2026-10-28T06:10:21.939Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Initiative",
@@ -2895,7 +6711,7 @@
     },
     {
      "seq": 23,
-     "at": "2026-10-27T20:47:35.724Z",
+     "at": "2026-10-28T06:10:21.940Z",
      "type": "rollRequested",
      "who": "Torvald",
      "text": "Initiative",
@@ -2903,7 +6719,7 @@
     },
     {
      "seq": 24,
-     "at": "2026-10-27T20:47:35.724Z",
+     "at": "2026-10-28T06:10:21.940Z",
      "type": "rollRequested",
      "who": "Elowen",
      "text": "Initiative",
@@ -2911,7 +6727,7 @@
     },
     {
      "seq": 25,
-     "at": "2026-10-27T20:47:35.727Z",
+     "at": "2026-10-28T06:10:21.943Z",
      "type": "roll",
      "text": "Initiative: 18 → 21",
      "label": "Initiative",
@@ -2920,7 +6736,7 @@
     },
     {
      "seq": 26,
-     "at": "2026-10-27T20:47:35.728Z",
+     "at": "2026-10-28T06:10:21.944Z",
      "type": "roll",
      "text": "Initiative: 4 → 5",
      "label": "Initiative",
@@ -2929,7 +6745,7 @@
     },
     {
      "seq": 27,
-     "at": "2026-10-27T20:47:35.728Z",
+     "at": "2026-10-28T06:10:21.945Z",
      "type": "roll",
      "text": "Initiative: 11 → 13",
      "label": "Initiative",
@@ -2938,7 +6754,7 @@
     },
     {
      "seq": 32,
-     "at": "2026-10-27T20:47:35.739Z",
+     "at": "2026-10-28T06:10:21.957Z",
      "type": "rollRequested",
      "who": "Torvald",
      "text": "Battleaxe attack"
@@ -2946,9 +6762,9 @@
    ]
   },
   "dying": {
-   "id": "3304125b",
+   "id": "2e397bbd",
    "state": {
-    "id": "3304125b",
+    "id": "2e397bbd",
     "title": "The Drowned Lantern",
     "seq": 39,
     "scene": {
@@ -2958,7 +6774,7 @@
     },
     "characters": [
      {
-      "id": "bf0370",
+      "id": "754f90",
       "name": "Mira",
       "player": "Veikko",
       "raceId": "halfling",
@@ -3001,8 +6817,12 @@
         "qty": 1
        },
        {
-        "name": "Shortbow + 20 arrows",
+        "name": "Shortbow",
         "qty": 1
+       },
+       {
+        "name": "Arrows",
+        "qty": 20
        },
        {
         "name": "Thieves' tools",
@@ -3013,8 +6833,8 @@
         "qty": 1
        },
        {
-        "name": "2 Daggers",
-        "qty": 1
+        "name": "Dagger",
+        "qty": 2
        }
       ],
       "gold": 10,
@@ -3023,14 +6843,43 @@
        "Unconscious"
       ],
       "features": [
-       "Lucky (reroll natural 1s)",
-       "Brave",
-       "Halfling Nimbleness",
-       "Naturally Stealthy",
-       "Sneak Attack (1d6)",
-       "Expertise (Stealth, Thieves' tools)",
-       "Thieves' Cant"
+       {
+        "name": "Lucky",
+        "text": "When you roll a 1 on an attack, check or save, reroll it and use the new roll.",
+        "source": "race"
+       },
+       {
+        "name": "Brave",
+        "text": "Advantage on saves against being frightened.",
+        "source": "race"
+       },
+       {
+        "name": "Halfling Nimbleness",
+        "text": "You can move through the space of any creature larger than you.",
+        "source": "race"
+       },
+       {
+        "name": "Naturally Stealthy",
+        "text": "You can try to hide behind a creature at least one size larger than you.",
+        "source": "race"
+       },
+       {
+        "name": "Sneak Attack",
+        "text": "Once per turn, +1d6 damage with a finesse or ranged weapon when you have advantage or an ally is next to the target.",
+        "source": "class"
+       },
+       {
+        "name": "Expertise",
+        "text": "Double proficiency in Stealth and with thieves' tools.",
+        "source": "class"
+       },
+       {
+        "name": "Thieves' Cant",
+        "text": "A secret mix of slang and signs only rogues understand.",
+        "source": "class"
+       }
       ],
+      "spells": [],
       "notes": "",
       "resources": [
        {
@@ -3045,10 +6894,291 @@
       "deathSaves": {
        "successes": 0,
        "failures": 0
+      },
+      "sheet": {
+       "proficiency": 2,
+       "initiative": 3,
+       "passivePerception": 13,
+       "saves": [
+        {
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "ability": "con",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "ability": "int",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        }
+       ],
+       "skills": [
+        {
+         "name": "Acrobatics",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Animal Handling",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Arcana",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Athletics",
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Deception",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "History",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Insight",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Intimidation",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Investigation",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Medicine",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Nature",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Perception",
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "name": "Performance",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Persuasion",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Religion",
+         "ability": "int",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Sleight of Hand",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Stealth",
+         "ability": "dex",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Survival",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        }
+       ],
+       "attacks": [
+        {
+         "name": "Rapier",
+         "weaponId": "rapier",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d8",
+         "bonus": 3,
+         "damage": "1d8+3",
+         "damageType": "piercing",
+         "properties": [
+          "finesse"
+         ],
+         "count": 1
+        },
+        {
+         "name": "Shortbow",
+         "weaponId": "shortbow",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d6",
+         "bonus": 3,
+         "damage": "1d6+3",
+         "damageType": "piercing",
+         "range": "80/320",
+         "properties": [
+          "two-handed"
+         ],
+         "count": 1,
+         "ammo": 20
+        },
+        {
+         "name": "Dagger",
+         "weaponId": "dagger",
+         "ability": "dex",
+         "toHit": 5,
+         "dice": "1d4",
+         "bonus": 3,
+         "damage": "1d4+3",
+         "damageType": "piercing",
+         "range": "20/60",
+         "properties": [
+          "finesse",
+          "light",
+          "thrown (20/60)"
+         ],
+         "count": 2
+        },
+        {
+         "name": "Unarmed strike",
+         "ability": "str",
+         "toHit": 1,
+         "bonus": 0,
+         "damage": "1",
+         "damageType": "bludgeoning",
+         "properties": [],
+         "count": 1
+        }
+       ],
+       "spells": [],
+       "features": [
+        {
+         "name": "Lucky",
+         "text": "When you roll a 1 on an attack, check or save, reroll it and use the new roll.",
+         "source": "race"
+        },
+        {
+         "name": "Brave",
+         "text": "Advantage on saves against being frightened.",
+         "source": "race"
+        },
+        {
+         "name": "Halfling Nimbleness",
+         "text": "You can move through the space of any creature larger than you.",
+         "source": "race"
+        },
+        {
+         "name": "Naturally Stealthy",
+         "text": "You can try to hide behind a creature at least one size larger than you.",
+         "source": "race"
+        },
+        {
+         "name": "Sneak Attack",
+         "text": "Once per turn, +1d6 damage with a finesse or ranged weapon when you have advantage or an ally is next to the target.",
+         "source": "class"
+        },
+        {
+         "name": "Expertise",
+         "text": "Double proficiency in Stealth and with thieves' tools.",
+         "source": "class"
+        },
+        {
+         "name": "Thieves' Cant",
+         "text": "A secret mix of slang and signs only rogues understand.",
+         "source": "class"
+        }
+       ],
+       "inventory": [
+        {
+         "name": "Leather armour",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Rapier",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Shortbow",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Arrows",
+         "qty": 20,
+         "kind": "ammo"
+        },
+        {
+         "name": "Thieves' tools",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Burglar's pack",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Dagger",
+         "qty": 2,
+         "kind": "weapon"
+        }
+       ]
       }
      },
      {
-      "id": "5e81b5",
+      "id": "96d1bf",
       "name": "Torvald",
       "player": "Ann",
       "raceId": "dwarf",
@@ -3093,8 +7223,8 @@
         "qty": 1
        },
        {
-        "name": "2 Handaxes",
-        "qty": 1
+        "name": "Handaxe",
+        "qty": 2
        },
        {
         "name": "Explorer's pack",
@@ -3105,13 +7235,39 @@
       "xp": 0,
       "conditions": [],
       "features": [
-       "Darkvision 60 ft",
-       "Dwarven Resilience (poison)",
-       "Stonecunning",
-       "Dwarven Toughness (+1 HP/level)",
-       "Fighting Style: Defense",
-       "Second Wind (bonus action: heal 1d10 + level, once per rest)"
+       {
+        "name": "Darkvision",
+        "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+        "source": "race"
+       },
+       {
+        "name": "Dwarven Resilience",
+        "text": "Advantage on saves against poison, and resistance to poison damage.",
+        "source": "race"
+       },
+       {
+        "name": "Stonecunning",
+        "text": "Double proficiency on History checks about stonework.",
+        "source": "race"
+       },
+       {
+        "name": "Dwarven Toughness",
+        "text": "+1 hit point per level.",
+        "source": "race"
+       },
+       {
+        "name": "Fighting Style: Defense",
+        "text": "+1 AC while wearing armour (already counted).",
+        "source": "class"
+       },
+       {
+        "name": "Second Wind",
+        "text": "Bonus action: regain 1d10 + your level in hit points.",
+        "source": "class",
+        "resourceId": "second-wind"
+       }
       ],
+      "spells": [],
       "notes": "",
       "resources": [
        {
@@ -3133,10 +7289,261 @@
       "deathSaves": {
        "successes": 0,
        "failures": 0
+      },
+      "sheet": {
+       "proficiency": 2,
+       "initiative": 1,
+       "passivePerception": 13,
+       "saves": [
+        {
+         "ability": "str",
+         "mod": 4,
+         "proficient": true
+        },
+        {
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "con",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        }
+       ],
+       "skills": [
+        {
+         "name": "Acrobatics",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Animal Handling",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Arcana",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Athletics",
+         "ability": "str",
+         "mod": 4,
+         "proficient": true
+        },
+        {
+         "name": "Deception",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "History",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Insight",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Intimidation",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Investigation",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Medicine",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Nature",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Perception",
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "name": "Performance",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Persuasion",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Religion",
+         "ability": "int",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Sleight of Hand",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Stealth",
+         "ability": "dex",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Survival",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        }
+       ],
+       "attacks": [
+        {
+         "name": "Longsword",
+         "weaponId": "longsword",
+         "ability": "str",
+         "toHit": 4,
+         "dice": "1d8",
+         "bonus": 2,
+         "damage": "1d8+2",
+         "damageType": "slashing",
+         "versatile": "1d10",
+         "properties": [
+          "versatile (1d10)"
+         ],
+         "count": 1
+        },
+        {
+         "name": "Handaxe",
+         "weaponId": "handaxe",
+         "ability": "str",
+         "toHit": 4,
+         "dice": "1d6",
+         "bonus": 2,
+         "damage": "1d6+2",
+         "damageType": "slashing",
+         "range": "20/60",
+         "properties": [
+          "light",
+          "thrown (20/60)"
+         ],
+         "count": 2
+        },
+        {
+         "name": "Unarmed strike",
+         "ability": "str",
+         "toHit": 4,
+         "bonus": 3,
+         "damage": "3",
+         "damageType": "bludgeoning",
+         "properties": [],
+         "count": 1
+        }
+       ],
+       "spells": [],
+       "features": [
+        {
+         "name": "Darkvision",
+         "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+         "source": "race"
+        },
+        {
+         "name": "Dwarven Resilience",
+         "text": "Advantage on saves against poison, and resistance to poison damage.",
+         "source": "race"
+        },
+        {
+         "name": "Stonecunning",
+         "text": "Double proficiency on History checks about stonework.",
+         "source": "race"
+        },
+        {
+         "name": "Dwarven Toughness",
+         "text": "+1 hit point per level.",
+         "source": "race"
+        },
+        {
+         "name": "Fighting Style: Defense",
+         "text": "+1 AC while wearing armour (already counted).",
+         "source": "class"
+        },
+        {
+         "name": "Second Wind",
+         "text": "Bonus action: regain 1d10 + your level in hit points.",
+         "source": "class",
+         "resourceId": "second-wind"
+        }
+       ],
+       "inventory": [
+        {
+         "name": "Chain mail",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Shield",
+         "qty": 1,
+         "kind": "armour"
+        },
+        {
+         "name": "Longsword",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Handaxe",
+         "qty": 2,
+         "kind": "weapon"
+        },
+        {
+         "name": "Explorer's pack",
+         "qty": 1,
+         "kind": "gear"
+        }
+       ]
       }
      },
      {
-      "id": "4f4da7",
+      "id": "c9cfa3",
       "name": "Elowen",
       "player": "Sam",
       "raceId": "elf",
@@ -3192,13 +7599,123 @@
        "Frightened"
       ],
       "features": [
-       "Darkvision 60 ft",
-       "Keen Senses (Perception)",
-       "Fey Ancestry",
-       "Trance",
-       "One wizard cantrip",
-       "Spellcasting (INT): cantrips Fire Bolt, Mage Hand, Light; prepared from Magic Missile, Shield, Sleep, Burning Hands, Detect Magic, Mage Armor; 2 first-level slots",
-       "Arcane Recovery"
+       {
+        "name": "Darkvision",
+        "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+        "source": "race"
+       },
+       {
+        "name": "Keen Senses",
+        "text": "Proficient in Perception.",
+        "source": "race"
+       },
+       {
+        "name": "Fey Ancestry",
+        "text": "Advantage on saves against being charmed; magic cannot put you to sleep.",
+        "source": "race"
+       },
+       {
+        "name": "Trance",
+        "text": "Four hours of meditation give you the rest of eight hours of sleep.",
+        "source": "race"
+       },
+       {
+        "name": "Wizard cantrip",
+        "text": "You know one wizard cantrip, cast with INT.",
+        "source": "race"
+       },
+       {
+        "name": "Arcane Recovery",
+        "text": "Once a day after a short rest, regain a spent spell slot.",
+        "source": "class",
+        "resourceId": "arcane-recovery"
+       }
+      ],
+      "spells": [
+       {
+        "id": "fire-bolt",
+        "name": "Fire Bolt",
+        "level": 0,
+        "castingTime": "action",
+        "range": "120 ft",
+        "attack": "ranged",
+        "dice": "1d10",
+        "damageType": "fire",
+        "summary": "Hurl a mote of fire. Unattended flammable objects catch fire."
+       },
+       {
+        "id": "mage-hand",
+        "name": "Mage Hand",
+        "level": 0,
+        "castingTime": "action",
+        "range": "30 ft",
+        "summary": "A floating spectral hand that can carry up to 10 lb, open doors and fetch things for a minute."
+       },
+       {
+        "id": "light",
+        "name": "Light",
+        "level": 0,
+        "castingTime": "action",
+        "range": "Touch",
+        "summary": "An object shines like a torch (20 ft bright light) for an hour."
+       },
+       {
+        "id": "magic-missile",
+        "name": "Magic Missile",
+        "level": 1,
+        "castingTime": "action",
+        "range": "120 ft",
+        "dice": "1d4",
+        "bonus": 1,
+        "times": 3,
+        "damageType": "force",
+        "summary": "Three glowing darts that always hit; aim them at one creature or several."
+       },
+       {
+        "id": "shield",
+        "name": "Shield",
+        "level": 1,
+        "castingTime": "reaction",
+        "range": "Self",
+        "summary": "When you are hit: +5 AC until your next turn, including against that attack."
+       },
+       {
+        "id": "sleep",
+        "name": "Sleep",
+        "level": 1,
+        "castingTime": "action",
+        "range": "90 ft",
+        "dice": "5d8",
+        "summary": "Roll 5d8: creatures with that many hit points in total fall asleep, weakest first."
+       },
+       {
+        "id": "burning-hands",
+        "name": "Burning Hands",
+        "level": 1,
+        "castingTime": "action",
+        "range": "Self (15-ft cone)",
+        "save": "dex",
+        "dice": "3d6",
+        "damageType": "fire",
+        "summary": "A sheet of flame from your fingertips; half damage on a successful save."
+       },
+       {
+        "id": "detect-magic",
+        "name": "Detect Magic",
+        "level": 1,
+        "castingTime": "action",
+        "range": "Self",
+        "concentration": true,
+        "summary": "For 10 minutes you sense magic within 30 ft and can see its aura."
+       },
+       {
+        "id": "mage-armor",
+        "name": "Mage Armor",
+        "level": 1,
+        "castingTime": "action",
+        "range": "Touch",
+        "summary": "A creature without armour has AC 13 + DEX for 8 hours."
+       }
       ],
       "notes": "",
       "resources": [
@@ -3228,6 +7745,339 @@
       "deathSaves": {
        "successes": 0,
        "failures": 0
+      },
+      "sheet": {
+       "proficiency": 2,
+       "initiative": 2,
+       "passivePerception": 13,
+       "saves": [
+        {
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "ability": "con",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "ability": "int",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        }
+       ],
+       "skills": [
+        {
+         "name": "Acrobatics",
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "name": "Animal Handling",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Arcana",
+         "ability": "int",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Athletics",
+         "ability": "str",
+         "mod": -1,
+         "proficient": false
+        },
+        {
+         "name": "Deception",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "History",
+         "ability": "int",
+         "mod": 5,
+         "proficient": true
+        },
+        {
+         "name": "Insight",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Intimidation",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Investigation",
+         "ability": "int",
+         "mod": 3,
+         "proficient": false
+        },
+        {
+         "name": "Medicine",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        },
+        {
+         "name": "Nature",
+         "ability": "int",
+         "mod": 3,
+         "proficient": false
+        },
+        {
+         "name": "Perception",
+         "ability": "wis",
+         "mod": 3,
+         "proficient": true
+        },
+        {
+         "name": "Performance",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Persuasion",
+         "ability": "cha",
+         "mod": 0,
+         "proficient": false
+        },
+        {
+         "name": "Religion",
+         "ability": "int",
+         "mod": 3,
+         "proficient": false
+        },
+        {
+         "name": "Sleight of Hand",
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "name": "Stealth",
+         "ability": "dex",
+         "mod": 2,
+         "proficient": false
+        },
+        {
+         "name": "Survival",
+         "ability": "wis",
+         "mod": 1,
+         "proficient": false
+        }
+       ],
+       "attacks": [
+        {
+         "name": "Quarterstaff",
+         "weaponId": "quarterstaff",
+         "ability": "str",
+         "toHit": 1,
+         "dice": "1d6",
+         "bonus": -1,
+         "damage": "1d6-1",
+         "damageType": "bludgeoning",
+         "versatile": "1d8",
+         "properties": [
+          "versatile (1d8)"
+         ],
+         "count": 1
+        },
+        {
+         "name": "Unarmed strike",
+         "ability": "str",
+         "toHit": 1,
+         "bonus": 0,
+         "damage": "1",
+         "damageType": "bludgeoning",
+         "properties": [],
+         "count": 1
+        }
+       ],
+       "spellcasting": {
+        "ability": "int",
+        "attack": 5,
+        "saveDc": 13,
+        "slots": "spell-slots-1"
+       },
+       "spells": [
+        {
+         "id": "fire-bolt",
+         "name": "Fire Bolt",
+         "level": 0,
+         "castingTime": "action",
+         "range": "120 ft",
+         "attack": "ranged",
+         "dice": "1d10",
+         "damageType": "fire",
+         "summary": "Hurl a mote of fire. Unattended flammable objects catch fire.",
+         "toHit": 5,
+         "roll": "1d10"
+        },
+        {
+         "id": "mage-hand",
+         "name": "Mage Hand",
+         "level": 0,
+         "castingTime": "action",
+         "range": "30 ft",
+         "summary": "A floating spectral hand that can carry up to 10 lb, open doors and fetch things for a minute."
+        },
+        {
+         "id": "light",
+         "name": "Light",
+         "level": 0,
+         "castingTime": "action",
+         "range": "Touch",
+         "summary": "An object shines like a torch (20 ft bright light) for an hour."
+        },
+        {
+         "id": "magic-missile",
+         "name": "Magic Missile",
+         "level": 1,
+         "castingTime": "action",
+         "range": "120 ft",
+         "dice": "1d4",
+         "bonus": 1,
+         "times": 3,
+         "damageType": "force",
+         "summary": "Three glowing darts that always hit; aim them at one creature or several.",
+         "roll": "1d4+1 ×3",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "shield",
+         "name": "Shield",
+         "level": 1,
+         "castingTime": "reaction",
+         "range": "Self",
+         "summary": "When you are hit: +5 AC until your next turn, including against that attack.",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "sleep",
+         "name": "Sleep",
+         "level": 1,
+         "castingTime": "action",
+         "range": "90 ft",
+         "dice": "5d8",
+         "summary": "Roll 5d8: creatures with that many hit points in total fall asleep, weakest first.",
+         "roll": "5d8",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "burning-hands",
+         "name": "Burning Hands",
+         "level": 1,
+         "castingTime": "action",
+         "range": "Self (15-ft cone)",
+         "save": "dex",
+         "dice": "3d6",
+         "damageType": "fire",
+         "summary": "A sheet of flame from your fingertips; half damage on a successful save.",
+         "saveDc": 13,
+         "roll": "3d6",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "detect-magic",
+         "name": "Detect Magic",
+         "level": 1,
+         "castingTime": "action",
+         "range": "Self",
+         "concentration": true,
+         "summary": "For 10 minutes you sense magic within 30 ft and can see its aura.",
+         "resourceId": "spell-slots-1"
+        },
+        {
+         "id": "mage-armor",
+         "name": "Mage Armor",
+         "level": 1,
+         "castingTime": "action",
+         "range": "Touch",
+         "summary": "A creature without armour has AC 13 + DEX for 8 hours.",
+         "resourceId": "spell-slots-1"
+        }
+       ],
+       "features": [
+        {
+         "name": "Darkvision",
+         "text": "See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).",
+         "source": "race"
+        },
+        {
+         "name": "Keen Senses",
+         "text": "Proficient in Perception.",
+         "source": "race"
+        },
+        {
+         "name": "Fey Ancestry",
+         "text": "Advantage on saves against being charmed; magic cannot put you to sleep.",
+         "source": "race"
+        },
+        {
+         "name": "Trance",
+         "text": "Four hours of meditation give you the rest of eight hours of sleep.",
+         "source": "race"
+        },
+        {
+         "name": "Wizard cantrip",
+         "text": "You know one wizard cantrip, cast with INT.",
+         "source": "race"
+        },
+        {
+         "name": "Arcane Recovery",
+         "text": "Once a day after a short rest, regain a spent spell slot.",
+         "source": "class",
+         "resourceId": "arcane-recovery"
+        }
+       ],
+       "inventory": [
+        {
+         "name": "Quarterstaff",
+         "qty": 1,
+         "kind": "weapon"
+        },
+        {
+         "name": "Component pouch",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Spellbook",
+         "qty": 1,
+         "kind": "gear"
+        },
+        {
+         "name": "Scholar's pack",
+         "qty": 1,
+         "kind": "gear"
+        }
+       ]
       }
      }
     ],
@@ -3279,7 +8129,7 @@
       {
        "ref": {
         "kind": "hero",
-        "id": "bf0370"
+        "id": "754f90"
        },
        "ready": true
       },
@@ -3293,14 +8143,14 @@
       {
        "ref": {
         "kind": "hero",
-        "id": "4f4da7"
+        "id": "c9cfa3"
        },
        "ready": true
       },
       {
        "ref": {
         "kind": "hero",
-        "id": "5e81b5"
+        "id": "96d1bf"
        },
        "ready": true
       }
@@ -3309,7 +8159,7 @@
     "log": [
      {
       "seq": 2,
-      "at": "2026-10-27T20:47:35.686Z",
+      "at": "2026-10-28T06:10:21.889Z",
       "from": "system",
       "kind": "info",
       "text": "Mira the Halfling (Lightfoot) Rogue joins the party.",
@@ -3324,7 +8174,7 @@
      },
      {
       "seq": 3,
-      "at": "2026-10-27T20:47:35.687Z",
+      "at": "2026-10-28T06:10:21.891Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald the Dwarf (Hill) Fighter joins the party.",
@@ -3339,7 +8189,7 @@
      },
      {
       "seq": 4,
-      "at": "2026-10-27T20:47:35.688Z",
+      "at": "2026-10-28T06:10:21.892Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen the Elf (High) Wizard joins the party.",
@@ -3354,7 +8204,7 @@
      },
      {
       "seq": 5,
-      "at": "2026-10-27T20:47:35.689Z",
+      "at": "2026-10-28T06:10:21.894Z",
       "from": "system",
       "kind": "info",
       "text": "The adventure begins.",
@@ -3365,53 +8215,53 @@
      },
      {
       "seq": 8,
-      "at": "2026-10-27T20:47:35.699Z",
+      "at": "2026-10-28T06:10:21.908Z",
       "from": "dm",
       "kind": "narration",
       "text": "Rain hammers the shutters of the Drowned Lantern. Old Brannock wipes the same mug for the third time, watching the door.\nSomewhere below the floorboards, water drips in a slow, patient rhythm."
      },
      {
       "seq": 9,
-      "at": "2026-10-27T20:47:35.700Z",
+      "at": "2026-10-28T06:10:21.909Z",
       "from": "player",
-      "characterId": "bf0370",
+      "characterId": "754f90",
       "kind": "action",
       "text": "I slide onto a stool at the bar and order whatever is warm."
      },
      {
       "seq": 10,
-      "at": "2026-10-27T20:47:35.701Z",
+      "at": "2026-10-28T06:10:21.910Z",
       "from": "player",
-      "characterId": "5e81b5",
+      "characterId": "96d1bf",
       "kind": "speech",
       "text": "\"Who rings a bell under the sea, old man?\""
      },
      {
       "seq": 11,
-      "at": "2026-10-27T20:47:35.703Z",
+      "at": "2026-10-28T06:10:21.912Z",
       "from": "dm",
       "kind": "narration",
       "text": "Brannock stops wiping. \"Nobody living,\" he says, and sets down a steaming bowl of fish stew in front of Mira."
      },
      {
       "seq": 12,
-      "at": "2026-10-27T20:47:35.704Z",
+      "at": "2026-10-28T06:10:21.913Z",
       "from": "player",
-      "characterId": "4f4da7",
+      "characterId": "c9cfa3",
       "kind": "question",
       "text": "Can I tell if the dripping comes from a cellar?"
      },
      {
       "seq": 13,
-      "at": "2026-10-27T20:47:35.706Z",
+      "at": "2026-10-28T06:10:21.915Z",
       "from": "dm",
-      "characterId": "4f4da7",
+      "characterId": "c9cfa3",
       "kind": "answer",
       "text": "You can try. Listen closely to where it comes from."
      },
      {
       "seq": 15,
-      "at": "2026-10-27T20:47:35.710Z",
+      "at": "2026-10-28T06:10:21.921Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen rolled Wisdom (Perception) check: 14 +3 = 17 — success",
@@ -3432,14 +8282,14 @@
      },
      {
       "seq": 16,
-      "at": "2026-10-27T20:47:35.712Z",
+      "at": "2026-10-28T06:10:21.923Z",
       "from": "dm",
       "kind": "narration",
       "text": "Beneath the long table, a trapdoor. The planks around it are wet and newer than the rest."
      },
      {
       "seq": 18,
-      "at": "2026-10-27T20:47:35.717Z",
+      "at": "2026-10-28T06:10:21.930Z",
       "from": "system",
       "kind": "info",
       "text": "Mira rolled Dexterity (Stealth) check: 6 & 17 +5 = 22",
@@ -3460,14 +8310,14 @@
      },
      {
       "seq": 19,
-      "at": "2026-10-27T20:47:35.719Z",
+      "at": "2026-10-28T06:10:21.932Z",
       "from": "dm",
       "kind": "narration",
       "text": "The trapdoor bursts open. Three goblins, dripping with harbour water, scramble up with knives drawn!"
      },
      {
       "seq": 20,
-      "at": "2026-10-27T20:47:35.721Z",
+      "at": "2026-10-28T06:10:21.935Z",
       "from": "system",
       "kind": "info",
       "text": "Goblin is here.",
@@ -3482,7 +8332,7 @@
      },
      {
       "seq": 21,
-      "at": "2026-10-27T20:47:35.724Z",
+      "at": "2026-10-28T06:10:21.939Z",
       "from": "system",
       "kind": "info",
       "text": "Fight!",
@@ -3493,7 +8343,7 @@
      },
      {
       "seq": 25,
-      "at": "2026-10-27T20:47:35.727Z",
+      "at": "2026-10-28T06:10:21.943Z",
       "from": "system",
       "kind": "info",
       "text": "Mira rolled Initiative: 18 +3 = 21",
@@ -3514,7 +8364,7 @@
      },
      {
       "seq": 26,
-      "at": "2026-10-27T20:47:35.728Z",
+      "at": "2026-10-28T06:10:21.944Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald rolled Initiative: 4 +1 = 5",
@@ -3535,7 +8385,7 @@
      },
      {
       "seq": 27,
-      "at": "2026-10-27T20:47:35.728Z",
+      "at": "2026-10-28T06:10:21.945Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen rolled Initiative: 11 +2 = 13",
@@ -3556,7 +8406,7 @@
      },
      {
       "seq": 27,
-      "at": "2026-10-27T20:47:35.728Z",
+      "at": "2026-10-28T06:10:21.945Z",
       "from": "system",
       "kind": "info",
       "text": "Turn order: Mira, Goblin, Elowen, Torvald.",
@@ -3574,7 +8424,7 @@
      },
      {
       "seq": 28,
-      "at": "2026-10-27T20:47:35.731Z",
+      "at": "2026-10-28T06:10:21.947Z",
       "from": "system",
       "kind": "info",
       "text": "Goblin: now bloodied",
@@ -3588,7 +8438,7 @@
      },
      {
       "seq": 29,
-      "at": "2026-10-27T20:47:35.733Z",
+      "at": "2026-10-28T06:10:21.949Z",
       "from": "system",
       "kind": "info",
       "text": "Goblin is defeated.",
@@ -3601,7 +8451,7 @@
      },
      {
       "seq": 30,
-      "at": "2026-10-27T20:47:35.735Z",
+      "at": "2026-10-28T06:10:21.952Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald: hp 14 → 8 (goblin knife)",
@@ -3621,7 +8471,7 @@
      },
      {
       "seq": 31,
-      "at": "2026-10-27T20:47:35.737Z",
+      "at": "2026-10-28T06:10:21.955Z",
       "from": "system",
       "kind": "info",
       "text": "Elowen: condOn Frightened (a goblin shriek)",
@@ -3641,7 +8491,7 @@
      },
      {
       "seq": 33,
-      "at": "2026-10-27T20:47:35.742Z",
+      "at": "2026-10-28T06:10:21.961Z",
       "from": "system",
       "kind": "info",
       "text": "Torvald rolled Battleaxe attack: 3 +5 = 8 — failure",
@@ -3662,7 +8512,7 @@
      },
      {
       "seq": 34,
-      "at": "2026-10-27T20:47:35.744Z",
+      "at": "2026-10-28T06:10:21.963Z",
       "from": "system",
       "kind": "info",
       "text": "Mira: hp 10 → 0, status dying, condOn Unconscious (goblin ambush)",
@@ -3691,8 +8541,8 @@
     ],
     "pendingRolls": [
      {
-      "rollId": "death-bf0370-37",
-      "characterId": "bf0370",
+      "rollId": "death-754f90-37",
+      "characterId": "754f90",
       "label": "Death save",
       "dice": "1d20",
       "modifier": 0,
@@ -3704,8 +8554,8 @@
     ],
     "rolls": [
      {
-      "rollId": "1344eb89",
-      "characterId": "4f4da7",
+      "rollId": "66fe57b7",
+      "characterId": "c9cfa3",
       "label": "Wisdom (Perception) check",
       "dice": "1d20",
       "modifier": 3,
@@ -3721,8 +8571,8 @@
       "byDm": false
      },
      {
-      "rollId": "863f8fb5",
-      "characterId": "bf0370",
+      "rollId": "7ce33c3c",
+      "characterId": "754f90",
       "label": "Dexterity (Stealth) check",
       "dice": "1d20",
       "modifier": 5,
@@ -3738,8 +8588,8 @@
       "byDm": false
      },
      {
-      "rollId": "init-bf0370-20",
-      "characterId": "bf0370",
+      "rollId": "init-754f90-20",
+      "characterId": "754f90",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 3,
@@ -3755,8 +8605,8 @@
       "byDm": false
      },
      {
-      "rollId": "init-5e81b5-20",
-      "characterId": "5e81b5",
+      "rollId": "init-96d1bf-20",
+      "characterId": "96d1bf",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 1,
@@ -3772,8 +8622,8 @@
       "byDm": false
      },
      {
-      "rollId": "init-4f4da7-20",
-      "characterId": "4f4da7",
+      "rollId": "init-c9cfa3-20",
+      "characterId": "c9cfa3",
       "label": "Initiative",
       "dice": "1d20",
       "modifier": 2,
@@ -3789,8 +8639,8 @@
       "byDm": false
      },
      {
-      "rollId": "e1664e6d",
-      "characterId": "5e81b5",
+      "rollId": "c22d3b94",
+      "characterId": "96d1bf",
       "label": "Battleaxe attack",
       "dice": "1d20",
       "modifier": 5,
@@ -3822,46 +8672,46 @@
    "history": [
     {
      "seq": 2,
-     "at": "2026-10-27T20:47:35.686Z",
+     "at": "2026-10-28T06:10:21.889Z",
      "type": "character",
      "who": "Mira",
      "text": "Halfling (Lightfoot) Rogue"
     },
     {
      "seq": 3,
-     "at": "2026-10-27T20:47:35.687Z",
+     "at": "2026-10-28T06:10:21.891Z",
      "type": "character",
      "who": "Torvald",
      "text": "Dwarf (Hill) Fighter"
     },
     {
      "seq": 4,
-     "at": "2026-10-27T20:47:35.688Z",
+     "at": "2026-10-28T06:10:21.892Z",
      "type": "character",
      "who": "Elowen",
      "text": "Elf (High) Wizard"
     },
     {
      "seq": 5,
-     "at": "2026-10-27T20:47:35.689Z",
+     "at": "2026-10-28T06:10:21.894Z",
      "type": "started",
      "text": ""
     },
     {
      "seq": 6,
-     "at": "2026-10-27T20:47:35.692Z",
+     "at": "2026-10-28T06:10:21.900Z",
      "type": "scene",
      "text": "The Drowned Lantern — taproom"
     },
     {
      "seq": 7,
-     "at": "2026-10-27T20:47:35.696Z",
+     "at": "2026-10-28T06:10:21.905Z",
      "type": "sketch",
      "text": "The taproom of the Drowned Lantern"
     },
     {
      "seq": 8,
-     "at": "2026-10-27T20:47:35.699Z",
+     "at": "2026-10-28T06:10:21.908Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -3869,7 +8719,7 @@
     },
     {
      "seq": 9,
-     "at": "2026-10-27T20:47:35.700Z",
+     "at": "2026-10-28T06:10:21.909Z",
      "type": "player",
      "kind": "action",
      "who": "Mira",
@@ -3877,7 +8727,7 @@
     },
     {
      "seq": 10,
-     "at": "2026-10-27T20:47:35.701Z",
+     "at": "2026-10-28T06:10:21.910Z",
      "type": "player",
      "kind": "speech",
      "who": "Torvald",
@@ -3885,7 +8735,7 @@
     },
     {
      "seq": 11,
-     "at": "2026-10-27T20:47:35.703Z",
+     "at": "2026-10-28T06:10:21.912Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -3893,7 +8743,7 @@
     },
     {
      "seq": 12,
-     "at": "2026-10-27T20:47:35.704Z",
+     "at": "2026-10-28T06:10:21.913Z",
      "type": "player",
      "kind": "question",
      "who": "Elowen",
@@ -3901,7 +8751,7 @@
     },
     {
      "seq": 13,
-     "at": "2026-10-27T20:47:35.706Z",
+     "at": "2026-10-28T06:10:21.915Z",
      "type": "dm",
      "kind": "answer",
      "who": null,
@@ -3909,14 +8759,14 @@
     },
     {
      "seq": 14,
-     "at": "2026-10-27T20:47:35.708Z",
+     "at": "2026-10-28T06:10:21.918Z",
      "type": "rollRequested",
      "who": "Elowen",
      "text": "Wisdom (Perception) check"
     },
     {
      "seq": 15,
-     "at": "2026-10-27T20:47:35.710Z",
+     "at": "2026-10-28T06:10:21.921Z",
      "type": "roll",
      "text": "Wisdom (Perception) check: 14 → 17",
      "label": "Wisdom (Perception) check",
@@ -3924,7 +8774,7 @@
     },
     {
      "seq": 16,
-     "at": "2026-10-27T20:47:35.712Z",
+     "at": "2026-10-28T06:10:21.923Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -3932,14 +8782,14 @@
     },
     {
      "seq": 17,
-     "at": "2026-10-27T20:47:35.715Z",
+     "at": "2026-10-28T06:10:21.925Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Dexterity (Stealth) check"
     },
     {
      "seq": 18,
-     "at": "2026-10-27T20:47:35.717Z",
+     "at": "2026-10-28T06:10:21.930Z",
      "type": "roll",
      "text": "Dexterity (Stealth) check: 6 & 17 → 22",
      "label": "Dexterity (Stealth) check",
@@ -3947,7 +8797,7 @@
     },
     {
      "seq": 19,
-     "at": "2026-10-27T20:47:35.719Z",
+     "at": "2026-10-28T06:10:21.932Z",
      "type": "dm",
      "kind": "narration",
      "who": null,
@@ -3955,7 +8805,7 @@
     },
     {
      "seq": 22,
-     "at": "2026-10-27T20:47:35.724Z",
+     "at": "2026-10-28T06:10:21.939Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Initiative",
@@ -3963,7 +8813,7 @@
     },
     {
      "seq": 23,
-     "at": "2026-10-27T20:47:35.724Z",
+     "at": "2026-10-28T06:10:21.940Z",
      "type": "rollRequested",
      "who": "Torvald",
      "text": "Initiative",
@@ -3971,7 +8821,7 @@
     },
     {
      "seq": 24,
-     "at": "2026-10-27T20:47:35.724Z",
+     "at": "2026-10-28T06:10:21.940Z",
      "type": "rollRequested",
      "who": "Elowen",
      "text": "Initiative",
@@ -3979,7 +8829,7 @@
     },
     {
      "seq": 25,
-     "at": "2026-10-27T20:47:35.727Z",
+     "at": "2026-10-28T06:10:21.943Z",
      "type": "roll",
      "text": "Initiative: 18 → 21",
      "label": "Initiative",
@@ -3988,7 +8838,7 @@
     },
     {
      "seq": 26,
-     "at": "2026-10-27T20:47:35.728Z",
+     "at": "2026-10-28T06:10:21.944Z",
      "type": "roll",
      "text": "Initiative: 4 → 5",
      "label": "Initiative",
@@ -3997,7 +8847,7 @@
     },
     {
      "seq": 27,
-     "at": "2026-10-27T20:47:35.728Z",
+     "at": "2026-10-28T06:10:21.945Z",
      "type": "roll",
      "text": "Initiative: 11 → 13",
      "label": "Initiative",
@@ -4006,14 +8856,14 @@
     },
     {
      "seq": 32,
-     "at": "2026-10-27T20:47:35.739Z",
+     "at": "2026-10-28T06:10:21.957Z",
      "type": "rollRequested",
      "who": "Torvald",
      "text": "Battleaxe attack"
     },
     {
      "seq": 33,
-     "at": "2026-10-27T20:47:35.742Z",
+     "at": "2026-10-28T06:10:21.961Z",
      "type": "roll",
      "text": "Battleaxe attack: 3 → 8",
      "label": "Battleaxe attack",
@@ -4021,7 +8871,7 @@
     },
     {
      "seq": 39,
-     "at": "2026-10-27T20:47:35.753Z",
+     "at": "2026-10-28T06:10:21.978Z",
      "type": "rollRequested",
      "who": "Mira",
      "text": "Death save",

@@ -20,9 +20,16 @@ the tools of this MCP server. The only physical things on the table are their di
 - \`request_roll\` with \`check\` ("Stealth", "dex save", "str") computes the modifier from the
   character sheet. Use a \`dc\` and keep \`hide_dc\` true unless knowing the DC adds tension.
 - Ask for rolls only when failure is interesting. Otherwise just say what happens.
-- Attacks: request the d20 attack roll with the right modifier (ability mod + proficiency 2),
-  compare to the target AC yourself, then request the damage dice. Monsters' rolls are yours:
-  use \`dm_roll\` (secret when the players shouldn't know the number).
+- Attacks: \`request_roll\` with \`attack\` ("Longsword", "Fire Bolt") gives the d20 and the
+  to-hit bonus from the sheet. Compare to the target AC yourself, then \`request_roll\` with
+  \`damage\` (add \`critical\` on a natural 20, \`versatile\` for two hands). Healing spells
+  work the same way with \`damage\`. For save spells (Burning Hands), roll the targets' saves
+  against the spell save DC yourself. Each hero's \`sheet\` in \`get_game_state\` lists their
+  attacks, spells (with DC and to-hit) and modifiers. What a spell or feature does beyond
+  its numbers (Bless, Rage, Sneak Attack) is still yours to apply.
+- Monsters' rolls are yours: use \`dm_roll\` (secret when the players shouldn't know the number).
+- New spells or features: \`update_character\` \`add_spells\` / \`add_features\` (give features
+  a one-line \`text\` the players can read).
 - Use \`update_character\` for every change of HP, items, gold, XP or conditions, so the
   sheet on screen stays true. Give a short \`reason\`.
 

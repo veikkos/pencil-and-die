@@ -1,5 +1,5 @@
 import type { Abilities, Character } from './rules.ts';
-import { CLASSES } from './rules.ts';
+import { CLASSES, defaultSpells, upgradeFeatures } from './rules.ts';
 
 export type Recharge = 'short' | 'long';
 
@@ -33,11 +33,13 @@ export function defaultResources(classId: string, abilities: Abilities): Resourc
   return [...(CLASS_RESOURCES[classId]?.(abilities) ?? []), res('hit-dice', `Hit dice (d${hitDie})`, 1, 'long')];
 }
 
-/** Fills fields that events written before resources existed don't have. */
+/** Brings characters from older events up to date: resources, life status, structured features, spells. */
 export function withDefaults(c: Character): Character {
   return {
     ...c,
     resources: c.resources ?? defaultResources(c.classId, c.abilities),
+    features: upgradeFeatures(c.raceId, c.classId, c.features),
+    spells: c.spells ?? defaultSpells(c.raceId, c.classId),
     status: c.status ?? 'up',
     deathSaves: c.deathSaves ?? { successes: 0, failures: 0 },
   };

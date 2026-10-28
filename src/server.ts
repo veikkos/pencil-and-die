@@ -7,6 +7,7 @@ import { getSetting, openDb, setSetting } from './db.ts';
 import { parseDice, physicalDice, scoreRoll } from './dice.ts';
 import { createMcpServer } from './mcp.ts';
 import { buildCharacter, CLASSES, PRESETS, RACES, SKILLS, type CharacterChoices } from './rules.ts';
+import { sheetOf } from './sheet.ts';
 import { playerView, type MessageKind } from './state.ts';
 import { GameStore, type Language } from './store.ts';
 
@@ -111,7 +112,8 @@ app.get('/api/games/:id/state', (req, res) => {
 });
 
 app.post('/api/character-preview', (req, res) => {
-  res.json(buildCharacter('preview', req.body as CharacterChoices));
+  const c = buildCharacter('preview', req.body as CharacterChoices);
+  res.json({ ...c, sheet: sheetOf(c) });
 });
 
 app.post('/api/games/:id/characters', (req, res) => {

@@ -349,13 +349,13 @@ function presenceBits(p, health, side, lead) {
 const PART_EN = {
   hp: (v) => `HP ${v}`, maxHp: (v) => `max HP ${v}`, tempHp: (v) => `temp HP ${v}`, ac: (v) => `AC ${v}`,
   level: (v) => `level ${v}`, xp: (v) => `XP ${v}`, gold: (v) => `gold ${v}`, gained: (v) => `gained ${v}`,
-  lost: (v) => `lost ${v}`, condOn: (v) => `now ${v}`, condOff: (v) => `no longer ${v}`, feature: (v) => `new: ${v}`,
+  lost: (v) => `lost ${v}`, condOn: (v) => `now ${v}`, condOff: (v) => `no longer ${v}`, feature: (v) => `new: ${v}`, spell: (v) => `new spell: ${v}`, spellLost: (v) => `lost spell: ${v}`,
   resource: (v) => resourceText(v, 'en'), status: (v) => STATUS_EN[v] ?? v,
 };
 const PART_FI = {
   hp: (v) => `OP ${v}`, maxHp: (v) => `maks. OP ${v}`, tempHp: (v) => `väliaikaiset OP ${v}`, ac: (v) => `PL ${v}`,
   level: (v) => `taso ${v}`, xp: (v) => `KP ${v}`, gold: (v) => `kulta ${v}`, gained: (v) => `sai: ${v}`,
-  lost: (v) => `menetti: ${v}`, condOn: (v) => `tila: ${v}`, condOff: (v) => `ei enää: ${v}`, feature: (v) => `uusi: ${v}`,
+  lost: (v) => `menetti: ${v}`, condOn: (v) => `tila: ${v}`, condOff: (v) => `ei enää: ${v}`, feature: (v) => `uusi: ${v}`, spell: (v) => `uusi loitsu: ${v}`, spellLost: (v) => `menetti loitsun: ${v}`,
   resource: (v) => resourceText(v, 'fi'), status: (v) => STATUS_FI[v] ?? v,
 };
 

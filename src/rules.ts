@@ -2,6 +2,7 @@
 // simple choices. The DM (Claude) handles everything beyond that.
 
 import { defaultResources, type Resource } from './resources.ts';
+import { spellsById, type Spell } from './spells.ts';
 
 export const ABILITIES = ['str', 'dex', 'con', 'int', 'wis', 'cha'] as const;
 export type Ability = (typeof ABILITIES)[number];
@@ -15,34 +16,74 @@ export const SKILLS: Record<string, Ability> = {
   Stealth: 'dex', Survival: 'wis',
 };
 
+export interface Feature {
+  name: string;
+  /** What it does, in a sentence or two. */
+  text: string;
+  source: 'race' | 'class' | 'other';
+  /** The limited-use resource it spends, if any. */
+  resourceId?: string;
+}
+
 export interface Race {
   id: string;
   name: string;
   blurb: string;
   bonuses: Partial<Abilities>;
   speed: number;
-  traits: string[];
+  traits: Feature[];
+  spells?: string[];
 }
+
+const trait = (name: string, text: string): Feature => ({ name, text, source: 'race' });
+const feature = (name: string, text: string, resourceId?: string): Feature => ({ name, text, source: 'class', ...(resourceId ? { resourceId } : {}) });
+
+const DARKVISION = trait('Darkvision', 'See in dim light within 60 ft as if it were bright, and in darkness as if it were dim (no colours).');
+const FEY_ANCESTRY = trait('Fey Ancestry', 'Advantage on saves against being charmed; magic cannot put you to sleep.');
 
 export const RACES: Race[] = [
   { id: 'human', name: 'Human', blurb: 'Adaptable and ambitious; a little good at everything.',
-    bonuses: { str: 1, dex: 1, con: 1, int: 1, wis: 1, cha: 1 }, speed: 30, traits: ['Extra language'] },
+    bonuses: { str: 1, dex: 1, con: 1, int: 1, wis: 1, cha: 1 }, speed: 30,
+    traits: [trait('Extra language', 'You speak one more language of your choice.')] },
   { id: 'elf', name: 'Elf (High)', blurb: 'Graceful, keen-eyed and long-lived, with a touch of magic.',
-    bonuses: { dex: 2, int: 1 }, speed: 30, traits: ['Darkvision 60 ft', 'Keen Senses (Perception)', 'Fey Ancestry', 'Trance', 'One wizard cantrip'] },
+    bonuses: { dex: 2, int: 1 }, speed: 30,
+    traits: [DARKVISION, trait('Keen Senses', 'Proficient in Perception.'), FEY_ANCESTRY,
+      trait('Trance', 'Four hours of meditation give you the rest of eight hours of sleep.'),
+      trait('Wizard cantrip', 'You know one wizard cantrip, cast with INT.')] },
   { id: 'dwarf', name: 'Dwarf (Hill)', blurb: 'Stout, stubborn and hard to kill.',
-    bonuses: { con: 2, wis: 1 }, speed: 25, traits: ['Darkvision 60 ft', 'Dwarven Resilience (poison)', 'Stonecunning', 'Dwarven Toughness (+1 HP/level)'] },
+    bonuses: { con: 2, wis: 1 }, speed: 25,
+    traits: [DARKVISION, trait('Dwarven Resilience', 'Advantage on saves against poison, and resistance to poison damage.'),
+      trait('Stonecunning', 'Double proficiency on History checks about stonework.'),
+      trait('Dwarven Toughness', '+1 hit point per level.')] },
   { id: 'halfling', name: 'Halfling (Lightfoot)', blurb: 'Small, cheerful and uncannily lucky.',
-    bonuses: { dex: 2, cha: 1 }, speed: 25, traits: ['Lucky (reroll natural 1s)', 'Brave', 'Halfling Nimbleness', 'Naturally Stealthy'] },
+    bonuses: { dex: 2, cha: 1 }, speed: 25,
+    traits: [trait('Lucky', 'When you roll a 1 on an attack, check or save, reroll it and use the new roll.'),
+      trait('Brave', 'Advantage on saves against being frightened.'),
+      trait('Halfling Nimbleness', 'You can move through the space of any creature larger than you.'),
+      trait('Naturally Stealthy', 'You can try to hide behind a creature at least one size larger than you.')] },
   { id: 'gnome', name: 'Gnome (Rock)', blurb: 'Curious tinkerers with quick minds.',
-    bonuses: { int: 2, con: 1 }, speed: 25, traits: ['Darkvision 60 ft', 'Gnome Cunning', "Artificer's Lore", 'Tinker'] },
+    bonuses: { int: 2, con: 1 }, speed: 25,
+    traits: [DARKVISION, trait('Gnome Cunning', 'Advantage on INT, WIS and CHA saves against magic.'),
+      trait("Artificer's Lore", 'Double proficiency on History checks about magic items, alchemy and technology.'),
+      trait('Tinker', 'You can build tiny clockwork toys, fire starters and music boxes.')] },
   { id: 'half-elf', name: 'Half-Elf', blurb: 'At home in two worlds and charming in both.',
-    bonuses: { cha: 2 }, speed: 30, traits: ['Darkvision 60 ft', 'Fey Ancestry', '+1 to two other abilities', 'Two extra skills'] },
+    bonuses: { cha: 2 }, speed: 30,
+    traits: [DARKVISION, FEY_ANCESTRY, trait('Versatile', '+1 to two other abilities and two extra skills.')] },
   { id: 'half-orc', name: 'Half-Orc', blurb: 'Fierce and enduring; hard to put down.',
-    bonuses: { str: 2, con: 1 }, speed: 30, traits: ['Darkvision 60 ft', 'Menacing (Intimidation)', 'Relentless Endurance', 'Savage Attacks'] },
+    bonuses: { str: 2, con: 1 }, speed: 30,
+    traits: [DARKVISION, trait('Menacing', 'Proficient in Intimidation.'),
+      trait('Relentless Endurance', 'Once per long rest, when you drop to 0 HP but are not killed, you drop to 1 HP instead.'),
+      trait('Savage Attacks', 'On a melee critical hit, roll one of the weapon damage dice once more and add it.')] },
   { id: 'dragonborn', name: 'Dragonborn', blurb: 'Proud draconic folk who breathe elemental fire.',
-    bonuses: { str: 2, cha: 1 }, speed: 30, traits: ['Draconic Ancestry (red: fire)', 'Breath Weapon 2d6', 'Damage Resistance (fire)'] },
+    bonuses: { str: 2, cha: 1 }, speed: 30,
+    traits: [trait('Draconic Ancestry', 'Red dragon: your breath and resistance are fire.'),
+      trait('Breath Weapon', 'Action, once per short rest: a 15-ft cone of fire, 2d6 damage, DEX save (DC 8 + CON + proficiency) for half.'),
+      trait('Damage Resistance', 'You take half damage from fire.')] },
   { id: 'tiefling', name: 'Tiefling', blurb: 'Touched by the infernal; clever, magnetic, distrusted.',
-    bonuses: { cha: 2, int: 1 }, speed: 30, traits: ['Darkvision 60 ft', 'Hellish Resistance (fire)', 'Infernal Legacy (Thaumaturgy)'] },
+    bonuses: { cha: 2, int: 1 }, speed: 30,
+    traits: [DARKVISION, trait('Hellish Resistance', 'You take half damage from fire.'),
+      trait('Infernal Legacy', 'You know the Thaumaturgy cantrip.')],
+    spells: ['thaumaturgy'] },
 ];
 
 export interface CharClass {
@@ -57,74 +98,98 @@ export interface CharClass {
   /** Armour class from equipment, given ability modifiers. */
   ac: (mod: Abilities) => number;
   acNote: string;
-  equipment: string[];
-  features: string[];
+  equipment: { name: string; qty: number }[];
+  features: Feature[];
+  spellcasting?: { ability: Ability; slots: string };
+  spells?: string[];
 }
 
 const dexCap = (mod: Abilities, cap: number) => Math.min(mod.dex, cap);
+const kit = (...items: (string | [string, number])[]) => items.map((i) => (typeof i === 'string' ? { name: i, qty: 1 } : { name: i[0], qty: i[1] }));
+const SLOTS = 'spell-slots-1';
 
 export const CLASSES: CharClass[] = [
   { id: 'fighter', name: 'Fighter', blurb: 'Master of weapons and armour. Simple, sturdy, reliable.', hitDie: 10,
     priority: ['str', 'con', 'dex', 'wis', 'cha', 'int'], saves: ['str', 'con'], skills: ['Athletics', 'Perception'],
     ac: () => 18, acNote: 'Chain mail + shield',
-    equipment: ['Chain mail', 'Shield', 'Longsword', '2 Handaxes', "Explorer's pack"],
-    features: ['Fighting Style: Defense', 'Second Wind (bonus action: heal 1d10 + level, once per rest)'] },
+    equipment: kit('Chain mail', 'Shield', 'Longsword', ['Handaxe', 2], "Explorer's pack"),
+    features: [feature('Fighting Style: Defense', '+1 AC while wearing armour (already counted).'),
+      feature('Second Wind', 'Bonus action: regain 1d10 + your level in hit points.', 'second-wind')] },
   { id: 'barbarian', name: 'Barbarian', blurb: 'Furious warrior who shrugs off blows.', hitDie: 12,
     priority: ['str', 'con', 'dex', 'wis', 'cha', 'int'], saves: ['str', 'con'], skills: ['Athletics', 'Survival'],
     ac: (m) => 10 + m.dex + m.con, acNote: 'Unarmored Defense (10 + DEX + CON)',
-    equipment: ['Greataxe', '2 Handaxes', "Explorer's pack", '4 Javelins'],
-    features: ['Rage (2/long rest: +2 damage, resistance to physical damage)', 'Unarmored Defense'] },
+    equipment: kit('Greataxe', ['Handaxe', 2], "Explorer's pack", ['Javelin', 4]),
+    features: [feature('Rage', 'Bonus action, lasts a minute: +2 damage on STR melee attacks, advantage on STR checks and saves, half damage from bludgeoning, piercing and slashing.', 'rage'),
+      feature('Unarmored Defense', 'Without armour your AC is 10 + DEX + CON.')] },
   { id: 'rogue', name: 'Rogue', blurb: 'Sneaky, skilled and deadly from the shadows.', hitDie: 8,
     priority: ['dex', 'con', 'int', 'wis', 'cha', 'str'], saves: ['dex', 'int'],
     skills: ['Stealth', 'Sleight of Hand', 'Perception', 'Acrobatics'],
     ac: (m) => 11 + m.dex, acNote: 'Leather armour',
-    equipment: ['Leather armour', 'Rapier', 'Shortbow + 20 arrows', "Thieves' tools", "Burglar's pack", '2 Daggers'],
-    features: ['Sneak Attack (1d6)', 'Expertise (Stealth, Thieves\' tools)', "Thieves' Cant"] },
+    equipment: kit('Leather armour', 'Rapier', 'Shortbow', ['Arrows', 20], "Thieves' tools", "Burglar's pack", ['Dagger', 2]),
+    features: [feature('Sneak Attack', 'Once per turn, +1d6 damage with a finesse or ranged weapon when you have advantage or an ally is next to the target.'),
+      feature('Expertise', "Double proficiency in Stealth and with thieves' tools."),
+      feature("Thieves' Cant", 'A secret mix of slang and signs only rogues understand.')] },
   { id: 'ranger', name: 'Ranger', blurb: 'Hunter and tracker of the wild places.', hitDie: 10,
     priority: ['dex', 'wis', 'con', 'str', 'int', 'cha'], saves: ['str', 'dex'], skills: ['Survival', 'Perception', 'Stealth'],
     ac: (m) => 11 + m.dex, acNote: 'Leather armour',
-    equipment: ['Leather armour', '2 Shortswords', 'Longbow + 20 arrows', "Explorer's pack"],
-    features: ['Favored Enemy (beasts)', 'Natural Explorer (forest)'] },
+    equipment: kit('Leather armour', ['Shortsword', 2], 'Longbow', ['Arrows', 20], "Explorer's pack"),
+    features: [feature('Favored Enemy', 'Beasts: advantage on Survival to track them and on INT checks to recall facts about them.'),
+      feature('Natural Explorer', 'Forest: your group cannot get lost there, and you track and forage twice as well.')] },
   { id: 'wizard', name: 'Wizard', blurb: 'Scholar of arcane magic. Fragile but powerful.', hitDie: 6,
     priority: ['int', 'con', 'dex', 'wis', 'cha', 'str'], saves: ['int', 'wis'], skills: ['Arcana', 'History'],
     ac: (m) => 10 + m.dex, acNote: 'No armour (Mage Armor spell: 13 + DEX)',
-    equipment: ['Quarterstaff', 'Component pouch', 'Spellbook', "Scholar's pack"],
-    features: ['Spellcasting (INT): cantrips Fire Bolt, Mage Hand, Light; prepared from Magic Missile, Shield, Sleep, Burning Hands, Detect Magic, Mage Armor; 2 first-level slots', 'Arcane Recovery'] },
+    equipment: kit('Quarterstaff', 'Component pouch', 'Spellbook', "Scholar's pack"),
+    features: [feature('Arcane Recovery', 'Once a day after a short rest, regain a spent spell slot.', 'arcane-recovery')],
+    spellcasting: { ability: 'int', slots: SLOTS },
+    spells: ['fire-bolt', 'mage-hand', 'light', 'magic-missile', 'shield', 'sleep', 'burning-hands', 'detect-magic', 'mage-armor'] },
   { id: 'sorcerer', name: 'Sorcerer', blurb: 'Born with raw magic in the blood.', hitDie: 6,
     priority: ['cha', 'con', 'dex', 'wis', 'int', 'str'], saves: ['con', 'cha'], skills: ['Arcana', 'Persuasion'],
     ac: (m) => 13 + m.dex, acNote: 'Draconic Resilience (13 + DEX)',
-    equipment: ['Light crossbow + 20 bolts', 'Arcane focus', "Dungeoneer's pack", '2 Daggers'],
-    features: ['Spellcasting (CHA): cantrips Fire Bolt, Prestidigitation, Ray of Frost, Light; spells Magic Missile, Chromatic Orb; 2 first-level slots', 'Draconic Bloodline (+1 HP/level)'] },
+    equipment: kit('Light crossbow', ['Bolts', 20], 'Arcane focus', "Dungeoneer's pack", ['Dagger', 2]),
+    features: [feature('Draconic Bloodline', 'Dragon scales: AC 13 + DEX without armour, and +1 hit point per level.')],
+    spellcasting: { ability: 'cha', slots: SLOTS },
+    spells: ['fire-bolt', 'prestidigitation', 'ray-of-frost', 'light', 'magic-missile', 'chromatic-orb'] },
   { id: 'warlock', name: 'Warlock', blurb: 'Gained magic through a pact with something powerful.', hitDie: 8,
     priority: ['cha', 'con', 'dex', 'wis', 'int', 'str'], saves: ['wis', 'cha'], skills: ['Deception', 'Arcana'],
     ac: (m) => 11 + m.dex, acNote: 'Leather armour',
-    equipment: ['Leather armour', 'Light crossbow + 20 bolts', 'Arcane focus', "Scholar's pack", '2 Daggers'],
-    features: ['Otherworldly Patron (the Fiend)', 'Pact Magic (CHA): cantrips Eldritch Blast, Minor Illusion; spells Hex, Armor of Agathys; 1 slot per short rest'] },
+    equipment: kit('Leather armour', 'Light crossbow', ['Bolts', 20], 'Arcane focus', "Scholar's pack", ['Dagger', 2]),
+    features: [feature('Otherworldly Patron: the Fiend', 'When you drop a hostile creature to 0 HP, gain temporary HP equal to CHA modifier + level.'),
+      feature('Pact Magic', 'Your spell slot comes back after a short rest.')],
+    spellcasting: { ability: 'cha', slots: 'pact-slot' },
+    spells: ['eldritch-blast', 'minor-illusion', 'hex', 'armor-of-agathys'] },
   { id: 'cleric', name: 'Cleric', blurb: 'Divine healer and warrior of a god.', hitDie: 8,
     priority: ['wis', 'con', 'str', 'dex', 'cha', 'int'], saves: ['wis', 'cha'], skills: ['Medicine', 'Religion'],
     ac: (m) => 16 + dexCap(m, 2), acNote: 'Scale mail + shield',
-    equipment: ['Scale mail', 'Shield', 'Mace', 'Holy symbol', "Priest's pack"],
-    features: ['Spellcasting (WIS): cantrips Sacred Flame, Guidance, Spare the Dying; prepares Cure Wounds, Bless, Healing Word, Shield of Faith…; 2 first-level slots', 'Divine Domain: Life (bonus healing)'] },
+    equipment: kit('Scale mail', 'Shield', 'Mace', 'Holy symbol', "Priest's pack"),
+    features: [feature('Divine Domain: Life', 'Your healing spells restore an extra 2 + spell level hit points.')],
+    spellcasting: { ability: 'wis', slots: SLOTS },
+    spells: ['sacred-flame', 'guidance', 'spare-the-dying', 'cure-wounds', 'bless', 'healing-word', 'shield-of-faith'] },
   { id: 'paladin', name: 'Paladin', blurb: 'Holy knight bound by an oath.', hitDie: 10,
     priority: ['str', 'cha', 'con', 'wis', 'dex', 'int'], saves: ['wis', 'cha'], skills: ['Athletics', 'Persuasion'],
     ac: () => 18, acNote: 'Chain mail + shield',
-    equipment: ['Chain mail', 'Shield', 'Longsword', '5 Javelins', 'Holy symbol', "Priest's pack"],
-    features: ['Divine Sense', 'Lay on Hands (5 HP pool)'] },
+    equipment: kit('Chain mail', 'Shield', 'Longsword', ['Javelin', 5], 'Holy symbol', "Priest's pack"),
+    features: [feature('Divine Sense', 'Action: until your next turn you know where celestials, fiends and undead are within 60 ft.'),
+      feature('Lay on Hands', 'Action: touch a creature and restore hit points from your pool, or spend 5 to cure a disease or poison.', 'lay-on-hands')] },
   { id: 'monk', name: 'Monk', blurb: 'Martial artist who fights with fists and focus.', hitDie: 8,
     priority: ['dex', 'wis', 'con', 'str', 'int', 'cha'], saves: ['str', 'dex'], skills: ['Acrobatics', 'Insight'],
     ac: (m) => 10 + m.dex + m.wis, acNote: 'Unarmored Defense (10 + DEX + WIS)',
-    equipment: ['Shortsword', '10 Darts', "Explorer's pack"],
-    features: ['Unarmored Defense', 'Martial Arts (1d4 unarmed, bonus-action strike)'] },
+    equipment: kit('Shortsword', ['Dart', 10], "Explorer's pack"),
+    features: [feature('Unarmored Defense', 'Without armour your AC is 10 + DEX + WIS.'),
+      feature('Martial Arts', 'Unarmed strikes use DEX and deal 1d4; after attacking you can make one unarmed strike as a bonus action.')] },
   { id: 'druid', name: 'Druid', blurb: 'Keeper of nature, wielding its magic.', hitDie: 8,
     priority: ['wis', 'con', 'dex', 'int', 'cha', 'str'], saves: ['int', 'wis'], skills: ['Nature', 'Animal Handling'],
     ac: (m) => 13 + m.dex, acNote: 'Leather armour + wooden shield',
-    equipment: ['Leather armour', 'Wooden shield', 'Scimitar', 'Druidic focus', "Explorer's pack"],
-    features: ['Druidic', 'Spellcasting (WIS): cantrips Druidcraft, Produce Flame; prepares Cure Wounds, Entangle, Faerie Fire, Goodberry…; 2 first-level slots'] },
+    equipment: kit('Leather armour', 'Wooden shield', 'Scimitar', 'Druidic focus', "Explorer's pack"),
+    features: [feature('Druidic', 'The secret language of druids; you can leave hidden messages in it.')],
+    spellcasting: { ability: 'wis', slots: SLOTS },
+    spells: ['druidcraft', 'produce-flame', 'cure-wounds', 'entangle', 'faerie-fire', 'goodberry'] },
   { id: 'bard', name: 'Bard', blurb: 'Performer whose words and music carry magic.', hitDie: 8,
     priority: ['cha', 'dex', 'con', 'wis', 'int', 'str'], saves: ['dex', 'cha'], skills: ['Performance', 'Persuasion', 'Insight'],
     ac: (m) => 11 + m.dex, acNote: 'Leather armour',
-    equipment: ['Leather armour', 'Rapier', 'Lute', "Entertainer's pack", 'Dagger'],
-    features: ['Bardic Inspiration (d6, CHA mod uses per long rest)', 'Spellcasting (CHA): cantrips Vicious Mockery, Minor Illusion; spells Healing Word, Charm Person, Dissonant Whispers, Thunderwave; 2 first-level slots'] },
+    equipment: kit('Leather armour', 'Rapier', 'Lute', "Entertainer's pack", 'Dagger'),
+    features: [feature('Bardic Inspiration', 'Bonus action: a creature within 60 ft gets a d6 to add to one attack, check or save in the next 10 minutes.', 'bardic-inspiration')],
+    spellcasting: { ability: 'cha', slots: SLOTS },
+    spells: ['vicious-mockery', 'minor-illusion', 'healing-word', 'charm-person', 'dissonant-whispers', 'thunderwave'] },
 ];
 
 export interface Preset {
@@ -187,11 +252,35 @@ export interface Character {
   gold: number;
   xp: number;
   conditions: string[];
-  features: string[];
+  features: Feature[];
+  spells: Spell[];
   notes: string;
   resources: Resource[];
   status: LifeStatus;
   deathSaves: { successes: number; failures: number };
+}
+
+/**
+ * Features of characters made before features were data were strings like
+ * "Second Wind (bonus action: heal 1d10 + level, once per rest)". Each becomes the matching
+ * structured feature; the old spellcasting lines are now the spell list.
+ */
+export function upgradeFeatures(raceId: string, classId: string, features: (Feature | string)[]): Feature[] {
+  const defaults = [...(RACES.find((r) => r.id === raceId)?.traits ?? []), ...(CLASSES.find((c) => c.id === classId)?.features ?? [])];
+  const out: Feature[] = [];
+  for (const f of features) {
+    if (typeof f !== 'string') { out.push(f); continue; }
+    if (/^spellcasting\b/i.test(f)) continue;
+    const text = /other abilities|extra skills/i.test(f) ? 'versatile' : f.toLowerCase();
+    const match = defaults.find((d) => text.includes(d.name.split(':')[0].toLowerCase()));
+    const next = match ? { ...match } : { name: f, text: '', source: 'other' as const };
+    if (!out.some((x) => x.name === next.name)) out.push(next);
+  }
+  return out;
+}
+
+export function defaultSpells(raceId: string, classId: string): Spell[] {
+  return spellsById([...(CLASSES.find((c) => c.id === classId)?.spells ?? []), ...(RACES.find((r) => r.id === raceId)?.spells ?? [])]);
 }
 
 export interface CharacterChoices {
@@ -247,11 +336,12 @@ export function buildCharacter(id: string, choice: CharacterChoices): Character 
     proficiencyBonus: 2,
     saves: cls.saves,
     skills,
-    inventory: cls.equipment.map((name) => ({ name, qty: 1 })),
+    inventory: cls.equipment.map((i) => ({ ...i })),
     gold: 10,
     xp: 0,
     conditions: [],
-    features: [...race.traits, ...cls.features],
+    features: [...race.traits, ...cls.features].map((f) => ({ ...f })),
+    spells: defaultSpells(race.id, cls.id),
     notes: '',
     resources: defaultResources(cls.id, abilities),
     status: 'up',

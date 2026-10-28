@@ -3,7 +3,9 @@ import type { Advantage } from './dice.ts';
 import { applyDeathSave, applyHpChange, UNCONSCIOUS, wakeUp } from './life.ts';
 import { restCharacter, useResource, withDefaults, type Recharge } from './resources.ts';
 import { applyPresencePatch, healthWord, publicPresence, type Presence, type PresencePatch } from './roster.ts';
-import type { Character } from './rules.ts';
+import type { Character, Feature } from './rules.ts';
+import { sheetOf } from './sheet.ts';
+import type { Spell } from './spells.ts';
 
 export type Speaker = 'dm' | 'player' | 'system';
 export type MessageKind = 'narration' | 'action' | 'speech' | 'question' | 'answer' | 'ooc' | 'info';
@@ -78,7 +80,11 @@ export interface CharacterPatch {
   removeItems?: { name: string; qty?: number }[];
   addConditions?: string[];
   removeConditions?: string[];
-  addFeatures?: string[];
+  /** Plain strings come from events written before features were data. */
+  addFeatures?: (string | Feature)[];
+  addSpells?: Spell[];
+  /** Spell ids or names. */
+  removeSpells?: string[];
   notes?: string;
   resourceMax?: { resourceId: string; max: number }[];
   /** Damage was a critical hit: a dying hero takes two death save failures. */
@@ -124,7 +130,7 @@ export function emptyState(id: string): GameState {
 const sign = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
 
 function applyPatch(c: Character, p: CharacterPatch): Character {
-  const next: Character = { ...c, inventory: c.inventory.map((i) => ({ ...i })), conditions: [...c.conditions], features: [...c.features], resources: c.resources.map((r) => ({ ...r })) };
+  const next: Character = { ...c, inventory: c.inventory.map((i) => ({ ...i })), conditions: [...c.conditions], features: [...c.features], spells: [...c.spells], resources: c.resources.map((r) => ({ ...r })) };
   if (p.maxHp !== undefined) next.maxHp = p.maxHp;
   if (p.hp !== undefined) next.hp = p.hp;
   if (p.hpDelta !== undefined) {
@@ -159,7 +165,13 @@ function applyPatch(c: Character, p: CharacterPatch): Character {
   next.inventory = next.inventory.filter((i) => i.qty > 0);
   for (const cond of p.addConditions ?? []) if (!next.conditions.includes(cond)) next.conditions.push(cond);
   next.conditions = next.conditions.filter((cnd) => !(p.removeConditions ?? []).includes(cnd));
-  for (const f of p.addFeatures ?? []) if (!next.features.includes(f)) next.features.push(f);
+  for (const f of p.addFeatures ?? []) {
+    const feature: Feature = typeof f === 'string' ? { name: f, text: '', source: 'other' } : f;
+    if (!next.features.some((x) => x.name === feature.name)) next.features.push(feature);
+  }
+  const gone = (p.removeSpells ?? []).map((x) => x.toLowerCase());
+  next.spells = next.spells.filter((x) => !gone.includes(x.id) && !gone.includes(x.name.toLowerCase()));
+  for (const sp of p.addSpells ?? []) if (!next.spells.some((x) => x.id === sp.id)) next.spells.push(sp);
   if (p.notes !== undefined) next.notes = p.notes;
   for (const m of p.resourceMax ?? []) {
     const r = next.resources.find((x) => x.id === m.resourceId);
@@ -186,7 +198,9 @@ function describePatch(before: Character, after: Character): PatchPart[] {
   for (const [n, q] of beforeItems) if ((afterItems.get(n) ?? 0) < q) parts.push(['lost', n]);
   for (const c of after.conditions) if (!before.conditions.includes(c)) parts.push(['condOn', c]);
   for (const c of before.conditions) if (!after.conditions.includes(c)) parts.push(['condOff', c]);
-  for (const f of after.features) if (!before.features.includes(f)) parts.push(['feature', f]);
+  for (const f of after.features) if (!before.features.some((x) => x.name === f.name)) parts.push(['feature', f.name]);
+  for (const sp of after.spells) if (!before.spells.some((x) => x.id === sp.id)) parts.push(['spell', sp.name]);
+  for (const sp of before.spells) if (!after.spells.some((x) => x.id === sp.id)) parts.push(['spellLost', sp.name]);
   for (const r of after.resources) {
     const old = before.resources.find((x) => x.id === r.id);
     if (old && (old.used !== r.used || old.max !== r.max)) parts.push(['resource', `${r.name} ${r.max - r.used}/${r.max}`]);
@@ -386,6 +400,7 @@ export function playerView(s: GameState) {
   const hide = <T extends RollRequest>(r: T) => (r.hideDc ? { ...r, dc: undefined } : r);
   return {
     ...s,
+    characters: s.characters.map((c) => ({ ...c, sheet: sheetOf(c) })),
     dmNotes: undefined,
     present: s.present.map(publicPresence),
     combat: s.combat && { round: s.combat.round, turn: s.combat.turn, order: s.combat.order.map((e) => ({ ref: e.ref, ready: e.initiative !== null })) },

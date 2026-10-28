@@ -9,6 +9,8 @@ import { fightRefs, orderText, registerSceneTools, roundText } from './mcp-scene
 import { findResource } from './resources.ts';
 import { newPresences, presenceSpec, stillPresent, toSpec, type Presence } from './roster.ts';
 import { checkModifier, type Character } from './rules.ts';
+import { attackRoll, damageRoll, sheetOf } from './sheet.ts';
+import { findSpell, SPELLS, type Spell } from './spells.ts';
 import { getSketchStyle, sanitizeSketch, setSketchStyle, SKETCH_HEIGHT, SKETCH_WIDTH } from './sketch.ts';
 import type { GameState, StoredEvent } from './state.ts';
 import { COMPLEXITY_GUIDE, FALLEN_GUIDE, LANGUAGE_NAMES, VERBOSITY_GUIDE, type GameStore } from './store.ts';
@@ -53,6 +55,25 @@ function describeEvent(s: GameState, { seq, event: e }: StoredEvent): string {
     default:
       return `[${seq}] ${e.type}`;
   }
+}
+
+type SpellArg = string | {
+  name: string; level: 0 | 1; casting_time: Spell['castingTime']; range: string; summary: string; concentration?: boolean;
+  attack?: Spell['attack']; save?: Spell['save']; dice?: string; add_mod?: boolean; damage_type?: string; heal?: boolean;
+};
+
+/** A built-in spell by name, or the DM's own. */
+function toSpell(a: SpellArg): Spell {
+  if (typeof a === 'string') {
+    const known = findSpell(a);
+    if (!known) throw new Error(`No built-in spell "${a}". Describe it as an object instead: name, level, range, summary, and attack/save/dice if it has them.`);
+    return { ...known };
+  }
+  if (a.dice) parseDice(a.dice);
+  const id = a.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const opt = { concentration: a.concentration, attack: a.attack, save: a.save, dice: a.dice, addMod: a.add_mod, damageType: a.damage_type, heal: a.heal };
+  return { id, name: a.name.trim(), level: a.level, castingTime: a.casting_time, range: a.range, summary: a.summary,
+    ...Object.fromEntries(Object.entries(opt).filter(([, v]) => v !== undefined)) };
 }
 
 function lifeNote(c: Character): string {
@@ -161,7 +182,10 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       verbosity: VERBOSITY_GUIDE[store.verbosity()],
       fallenHeroes: FALLEN_GUIDE[store.fallenHeroes()],
       id: s.id, title: s.title, started: s.started, seq: s.seq, scene: s.scene,
-      characters: s.characters,
+      characters: s.characters.map((c) => {
+        const { features: _f, inventory: _i, ...numbers } = sheetOf(c);
+        return { ...c, sheet: numbers };
+      }),
       present: s.present,
       combat: s.combat && { ...s.combat, order: s.combat.order.map((e) => ({ name: entryName(s, e), ...e })) },
       pendingRolls: s.pendingRolls,
@@ -259,32 +283,39 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
   // ---- Dice ----------------------------------------------------------------
 
   server.registerTool('request_roll', {
-    description: 'Ask a player to throw physical dice. The page shows which dice to throw; the result comes back through wait_for_players. Give `check` (skill, ability, or "<ability> save") to have the modifier computed from the sheet, or give an explicit `modifier` (attacks, damage).',
+    description: 'Ask a player to throw physical dice. The page shows which dice to throw; the result comes back through wait_for_players. Name what is rolled and the sheet supplies dice and modifier: `check` (skill, ability, "<ability> save"), `attack` (weapon or spell, to hit) or `damage` (weapon or spell, damage or healing). Explicit `dice`/`modifier` override.',
     inputSchema: {
       character_id: z.string().describe('Character id or name.'),
       check: z.string().optional().describe('e.g. "Stealth", "Perception", "dex save", "str".'),
-      label: z.string().optional().describe('What is shown, e.g. "Longsword attack" or "Longsword damage". Defaults from check.'),
-      dice: z.string().default('1d20').describe('e.g. "1d20", "2d6", "1d8".'),
+      attack: z.string().optional().describe('Weapon or spell to hit with, e.g. "Longsword", "Fire Bolt".'),
+      damage: z.string().optional().describe('Weapon or spell whose damage (or healing) to roll, e.g. "Longsword", "Cure Wounds".'),
+      critical: z.boolean().optional().describe('With `damage`: a critical hit, the dice are doubled.'),
+      versatile: z.boolean().optional().describe('With `damage`: the weapon is held in two hands.'),
+      label: z.string().optional().describe('What is shown. Defaults from check, attack or damage.'),
+      dice: z.string().optional().describe('e.g. "1d20", "2d6". Defaults from attack/damage, else 1d20.'),
       modifier: z.number().int().optional().describe('Overrides the computed modifier.'),
       advantage: z.enum(['none', 'advantage', 'disadvantage']).default('none'),
       dc: z.number().int().optional().describe('Target number. Success is computed when given.'),
       hide_dc: z.boolean().default(true),
       game_id: gameIdArg,
     },
-  }, ({ character_id, check, label, dice, modifier, advantage, dc, hide_dc, game_id }) => {
+  }, ({ character_id, check, attack, damage, critical, versatile, label, dice: givenDice, modifier, advantage, dc, hide_dc, game_id }) => {
     const id = resolve(game_id);
     const c = character(store.state(id), character_id);
+    if ([check, attack, damage].filter(Boolean).length > 1) throw new Error('Give only one of `check`, `attack` and `damage`.');
+    const named = attack ? attackRoll(c, attack) : damage ? damageRoll(c, damage, { critical, versatile }) : undefined;
+    const dice = givenDice ?? named?.dice ?? '1d20';
     const spec = parseDice(dice);
     physicalDice(spec, advantage);
     const deathSave = !!check && /^(death sav|kuolemanpelast)/i.test(check.trim());
     if (deathSave && c.status !== 'dying') throw new Error(`${c.name} is not dying (status ${c.status}); no death save needed.`);
     const computed = check && !deathSave ? checkModifier(c, check, store.language()) : undefined;
-    const finalLabel = deathSave ? 'Death save' : label ?? computed?.label;
-    if (!finalLabel) throw new Error('Give either a `check` or a `label`.');
+    const finalLabel = deathSave ? 'Death save' : label ?? named?.label ?? computed?.label;
+    if (!finalLabel) throw new Error('Give a `check`, `attack`, `damage` or a `label`.');
     const rollId = randomUUID().slice(0, 8);
     const roll = deathSave
       ? { rollId, characterId: c.id, label: finalLabel, dice: '1d20', modifier: 0, advantage: 'none' as const, dc: undefined, hideDc: true, purpose: 'death_save' as const }
-      : { rollId, characterId: c.id, label: finalLabel, dice, modifier: modifier ?? computed?.modifier ?? 0, advantage, dc, hideDc: hide_dc };
+      : { rollId, characterId: c.id, label: finalLabel, dice, modifier: modifier ?? named?.modifier ?? computed?.modifier ?? 0, advantage, dc, hideDc: hide_dc };
     store.append(id, { type: 'roll_requested', roll });
     return text(`Asked ${c.name} to roll ${finalLabel}: ${roll.dice}${roll.advantage !== 'none' ? ` with ${roll.advantage}` : ''} ${sign(roll.modifier)} (roll id ${rollId}). The result arrives via wait_for_players.`);
   });
@@ -328,7 +359,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
   // ---- Characters ----------------------------------------------------------
 
   server.registerTool('update_character', {
-    description: 'Change a character sheet: damage/healing, items, gold, XP, conditions, level, features. Every change shows up on the table.',
+    description: 'Change a character sheet: damage/healing, items, gold, XP, conditions, level, features, spells. Every change shows up on the table.',
     inputSchema: {
       character_id: z.string(),
       hp_delta: z.number().int().optional().describe('Negative for damage (temp HP absorbs first), positive for healing.'),
@@ -343,7 +374,15 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       remove_items: z.array(z.object({ name: z.string(), qty: z.number().int().optional() })).optional(),
       add_conditions: z.array(z.string()).optional(),
       remove_conditions: z.array(z.string()).optional(),
-      add_features: z.array(z.string()).optional(),
+      add_features: z.array(z.union([z.string(), z.object({ name: z.string(), text: z.string().default('') })])).optional()
+        .describe('A name, or { name, text } with a one-line explanation the players can read.'),
+      add_spells: z.array(z.union([z.string(), z.object({
+        name: z.string(), level: z.union([z.literal(0), z.literal(1)]), casting_time: z.enum(['action', 'bonus', 'reaction']).default('action'),
+        range: z.string(), summary: z.string(), concentration: z.boolean().optional(),
+        attack: z.enum(['ranged', 'melee']).optional(), save: z.enum(['str', 'dex', 'con', 'int', 'wis', 'cha']).optional(),
+        dice: z.string().optional(), add_mod: z.boolean().optional(), damage_type: z.string().optional(), heal: z.boolean().optional(),
+      })])).optional().describe(`A spell name from the built-in list (${SPELLS.map((x) => x.name).join(', ')}), or a custom spell.`),
+      remove_spells: z.array(z.string()).optional(),
       notes: z.string().optional().describe('Replaces the sheet notes.'),
       resource_max: z.array(z.object({ resource: z.string(), max: z.number().int().min(0) })).optional().describe('Change a resource maximum, e.g. more spell slots after levelling.'),
       critical: z.boolean().optional().describe('The damage was a critical hit: a dying hero takes two death save failures.'),
@@ -359,7 +398,8 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       patch: {
         hpDelta: a.hp_delta, hp: a.hp, maxHp: a.max_hp, tempHp: a.temp_hp, ac: a.ac, level: a.level,
         xpDelta: a.xp_delta, goldDelta: a.gold_delta, addItems: a.add_items, removeItems: a.remove_items,
-        addConditions: a.add_conditions, removeConditions: a.remove_conditions, addFeatures: a.add_features, notes: a.notes, critical: a.critical, revive: a.revive,
+        addConditions: a.add_conditions, removeConditions: a.remove_conditions, addFeatures: a.add_features?.map((f) => (typeof f === 'string' ? f : { ...f, source: 'other' as const })), notes: a.notes,
+        addSpells: a.add_spells?.map(toSpell), removeSpells: a.remove_spells, critical: a.critical, revive: a.revive,
         resourceMax: a.resource_max?.map((m) => ({ resourceId: findResource(c, m.resource).id, max: m.max })),
       },
     });
