@@ -370,7 +370,8 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       level: z.number().int().min(1).max(20).optional(),
       xp_delta: z.number().int().optional(),
       gold_delta: z.number().int().optional(),
-      add_items: z.array(z.object({ name: z.string(), qty: z.number().int().optional() })).optional(),
+      add_items: z.array(z.object({ name: z.string(), qty: z.number().int().min(0).optional(), note: z.string().optional() })).optional()
+        .describe('Keep the name short and put what an unusual item is or does in `note`; players see it on the sheet. qty 0 with a note changes only the note.'),
       remove_items: z.array(z.object({ name: z.string(), qty: z.number().int().optional() })).optional(),
       add_conditions: z.array(z.string()).optional(),
       remove_conditions: z.array(z.string()).optional(),
@@ -386,7 +387,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
         dice: z.string().optional(), add_mod: z.boolean().optional(), damage_type: z.string().optional(), heal: z.boolean().optional(),
       })])).optional().describe(`A spell name from the built-in list (${SPELLS.map((x) => x.name).join(', ')}), or a custom spell.`),
       remove_spells: z.array(z.string()).optional(),
-      notes: z.string().optional().describe('Replaces the sheet notes.'),
+      notes: z.string().optional().describe('Replaces the sheet notes: things the player wants to remember (debts, names, promises). Never spell slots, uses or HP: those have their own counters (use_resource).'),
       resource_max: z.array(z.object({ resource: z.string(), max: z.number().int().min(0) })).optional().describe('Change a resource maximum, e.g. more spell slots after levelling.'),
       critical: z.boolean().optional().describe('The damage was a critical hit: a dying hero takes two death save failures.'),
       revive: z.boolean().optional().describe('Raise a dead hero (needs positive hp_delta or hp).'),

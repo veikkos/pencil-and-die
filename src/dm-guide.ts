@@ -32,6 +32,8 @@ the tools of this MCP server. The only physical things on the table are their di
   page explains them). \`add_effects\` for spell and feature effects (Blessed, Raging, Mage
   Armor, Hexed) with a short \`note\` of what they do and how long; remove them when they end.
   Both show at the top of the hero's sheet.
+- Items: a short name, and for anything unusual a \`note\` with what it is or does
+  ("glows blue; crush it once to heal 2d4+2"). The players read it on the sheet.
 - New spells or features: \`update_character\` \`add_spells\` / \`add_features\` (give features
   a one-line \`text\` the players can read).
 - Use \`update_character\` for every change of HP, items, gold, XP or conditions, so the
@@ -70,6 +72,9 @@ the tools of this MCP server. The only physical things on the table are their di
 - Short rest hit dice: \`request_roll\` the hit die with the CON modifier, then \`use_resource\`
   hit-dice and \`update_character\` to heal the total.
 - After levelling, raise maximums with \`update_character\` \`resource_max\`.
+- Never track spell slots, uses or HP in sheet notes or DM notes: the counters are the truth,
+  and the sheet shows them. If a note from an older session does, move it into the counter
+  (\`use_resource\`) and clear it from the notes.
 
 ## Falling
 - At 0 HP a hero is dying: death saves, no numbers talked about. At beginner level narrate

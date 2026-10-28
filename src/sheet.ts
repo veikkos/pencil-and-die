@@ -1,7 +1,8 @@
 // Everything a hero's sheet shows that follows from the rules: attack bonuses, damage, spell
 // numbers, skill modifiers. Computed on read, never stored, so it can't drift from the character.
+// Each number comes with its parts (ability, proficiency…) so the page can show how it adds up.
 
-import { ABILITIES, checkModifier, CLASSES, mod, SKILLS, type Ability, type Character, type Feature } from './rules.ts';
+import { abilityPart, ABILITIES, checkModifier, CLASSES, mod, SKILLS, total, type Ability, type Character, type Feature, type Part } from './rules.ts';
 import type { Spell } from './spells.ts';
 import { AMMO, ammoCount, countIn, weaponFor, type Weapon } from './weapons.ts';
 
@@ -10,9 +11,11 @@ export interface Attack {
   weaponId?: string;
   ability: Ability;
   toHit: number;
+  toHitParts: Part[];
   /** Dice to roll for damage; absent when the damage is a flat number (a plain punch). */
   dice?: string;
   bonus: number;
+  bonusParts: Part[];
   /** Ready to show: "1d8+3". */
   damage: string;
   damageType: string;
@@ -31,6 +34,8 @@ export interface SheetSpell extends Spell {
   saveDc?: number;
   /** Ready to show: "1d8+3", "1d4+1 ×3". */
   roll?: string;
+  /** What is added to each roll of the dice. */
+  rollParts?: Part[];
   /** The slot it spends; cantrips spend nothing. */
   resourceId?: string;
 }
@@ -38,14 +43,16 @@ export interface SheetSpell extends Spell {
 export interface Sheet {
   proficiency: number;
   initiative: number;
+  initiativeParts: Part[];
   passivePerception: number;
-  saves: { ability: Ability; mod: number; proficient: boolean }[];
-  skills: { name: string; ability: Ability; mod: number; proficient: boolean; expertise: boolean }[];
+  passivePerceptionParts: Part[];
+  saves: { ability: Ability; mod: number; parts: Part[]; proficient: boolean }[];
+  skills: { name: string; ability: Ability; mod: number; parts: Part[]; proficient: boolean; expertise: boolean }[];
   attacks: Attack[];
-  spellcasting?: { ability: Ability; attack: number; saveDc: number; slots: string };
+  spellcasting?: { ability: Ability; attack: number; attackParts: Part[]; saveDc: number; saveDcParts: Part[]; slots: string };
   spells: SheetSpell[];
   features: Feature[];
-  inventory: { name: string; qty: number; kind: 'weapon' | 'armour' | 'ammo' | 'gear' }[];
+  inventory: { name: string; qty: number; note?: string; kind: 'weapon' | 'armour' | 'ammo' | 'gear' }[];
 }
 
 const sign = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
@@ -74,12 +81,15 @@ function attacks(c: Character): Attack[] {
     const w = weaponFor(i.name);
     if (w) counts.set(w, (counts.get(w) ?? 0) + countIn(i.name) * i.qty);
   }
+  const prof: Part = { from: 'proficiency', value: c.proficiencyBonus };
   const out: Attack[] = [...counts].map(([w, count]) => {
     const ability = weaponAbility(c, w);
-    const bonus = mod(c.abilities[ability]);
+    const toHitParts = [abilityPart(c, ability), prof];
+    const bonusParts = [abilityPart(c, ability)];
+    const bonus = total(bonusParts);
     return {
-      name: w.name, weaponId: w.id, ability, toHit: bonus + c.proficiencyBonus,
-      dice: w.damage, bonus, damage: showDamage(w.damage, bonus), damageType: w.damageType,
+      name: w.name, weaponId: w.id, ability, toHit: total(toHitParts), toHitParts,
+      dice: w.damage, bonus, bonusParts, damage: showDamage(w.damage, bonus), damageType: w.damageType,
       ...(w.versatile ? { versatile: w.versatile } : {}),
       ...(w.range ?? w.thrown ? { range: w.range ?? w.thrown } : {}),
       properties: properties(w), count,
@@ -88,10 +98,14 @@ function attacks(c: Character): Attack[] {
   });
   const monk = c.classId === 'monk';
   const ability: Ability = monk && mod(c.abilities.dex) > mod(c.abilities.str) ? 'dex' : 'str';
-  const m = mod(c.abilities[ability]);
-  out.push(monk
-    ? { name: 'Unarmed strike', ability, toHit: m + c.proficiencyBonus, dice: '1d4', bonus: m, damage: showDamage('1d4', m), damageType: 'bludgeoning', properties: [], count: 1 }
-    : { name: 'Unarmed strike', ability, toHit: m + c.proficiencyBonus, bonus: 1 + m, damage: showDamage(undefined, 1 + m), damageType: 'bludgeoning', properties: [], count: 1 });
+  const toHitParts = [abilityPart(c, ability), prof];
+  // A punch without martial arts deals 1 + STR, no dice.
+  const bonusParts: Part[] = monk ? [abilityPart(c, ability)] : [{ from: 'base', value: 1 }, abilityPart(c, ability)];
+  const bonus = total(bonusParts);
+  out.push({
+    name: 'Unarmed strike', ability, toHit: total(toHitParts), toHitParts, ...(monk ? { dice: '1d4' } : {}), bonus, bonusParts,
+    damage: showDamage(monk ? '1d4' : undefined, bonus), damageType: 'bludgeoning', properties: [], count: 1,
+  });
   return out;
 }
 
@@ -100,21 +114,22 @@ export function spellcasting(c: Character): Sheet['spellcasting'] {
   const cls = CLASSES.find((x) => x.id === c.classId)?.spellcasting;
   if (!cls && !c.spells.length) return undefined;
   const ability = cls?.ability ?? 'cha';
-  const m = mod(c.abilities[ability]);
-  return { ability, attack: m + c.proficiencyBonus, saveDc: 8 + m + c.proficiencyBonus, slots: cls?.slots ?? '' };
+  const attackParts: Part[] = [abilityPart(c, ability), { from: 'proficiency', value: c.proficiencyBonus }];
+  const saveDcParts: Part[] = [{ from: 'base', value: 8 }, ...attackParts];
+  return { ability, attack: total(attackParts), attackParts, saveDc: total(saveDcParts), saveDcParts, slots: cls?.slots ?? '' };
 }
 
 function spells(c: Character, casting: Sheet['spellcasting']): SheetSpell[] {
   if (!casting) return [];
-  const m = mod(c.abilities[casting.ability]);
   return c.spells.map((s) => {
-    const bonus = (s.bonus ?? 0) + (s.addMod ? m : 0);
+    const rollParts: Part[] = [...(s.addMod ? [abilityPart(c, casting.ability)] : []), ...(s.bonus ? [{ from: 'bonus' as const, value: s.bonus }] : [])];
+    const bonus = total(rollParts);
     const slot = s.level > 0 && c.resources.some((r) => r.id === casting.slots) ? casting.slots : undefined;
     return {
       ...s,
       ...(s.attack ? { toHit: casting.attack } : {}),
       ...(s.save ? { saveDc: casting.saveDc } : {}),
-      ...(s.dice ? { roll: showDamage(s.dice, bonus, s.times) } : {}),
+      ...(s.dice ? { roll: showDamage(s.dice, bonus, s.times), rollParts } : {}),
       ...(slot ? { resourceId: slot } : {}),
     };
   });
@@ -129,13 +144,22 @@ function itemKind(name: string): Sheet['inventory'][number]['kind'] {
 
 export function sheetOf(c: Character): Sheet {
   const casting = spellcasting(c);
-  const skills = Object.entries(SKILLS).map(([name, ability]) =>
-    ({ name, ability, mod: checkModifier(c, name).modifier, proficient: c.skills.includes(name), expertise: c.expertise.includes(name) }));
+  const skills = Object.entries(SKILLS).map(([name, ability]) => {
+    const { modifier, parts } = checkModifier(c, name);
+    return { name, ability, mod: modifier, parts, proficient: c.skills.includes(name), expertise: c.expertise.includes(name) };
+  });
+  const passivePerceptionParts: Part[] = [{ from: 'base', value: 10 }, ...skills.find((x) => x.name === 'Perception')!.parts];
+  const initiativeParts = [abilityPart(c, 'dex')];
   return {
     proficiency: c.proficiencyBonus,
-    initiative: mod(c.abilities.dex),
-    passivePerception: 10 + skills.find((s) => s.name === 'Perception')!.mod,
-    saves: ABILITIES.map((a) => ({ ability: a, mod: checkModifier(c, `${a} save`).modifier, proficient: c.saves.includes(a) })),
+    initiative: total(initiativeParts),
+    initiativeParts,
+    passivePerception: total(passivePerceptionParts),
+    passivePerceptionParts,
+    saves: ABILITIES.map((a) => {
+      const { modifier, parts } = checkModifier(c, `${a} save`);
+      return { ability: a, mod: modifier, parts, proficient: c.saves.includes(a) };
+    }),
     skills,
     attacks: attacks(c),
     ...(casting ? { spellcasting: casting } : {}),
@@ -172,7 +196,7 @@ export function attackRoll(c: Character, name: string): NamedRoll {
 export function damageRoll(c: Character, name: string, opts: { critical?: boolean; versatile?: boolean } = {}): NamedRoll {
   const { attack, spell } = findAction(c, name);
   let dice = attack ? (opts.versatile && attack.versatile) || attack.dice : spell!.dice;
-  const flat = attack ? attack.bonus : (spell!.bonus ?? 0) + (spell!.addMod ? mod(c.abilities[spellcasting(c)!.ability]) : 0);
+  const flat = attack ? attack.bonus : total(spell!.rollParts ?? []);
   const what = attack?.name ?? spell!.name;
   if (!dice) throw new Error(`${what} rolls no dice: it deals ${Math.max(1, flat)} damage.`);
   if (opts.critical) dice = dice.replace(/^(\d*)d/, (_, n) => `${2 * Number(n || 1)}d`);

@@ -25,6 +25,23 @@ export interface Feature {
   resourceId?: string;
 }
 
+export interface Item {
+  name: string;
+  qty: number;
+  /** What it is or does, for things the DM invents: "glows blue; crush once to heal 2d4+2". */
+  note?: string;
+}
+
+/**
+ * "Murun kristalli (hehkuu sinistä; kerran: murskaa ja paranna 2d4+2)": before items had notes the
+ * DM put the description in the name. A long enough bracket at the end becomes the note.
+ */
+export function splitItemName(name: string): { name: string; note?: string } {
+  const m = /^(.+?)\s*\(([^()]+)\)$/.exec(name.trim());
+  if (!m || m[2].trim().split(/\s+/).length < 4) return { name: name.trim() };
+  return { name: m[1], note: m[2].trim() };
+}
+
 export interface Effect {
   name: string;
   note: string;
@@ -257,7 +274,7 @@ export interface Character {
   skills: string[];
   /** Skills with double proficiency (the rogue's Expertise). */
   expertise: string[];
-  inventory: { name: string; qty: number }[];
+  inventory: Item[];
   gold: number;
   xp: number;
   conditions: string[];
@@ -378,26 +395,37 @@ export const FI_SKILLS: Record<string, string> = {
   Stealth: 'Hiiviskely', Survival: 'Selviytyminen',
 };
 
+/** One term of a number on the sheet, so the page can show how it adds up. */
+export type Part =
+  | { from: 'ability'; ability: Ability; value: number }
+  | { from: 'proficiency' | 'expertise' | 'base' | 'bonus'; value: number };
+
+export const total = (parts: Part[]) => parts.reduce((n, p) => n + p.value, 0);
+export const abilityPart = (c: Character, ability: Ability): Part => ({ from: 'ability', ability, value: mod(c.abilities[ability]) });
+
 /** Modifier for a check, so the DM doesn't have to do the arithmetic. */
-export function checkModifier(c: Character, what: string, lang: 'en' | 'fi' = 'en'): { modifier: number; label: string } {
+export function checkModifier(c: Character, what: string, lang: 'en' | 'fi' = 'en'): { modifier: number; label: string; parts: Part[] } {
   const key = what.trim().toLowerCase();
   const fi = lang === 'fi';
   const ab = (a: Ability) => (fi ? FI_ABILITY[a] : EN_ABILITY[a]);
+  const out = (label: string, parts: Part[]) => ({ modifier: total(parts), label, parts });
   const skill = Object.keys(SKILLS).find((s) => s.toLowerCase() === key || FI_SKILLS[s].toLowerCase() === key);
   if (skill) {
     const ability = SKILLS[skill];
-    const prof = c.skills.includes(skill) ? c.proficiencyBonus * (c.expertise?.includes(skill) ? 2 : 1) : 0;
-    const label = fi ? `${FI_SKILLS[skill]} (${ab(ability)}) -heitto` : `${ab(ability)} (${skill}) check`;
-    return { modifier: mod(c.abilities[ability]) + prof, label };
+    const parts = [abilityPart(c, ability)];
+    if (c.skills.includes(skill)) parts.push({ from: 'proficiency', value: c.proficiencyBonus });
+    if (c.skills.includes(skill) && c.expertise?.includes(skill)) parts.push({ from: 'expertise', value: c.proficiencyBonus });
+    return out(fi ? `${FI_SKILLS[skill]} (${ab(ability)}) -heitto` : `${ab(ability)} (${skill}) check`, parts);
   }
   const save = /^(str|dex|con|int|wis|cha)\s*save$/.exec(key);
   if (save) {
     const a = save[1] as Ability;
-    return { modifier: mod(c.abilities[a]) + (c.saves.includes(a) ? c.proficiencyBonus : 0), label: fi ? `${ab(a)} -pelastusheitto` : `${ab(a)} saving throw` };
+    const parts = [abilityPart(c, a), ...(c.saves.includes(a) ? [{ from: 'proficiency' as const, value: c.proficiencyBonus }] : [])];
+    return out(fi ? `${ab(a)} -pelastusheitto` : `${ab(a)} saving throw`, parts);
   }
   if ((ABILITIES as readonly string[]).includes(key)) {
     const a = key as Ability;
-    return { modifier: mod(c.abilities[a]), label: fi ? `${ab(a)} -heitto` : `${ab(a)} check` };
+    return out(fi ? `${ab(a)} -heitto` : `${ab(a)} check`, [abilityPart(c, a)]);
   }
   throw new Error(`Unknown check "${what}". Use a skill name (e.g. "Stealth"), an ability ("dex") or a save ("dex save").`);
 }

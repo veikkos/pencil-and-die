@@ -22,7 +22,10 @@ test('rules: character build applies race bonus and computes checks', () => {
   assert.equal(c.abilities.dex, 17); // 15 + 2 halfling
   assert.equal(c.ac, 14);            // leather 11 + dex 3
   assert.equal(c.maxHp, 10);         // d8 + con 2 (14)
-  assert.deepEqual(checkModifier(c, 'Stealth'), { modifier: 7, label: 'Dexterity (Stealth) check' }); // dex 3 + proficiency 2, twice for Expertise
+  assert.deepEqual(checkModifier(c, 'Stealth'), {
+    modifier: 7, label: 'Dexterity (Stealth) check',
+    parts: [{ from: 'ability', ability: 'dex', value: 3 }, { from: 'proficiency', value: 2 }, { from: 'expertise', value: 2 }],
+  });
   assert.equal(checkModifier(c, 'hiiviskely', 'fi').label, 'Hiiviskely (Ketteryys) -heitto');
   assert.equal(checkModifier(c, 'dex save').modifier, 5);
 });

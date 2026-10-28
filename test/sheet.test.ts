@@ -22,12 +22,16 @@ test('sheet: rogue weapons, ammo, skills and saves', () => {
   assert.equal(by('Unarmed strike').damage, '1'); // 1 + STR −1, never below 1
   assert.equal(s.skills.length, 18);
   // Expertise: proficiency counts twice for the rogue's Stealth.
-  assert.deepEqual(s.skills.find((k) => k.name === 'Stealth'), { name: 'Stealth', ability: 'dex', mod: 7, proficient: true, expertise: true });
+  const stealth = s.skills.find((k) => k.name === 'Stealth')!;
+  assert.equal(stealth.mod, 7);
+  assert.equal(stealth.expertise, true);
+  assert.deepEqual(stealth.parts, [{ from: 'ability', ability: 'dex', value: 3 }, { from: 'proficiency', value: 2 }, { from: 'expertise', value: 2 }]);
   assert.equal(s.skills.find((k) => k.name === 'Acrobatics')!.mod, 5);
   assert.equal(s.skills.find((k) => k.name === 'Athletics')!.mod, -1);
   assert.equal(s.initiative, 3);
   assert.equal(s.passivePerception, 10 + s.skills.find((k) => k.name === 'Perception')!.mod);
-  assert.deepEqual(s.saves.find((x) => x.ability === 'dex'), { ability: 'dex', mod: 5, proficient: true });
+  assert.equal(s.saves.find((x) => x.ability === 'dex')!.mod, 5);
+  assert.equal(s.saves.find((x) => x.ability === 'dex')!.proficient, true);
   assert.equal(s.spellcasting, undefined);
   assert.deepEqual(s.spells, []);
   assert.equal(s.inventory.find((i) => i.name === 'Leather armour')!.kind, 'armour');
@@ -36,7 +40,8 @@ test('sheet: rogue weapons, ammo, skills and saves', () => {
 
 test('sheet: wizard spells with DC, to-hit, slots', () => {
   const s = sheetOf(hero('elf', 'wizard')); // INT 15 + 1 = 16 (+3)
-  assert.deepEqual(s.spellcasting, { ability: 'int', attack: 5, saveDc: 13, slots: 'spell-slots-1' });
+  const { ability, attack, saveDc, slots } = s.spellcasting!;
+  assert.deepEqual({ ability, attack, saveDc, slots }, { ability: 'int', attack: 5, saveDc: 13, slots: 'spell-slots-1' });
   const sp = (n: string) => s.spells.find((x) => x.name === n)!;
   assert.equal(sp('Fire Bolt').toHit, 5);
   assert.equal(sp('Fire Bolt').roll, '1d10');
@@ -174,4 +179,47 @@ test('status effects: add, replace by name, remove, long rest ends them', async 
   store.append(g.id, { type: 'rest', kind: 'long', characterIds: [c().id] });
   assert.deepEqual(c().effects, []);
   assert.deepEqual(c().conditions, ['Poisoned']);
+});
+
+test('every number on the sheet adds up from its parts', () => {
+  const sum = (parts: { value: number }[]) => parts.reduce((n, p) => n + p.value, 0);
+  for (const r of RACES) for (const c of CLASSES) {
+    const s = sheetOf(hero(r.id, c.id));
+    const at = `${r.id} ${c.id}`;
+    assert.equal(sum(s.initiativeParts), s.initiative, at);
+    assert.equal(sum(s.passivePerceptionParts), s.passivePerception, at);
+    for (const x of [...s.skills, ...s.saves]) assert.equal(sum(x.parts), x.mod, at);
+    for (const a of s.attacks) {
+      assert.equal(sum(a.toHitParts), a.toHit, `${at} ${a.name}`);
+      assert.equal(sum(a.bonusParts), a.bonus, `${at} ${a.name}`);
+    }
+    if (s.spellcasting) {
+      assert.equal(sum(s.spellcasting.attackParts), s.spellcasting.attack, at);
+      assert.equal(sum(s.spellcasting.saveDcParts), s.spellcasting.saveDc, at);
+    }
+  }
+  const dc = sheetOf(hero('elf', 'wizard')).spellcasting!.saveDcParts;
+  assert.deepEqual(dc, [{ from: 'base', value: 8 }, { from: 'ability', ability: 'int', value: 3 }, { from: 'proficiency', value: 2 }]);
+});
+
+test('item notes: given by the DM, kept on more of the same, and old bracketed descriptions become notes', async () => {
+  const { store, db } = newTable();
+  const g = store.createGame('T');
+  store.setActiveGame(g.id);
+  store.append(g.id, { type: 'character_created', character: mira() });
+  // Before items had notes, the DM wrote the description into the name.
+  store.append(g.id, { type: 'character_updated', characterId: 'mira', patch: { addItems: [{ name: 'Murun kristalli (hehkuu sinistä; kerran: murskaa ja paranna 2d4+2)' }, { name: 'Rope (50 ft)' }] } });
+  const item = (n: string) => store.state(g.id).characters[0].inventory.find((i) => i.name === n);
+  assert.deepEqual(item('Murun kristalli'), { name: 'Murun kristalli', qty: 1, note: 'hehkuu sinistä; kerran: murskaa ja paranna 2d4+2' });
+  assert.deepEqual(item('Rope (50 ft)'), { name: 'Rope (50 ft)', qty: 1 }); // too short to be a description
+  store.append(g.id, { type: 'character_updated', characterId: 'mira', patch: { removeItems: [{ name: 'Murun kristalli (hehkuu sinistä; kerran: murskaa ja paranna 2d4+2)' }] } });
+  assert.equal(item('Murun kristalli'), undefined);
+
+  const dm = await mcpClient(store, db);
+  await dm.call('update_character', { character_id: 'Mira', add_items: [{ name: 'Silver key', note: 'Opens something in the bell tower' }] });
+  await dm.call('update_character', { character_id: 'Mira', add_items: [{ name: 'silver key' }] });
+  assert.deepEqual(item('Silver key'), { name: 'Silver key', qty: 2, note: 'Opens something in the bell tower' });
+  await dm.call('update_character', { character_id: 'Mira', add_items: [{ name: 'Silver key', qty: 0, note: 'Opens the bell tower crypt' }] });
+  assert.deepEqual(item('Silver key'), { name: 'Silver key', qty: 2, note: 'Opens the bell tower crypt' });
+  assert.equal(sheetOf(store.state(g.id).characters[0]).inventory.find((i) => i.name === 'Silver key')!.note, 'Opens the bell tower crypt');
 });

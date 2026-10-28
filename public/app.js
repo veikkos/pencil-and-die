@@ -284,8 +284,8 @@ function deathSaveRows(c) {
 
 function statsBlock(c) {
   if (isBeginner()) return goodAt(c);
-  return `<div class="stats">${Object.keys(t().abilities).map((a) => `
-    <div title="${esc(t().abilityNames[a])}"><small>${t().abilities[a]}</small><b>${c.abilities[a]}</b><em>${sign(mod(c.abilities[a]))}</em></div>`).join('')}</div>`;
+  return `<div class="stats">${Object.keys(t().abilities).map((a) =>
+    tip(`<small>${t().abilities[a]}</small><b>${c.abilities[a]}</b><em>${sign(mod(c.abilities[a]))}</em>`, [t().glossary.abilities[a]], 'box')).join('')}</div>`;
 }
 
 // ---------------------------------------------------------------------------
@@ -434,6 +434,7 @@ const itemName = (n) => (isFi() ? FI_RULES.items[n.toLowerCase()] ?? FI_RULES.we
 const spellText = (sp) => (isFi() && FI_RULES.spells[sp.id]) || [sp.name, sp.summary];
 const featureText = (f) => (isFi() && FI_RULES.features[f.name]) || [f.name, f.text];
 const damageType = (d) => t().sheet.damageTypes[d] ?? d;
+const propWord = (p) => /^([\w-]+)/.exec(p)?.[1] ?? p;
 /** "versatile (1d10)" → the property word in the page's language, the value kept. */
 function propName(p) {
   const [, word, value] = /^([\w-]+)(?: \((.+)\))?$/.exec(p) ?? [null, p];
@@ -443,9 +444,72 @@ function propName(p) {
 const rangeText = (r) => (isFi()
   ? r.replace(/^Touch$/, 'Kosketus').replace(/^Self/, 'Itse').replace(/(\d+)-ft (cone|cube)/, (_, n, k) => `${n} jalan ${k === 'cone' ? 'kartio' : 'kuutio'}`).replace(/^(\d+) ft$/, '$1 jalkaa')
   : r);
-const uses = (r) => (r.unit === 'hp' ? `<span class="pip">${r.max - r.used}/${r.max}</span>` : pips(r.max - r.used, r.max));
+const uses = (r) => tip(r.unit === 'hp' ? `<span class="pip">${r.max - r.used}/${r.max}</span>` : pips(r.max - r.used, r.max),
+  [t().glossary.terms.usesLeft(r.max - r.used, r.max), t().glossary.recharge[r.recharge]]);
 const actRow = (name, right, sub) => `<li class="act"><div class="act-main"><span class="act-name">${name}</span>${right}</div>${sub ? `<small class="muted">${sub}</small>` : ''}</li>`;
-const dot = (parts) => parts.filter(Boolean).map(esc).join(' · ');
+const dot = (parts) => parts.filter(Boolean).join(' · ');
+
+/**
+ * How a number adds up, from the parts the engine sends: "DEX +3 + proficiency +2 = +5".
+ * `plain` totals without a sign (DCs, passive scores); `dice` puts the dice first and leaves out the total.
+ * Beginners see no numbers, so they get nothing.
+ */
+function sumText(parts, { plain = false, dice = '' } = {}) {
+  if (isBeginner() || !parts) return '';
+  const g = t().glossary.parts;
+  const terms = parts.map((p) => (p.from === 'base' ? `${p.value}` : `${p.from === 'ability' ? t().abilities[p.ability] : g[p.from]} ${sign(p.value)}`));
+  if (dice) return [dice, ...terms].join(' + ');
+  if (!terms.length) return '';
+  const sum = parts.reduce((n, p) => n + p.value, 0);
+  return `${terms.join(' + ')} = ${plain ? sum : sign(sum)}`;
+}
+
+/**
+ * Marks html as explained: tapping it (or hovering, or focusing it) shows `lines` in a popover.
+ * kind: '' underlines inline text; 'row' is a whole list row; 'box' a stat box (plus its own classes).
+ */
+function tip(html, lines, kind = '') {
+  const text = lines.filter(Boolean).join('\n');
+  const [k, ...own] = kind.split(' ');
+  const tag = k === 'box' ? 'div' : 'span';
+  const cls = [text ? 'tip' : '', k ? `tip-${k}` : '', ...own].filter(Boolean).join(' ');
+  if (!text && !k) return html;
+  return `<${tag} class="${cls}"${text ? ` tabindex="0" data-tip="${esc(text)}"` : ''}>${html}</${tag}>`;
+}
+
+// One popover for every tip on the page. Touch screens tap to open and close; mice hover.
+const tipPop = Object.assign(document.createElement('div'), { className: 'tip-pop', hidden: true });
+tipPop.setAttribute('role', 'tooltip');
+document.body.appendChild(tipPop);
+let tipFor = null;
+const canHover = matchMedia('(hover: hover)').matches;
+
+function showTip(el) {
+  tipFor = el;
+  tipPop.textContent = el.dataset.tip;
+  tipPop.hidden = false;
+  const r = el.getBoundingClientRect();
+  const p = tipPop.getBoundingClientRect();
+  const below = r.bottom + 8 + p.height < innerHeight;
+  tipPop.style.left = `${Math.max(8, Math.min(r.left + r.width / 2 - p.width / 2, innerWidth - p.width - 8))}px`;
+  tipPop.style.top = `${Math.max(8, Math.min(below ? r.bottom + 6 : r.top - p.height - 6, innerHeight - p.height - 8))}px`;
+}
+function hideTip() { tipFor = null; tipPop.hidden = true; }
+
+document.addEventListener('click', (e) => {
+  const el = e.target.closest?.('.tip');
+  if (el && (el !== tipFor || canHover)) showTip(el);
+  else hideTip();
+});
+document.addEventListener('mouseover', (e) => {
+  const el = canHover && e.target.closest?.('.tip');
+  if (el && el !== tipFor) showTip(el);
+});
+document.addEventListener('mouseout', (e) => { if (canHover && tipFor && !tipFor.contains(e.relatedTarget)) hideTip(); });
+document.addEventListener('focusin', (e) => { if (e.target.matches?.('.tip')) showTip(e.target); });
+document.addEventListener('focusout', (e) => { if (e.target === tipFor) hideTip(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && tipFor) { e.stopPropagation(); hideTip(); } }, true);
+document.addEventListener('scroll', hideTip, true);
 
 function sheetStatus(c) {
   const s = t();
@@ -462,44 +526,60 @@ function sheetStatus(c) {
 
 function sheetLeft(c) {
   const s = t();
+  const g = s.glossary;
   const byName = (a, b) => skillName(a.name).localeCompare(skillName(b.name), cfg.language);
   if (isBeginner()) {
     const mine = c.sheet.skills.filter((k) => k.proficient).sort(byName);
-    return `${goodAt(c)}<h3>${esc(s.skills)}</h3><ul class="mods">${mine.map((k) => `<li class="prof"><i>●</i><span>${esc(skillName(k.name))}</span></li>`).join('')}</ul>`;
+    return `${goodAt(c)}<h3>${esc(s.skills)}</h3><ul class="mods">${mine.map((k) =>
+      `<li class="prof">${tip(`<i>●</i><span>${esc(skillName(k.name))}</span>`, [g.skills[k.name]], 'row')}</li>`).join('')}</ul>`;
   }
-  const row = (name, m, prof, sub, twice) => `<li class="${prof ? 'prof' : ''}"><i>${twice ? '◉' : prof ? '●' : '○'}</i><span>${esc(name)}${sub ? ` <small>${esc(sub)}</small>` : ''}</span><b>${sign(m)}</b></li>`;
+  const row = (name, m, prof, sub, twice, lines) =>
+    `<li class="${prof ? 'prof' : ''}">${tip(`<i>${twice ? '◉' : prof ? '●' : '○'}</i><span>${esc(name)}${sub ? ` <small>${esc(sub)}</small>` : ''}</span><b>${sign(m)}</b>`,
+      [...lines, twice ? g.terms.expertise : prof ? g.terms.proficient : ''], 'row')}</li>`;
   return `${statsBlock(c)}
-    ${isExpert() ? `<h3>${esc(s.saves)}</h3><ul class="mods">${c.sheet.saves.map((x) => row(s.abilityNames[x.ability], x.mod, x.proficient)).join('')}</ul>` : ''}
-    <h3>${esc(s.skills)}</h3><ul class="mods">${[...c.sheet.skills].sort(byName).map((k) => row(skillName(k.name), k.mod, k.proficient, s.abilities[k.ability], k.expertise)).join('')}</ul>
-    <div class="muted">${esc(s.sheet.passive)} ${c.sheet.passivePerception}</div>`;
+    ${isExpert() ? `<h3>${tip(esc(s.saves), [g.terms.save])}</h3><ul class="mods">${c.sheet.saves.map((x) =>
+      row(s.abilityNames[x.ability], x.mod, x.proficient, '', false, [sumText(x.parts)])).join('')}</ul>` : ''}
+    <h3>${tip(esc(s.skills), [g.terms.skill])}</h3><ul class="mods">${[...c.sheet.skills].sort(byName).map((k) =>
+      row(skillName(k.name), k.mod, k.proficient, s.abilities[k.ability], k.expertise, [g.skills[k.name], sumText(k.parts)])).join('')}</ul>
+    <div class="muted">${tip(`${esc(s.sheet.passive)} ${c.sheet.passivePerception}`, [g.terms.passive, sumText(c.sheet.passivePerceptionParts, { plain: true })])}</div>`;
 }
 
 function actionsPanel(c) {
   const s = t();
   const L = s.sheet;
+  const g = s.glossary;
   const sh = c.sheet;
   const beginner = isBeginner();
   const attacks = sh.attacks.map((a) => {
     const thrown = a.properties.some((p) => p.startsWith('thrown'));
-    const carried = [a.count > 1 ? L.carried(a.count) : '', a.ammo !== undefined ? L.ammo(a.ammo) : ''];
-    const right = beginner ? '' : `<b>${sign(a.toHit)}</b><span>${esc(a.damage)} ${esc(damageType(a.damageType))}</span>`;
-    const sub = beginner ? [L.reach[a.range && !thrown ? 'ranged' : 'melee'], ...carried] : [a.range && !thrown ? `${a.range} ft` : '', ...a.properties.map(propName), ...carried];
+    const carried = [a.count > 1 ? L.carried(a.count) : '', a.ammo !== undefined ? L.ammo(a.ammo) : ''].map(esc);
+    const damage = a.dice ? sumText(a.bonusParts, { dice: a.dice }) : sumText(a.bonusParts, { plain: true });
+    const right = beginner ? '' : `${tip(`<b>${sign(a.toHit)}</b>`, [g.terms.toHit, sumText(a.toHitParts)])}${tip(`<span>${esc(a.damage)} ${esc(damageType(a.damageType))}</span>`, [g.terms.damage, damage])}`;
+    const sub = beginner ? [esc(L.reach[a.range && !thrown ? 'ranged' : 'melee']), ...carried]
+      : [a.range && !thrown ? tip(esc(`${a.range} ft`), [g.props.range]) : '', ...a.properties.map((p) => tip(esc(propName(p)), [g.props[propWord(p)]])), ...carried];
     return actRow(esc(itemName(a.name)), right, dot(sub));
   });
   let html = `<h3>${esc(L.attacks)}</h3><ul class="acts">${attacks.join('')}</ul>`;
 
   if (sh.spells.length) {
     const cast = sh.spellcasting;
-    html += `<h3>${esc(L.spells)}</h3>${beginner || !cast ? '' : `<div class="muted">${esc(L.spellNumbers(cast.saveDc, sign(cast.attack), s.abilityNames[cast.ability]))}</div>`}`;
+    html += `<h3>${esc(L.spells)}</h3>${beginner || !cast ? '' : `<div class="muted">${tip(esc(L.spellNumbers(cast.saveDc, sign(cast.attack), s.abilityNames[cast.ability])),
+      [g.terms.spellDc, sumText(cast.saveDcParts, { plain: true }), g.terms.spellAttack, sumText(cast.attackParts)])}</div>`}`;
     for (const lv of [0, 1]) {
       const list = sh.spells.filter((x) => x.level === lv);
       if (!list.length) continue;
       const slot = lv && c.resources.find((r) => r.id === cast?.slots);
-      html += `<h4>${esc((lv ? L.level1 : L.cantrips)[level()])}${slot ? ` ${uses(slot)}` : ''}</h4><ul class="acts">${list.map((sp) => {
+      html += `<h4>${tip(esc((lv ? L.level1 : L.cantrips)[level()]), [lv ? g.terms.slot : g.terms.cantrip])}${slot ? ` ${uses(slot)}` : ''}</h4><ul class="acts">${list.map((sp) => {
         const [name, summary] = spellText(sp);
-        const hit = sp.toHit !== undefined ? `<b>${sign(sp.toHit)}</b>` : sp.saveDc !== undefined ? `<b>${esc(L.save(s.abilities[sp.save], sp.saveDc))}</b>` : '';
-        const roll = sp.roll ? `<span>${esc(sp.roll)} ${esc(sp.heal ? L.healing : damageType(sp.damageType ?? ''))}</span>` : '';
-        const meta = beginner ? [] : [sp.castingTime === 'action' ? '' : L.castingTime[sp.castingTime], rangeText(sp.range), sp.concentration ? L.concentration : ''];
+        const hit = sp.toHit !== undefined ? tip(`<b>${sign(sp.toHit)}</b>`, [g.terms.spellAttack, sumText(cast.attackParts)])
+          : sp.saveDc !== undefined ? tip(`<b>${esc(L.save(s.abilities[sp.save], sp.saveDc))}</b>`, [g.terms.spellDc, sumText(cast.saveDcParts, { plain: true })]) : '';
+        const roll = sp.roll ? tip(`<span>${esc(sp.roll)} ${esc(sp.heal ? L.healing : damageType(sp.damageType ?? ''))}</span>`,
+          [sp.heal ? '' : g.terms.damage, sumText(sp.rollParts, { dice: sp.dice })]) : '';
+        const meta = beginner ? [] : [
+          sp.castingTime === 'action' ? '' : tip(esc(L.castingTime[sp.castingTime]), [g.castingTime[sp.castingTime]]),
+          esc(rangeText(sp.range)),
+          sp.concentration ? tip(esc(L.concentration), [g.terms.concentration]) : '',
+        ];
         return actRow(esc(name), beginner ? '' : `${hit}${roll}`, [dot(meta), esc(summary)].filter(Boolean).join('<br>'));
       }).join('')}</ul>`;
     }
@@ -525,7 +605,9 @@ function actionsPanel(c) {
 function inventoryPanel(c) {
   const s = t();
   const groups = ['weapon', 'armour', 'ammo', 'gear'].map((k) => [k, c.sheet.inventory.filter((i) => i.kind === k)]).filter(([, items]) => items.length);
-  return `${groups.map(([k, items]) => `<h3>${esc(s.sheet.kinds[k])}</h3><ul class="items">${items.map((i) => `<li><span>${esc(itemName(i.name))}</span>${i.qty > 1 ? `<b>×${i.qty}</b>` : ''}</li>`).join('')}</ul>`).join('')}
+  const name = (i) => (i.note ? tip(esc(itemName(i.name)), [i.note]) : esc(itemName(i.name)));
+  return `${groups.map(([k, items]) => `<h3>${esc(s.sheet.kinds[k])}</h3><ul class="items">${items.map((i) =>
+    `<li><span>${name(i)}</span>${i.qty > 1 ? `<b>×${i.qty}</b>` : ''}</li>`).join('')}</ul>`).join('')}
     <div class="sheet-purse"><span><b>${esc(s.gold)}</b> ${c.gold}</span>${isBeginner() ? '' : `<span><b>${esc(s.xp)}</b> ${c.xp}</span>`}</div>`;
 }
 
@@ -546,13 +628,19 @@ const SHEET_PANELS = { actions: actionsPanel, inventory: inventoryPanel, feature
 
 function sheetHtml(c) {
   const s = t();
+  const g = s.glossary.terms;
   const pct = Math.round((c.hp / c.maxHp) * 100);
-  const nums = isBeginner() ? [] : [[s.ac, c.ac], [s.speed, c.speed], [s.sheet.init, sign(c.sheet.initiative)], [s.sheet.prof, sign(c.sheet.proficiency)]];
+  const nums = isBeginner() ? [] : [
+    [s.ac, c.ac, [g.ac, c.acNote]],
+    [s.speed, c.speed, [g.speed]],
+    [s.sheet.init, sign(c.sheet.initiative), [g.init, sumText(c.sheet.initiativeParts)]],
+    [s.sheet.prof, sign(c.sheet.proficiency), [g.prof]],
+  ];
   return `<div class="sheet">
     <div class="muted">${esc(raceName(c))} · ${esc(className(c))} · ${s.level} ${c.level}${c.player ? ` · ${esc(c.player)}` : ''}</div>
     <div class="sheet-top">
-      <div class="sheet-hp"><small>${esc(s.hp)}</small><b>${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp}` : ''}</b><div class="hpbar"><i class="${pct <= 30 ? 'low' : ''}" style="width:${pct}%"></i></div></div>
-      ${nums.map(([k, v]) => `<div class="sheet-num"><small>${esc(k)}</small><b>${esc(v)}</b></div>`).join('')}
+      ${tip(`<small>${esc(s.hp)}</small><b>${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp}` : ''}</b><div class="hpbar"><i class="${pct <= 30 ? 'low' : ''}" style="width:${pct}%"></i></div>`, [g.hp], 'box sheet-hp')}
+      ${nums.map(([k, v, lines]) => tip(`<small>${esc(k)}</small><b>${esc(v)}</b>`, lines, 'box sheet-num')).join('')}
     </div>
     ${sheetStatus(c)}
     <div class="sheet-cols">

@@ -104,6 +104,7 @@ await dm('update_character', { character_id: elowen.id, add_conditions: ['Fright
 await dm('update_character', { character_id: torvald.id, add_conditions: ['prone'], add_effects: [{ name: 'Blessed', note: '+1d4 to attacks and saves for a minute' }], reason: 'knocked over; Elowen\'s blessing' });
 await dm('use_resource', { character_id: elowen.id, resource: 'spell-slots-1' });
 await dm('update_character', { character_id: mira.id, notes: 'Owes Brannock 3 silver.\nThe bell rings at low tide.' });
+await dm('update_character', { character_id: mira.id, add_items: [{ name: 'Brass clapper', note: 'Pried from the drowned bell. Hums when the tide turns.' }] });
 await dm('request_roll', { character_id: torvald.id, label: 'Battleaxe attack', modifier: 5, dc: 13 });
 await snapshot('combat', g.id);
 

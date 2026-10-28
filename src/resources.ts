@@ -1,5 +1,5 @@
 import type { Abilities, Character } from './rules.ts';
-import { CLASSES, defaultSpells, upgradeFeatures } from './rules.ts';
+import { CLASSES, defaultSpells, splitItemName, upgradeFeatures } from './rules.ts';
 
 export type Recharge = 'short' | 'long';
 
@@ -41,6 +41,7 @@ export function withDefaults(c: Character): Character {
     features: upgradeFeatures(c.raceId, c.classId, c.features),
     spells: c.spells ?? defaultSpells(c.raceId, c.classId),
     effects: c.effects ?? [],
+    inventory: c.inventory.map((i) => (i.note !== undefined ? i : { ...i, ...splitItemName(i.name) })),
     expertise: c.expertise ?? [...(CLASSES.find((x) => x.id === c.classId)?.expertise ?? [])],
     status: c.status ?? 'up',
     deathSaves: c.deathSaves ?? { successes: 0, failures: 0 },

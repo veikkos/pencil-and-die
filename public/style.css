@@ -282,7 +282,8 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 .5em; }
 .sheet-cols { display: grid; grid-template-columns: minmax(200px, 250px) minmax(0, 1fr); gap: 18px; align-items: start; }
 .sheet-left .stats { grid-template-columns: repeat(3, 1fr); }
 .sheet .mods { list-style: none; padding: 0; margin: 2px 0 8px; }
-.sheet .mods li { display: grid; grid-template-columns: 1.1em 1fr auto; gap: 4px; padding: 1px 0; color: var(--ink-faint); }
+.sheet .mods li { padding: 1px 0; color: var(--ink-faint); }
+.sheet .mods .tip-row { display: grid; grid-template-columns: 1.1em 1fr auto; gap: 4px; }
 .sheet .mods li.prof { color: var(--ink); }
 .sheet .mods i { font-style: normal; color: var(--side-hero); font-size: .8em; line-height: 1.6; }
 .sheet .mods small { font-size: .72em; color: var(--ink-faint); }
@@ -301,6 +302,17 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 .5em; }
 .sheet-purse { display: flex; gap: 18px; margin-top: 6px; }
 .sheet-notes { white-space: pre-wrap; }
 .sheet .life { color: var(--bad); }
+
+/* ---- Tips: tap, hover or focus to explain ---- */
+.tip { cursor: help; }
+span.tip:not(.tip-row) { text-decoration: underline dotted var(--ink-faint); text-underline-offset: 3px; }
+.tip:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
+.tip-row.tip:hover, .tip-box.tip:hover { background: var(--paper-2); border-radius: 6px; }
+.tip-pop {
+  position: fixed; z-index: 30; max-width: min(320px, calc(100vw - 16px)); padding: 8px 12px; border-radius: 10px;
+  background: var(--ink); color: var(--paper); font: .88em/1.4 var(--sans); white-space: pre-line;
+  box-shadow: var(--shadow); pointer-events: none;
+}
 @media (max-width: 700px) {
   .sheet-cols { grid-template-columns: 1fr; }
   /* At the table on a phone, what you can do matters more than the full skill list. */

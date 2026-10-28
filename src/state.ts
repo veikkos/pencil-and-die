@@ -3,7 +3,7 @@ import type { Advantage } from './dice.ts';
 import { applyDeathSave, applyHpChange, UNCONSCIOUS, wakeUp } from './life.ts';
 import { restCharacter, useResource, withDefaults, type Recharge } from './resources.ts';
 import { applyPresencePatch, healthWord, publicPresence, type Presence, type PresencePatch } from './roster.ts';
-import { featureFromText, type Character, type Effect, type Feature } from './rules.ts';
+import { featureFromText, splitItemName, type Character, type Effect, type Feature } from './rules.ts';
 import { sheetOf } from './sheet.ts';
 import type { Spell } from './spells.ts';
 
@@ -76,7 +76,8 @@ export interface CharacterPatch {
   level?: number;
   xpDelta?: number;
   goldDelta?: number;
-  addItems?: { name: string; qty?: number }[];
+  /** qty 0 with a note changes only the note. */
+  addItems?: { name: string; qty?: number; note?: string }[];
   removeItems?: { name: string; qty?: number }[];
   addConditions?: string[];
   removeConditions?: string[];
@@ -156,13 +157,18 @@ function applyPatch(c: Character, p: CharacterPatch): Character {
   if (p.level !== undefined) next.level = p.level;
   if (p.xpDelta) next.xp += p.xpDelta;
   if (p.goldDelta) next.gold = Math.max(0, next.gold + p.goldDelta);
+  const held = (name: string) => next.inventory.find((i) => i.name.toLowerCase() === splitItemName(name).name.toLowerCase());
   for (const item of p.addItems ?? []) {
-    const existing = next.inventory.find((i) => i.name.toLowerCase() === item.name.toLowerCase());
-    if (existing) existing.qty += item.qty ?? 1;
-    else next.inventory.push({ name: item.name, qty: item.qty ?? 1 });
+    const { name, note: inName } = splitItemName(item.name);
+    const note = item.note ?? inName;
+    const existing = held(name);
+    if (existing) {
+      existing.qty += item.qty ?? 1;
+      if (note) existing.note = note;
+    } else next.inventory.push({ name, qty: item.qty ?? 1, ...(note ? { note } : {}) });
   }
   for (const item of p.removeItems ?? []) {
-    const existing = next.inventory.find((i) => i.name.toLowerCase() === item.name.toLowerCase());
+    const existing = held(item.name);
     if (existing) existing.qty -= item.qty ?? existing.qty;
   }
   next.inventory = next.inventory.filter((i) => i.qty > 0);
