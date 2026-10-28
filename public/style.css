@@ -148,15 +148,12 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 .5em; }
 /* ---- Table ---- */
 .table-view { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(240px, 1fr) auto auto; height: 100vh; }
 .timeline-bar {
-  display: flex; align-items: center; gap: 12px; padding: 6px 16px; border-bottom: 1px solid var(--line); font-size: .85em; color: var(--ink-soft);
+  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 12px;
+  padding: 6px 16px 4px; border-bottom: 1px solid var(--line); font-size: .85em; color: var(--ink-soft);
 }
-.timeline-bar input[type=range] { flex: 1; accent-color: var(--ink); }
-/* A fixed share for the label, so the slider doesn't resize under the thumb as the label changes. */
-.timeline-bar .moment { flex: 0 0 40%; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-@media (max-width: 700px) {
-  .timeline-bar { flex-wrap: wrap; row-gap: 2px; }
-  .timeline-bar .moment { flex-basis: 100%; }
-}
+.timeline-bar input[type=range] { width: 100%; margin: 0; accent-color: var(--ink); }
+/* The label sits under the slider, so the slider doesn't resize under the thumb as the label changes. */
+.timeline-bar .moment { grid-column: 2; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .92em; }
 .past-banner {
   display: flex; align-items: center; gap: 12px; justify-content: center; padding: 8px; background: var(--past-bg);
   border-bottom: 1.5px solid var(--gold); font-weight: 600;
@@ -348,6 +345,8 @@ span.tip:not(.tip-row) { text-decoration: underline dotted var(--ink-faint); tex
 
 /* ---- Settings ---- */
 .gear { font-size: 1.25em; line-height: 1; }
+.tl-toggle { font-size: 1.15em; line-height: 1; opacity: .55; }
+.tl-toggle.on { opacity: 1; }
 .modal.settings .card { width: min(560px, 100%); }
 .settings-head { display: flex; align-items: center; justify-content: space-between; }
 .settings-head h2 { margin: 0; }

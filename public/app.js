@@ -7,7 +7,7 @@ import { dieSvg } from './dice.js';
 
 const app = document.getElementById('app');
 let cfg = { language: 'en', complexity: 'beginner', verbosity: 3, activeGameId: null, games: [] };
-let prefs = { voice: false, voiceName: { en: null, fi: null } };
+let prefs = { voice: false, voiceName: { en: null, fi: null }, timeline: true };
 let rules = null;
 let view = 'lobby';
 let gameId = null;
@@ -59,7 +59,7 @@ const ruleText = (group, item) => (cfg.language === 'fi' && FI_RULES[group][item
 
 async function boot() {
   [cfg, prefs, rules] = await Promise.all([api('/api/config'), api('/api/prefs'), api('/api/rules')]);
-  prefs = { voice: false, voiceName: { en: null, fi: null }, ...prefs };
+  prefs = { voice: false, voiceName: { en: null, fi: null }, timeline: true, ...prefs };
   document.documentElement.lang = cfg.language;
   if (cfg.activeGameId) await openGame(cfg.activeGameId, false);
   else render();
@@ -871,14 +871,17 @@ function renderTopbar() {
     <span class="scene"><b>${esc(shown.title)}</b>${scene ? ` — ${esc(scene.title)}` : ''}</span>
     ${shown.combat ? `<span class="round">${esc(shown.combat.round === 0 ? s.combat.fight : s.combat.round(shown.combat.round))}</span>` : ''}
     ${dmStatusPill()}
+    <button class="ghost tl-toggle${prefs.timeline ? ' on' : ''}" data-tl-toggle aria-pressed="${prefs.timeline}" title="${esc(s.timeline)}" aria-label="${esc(s.timeline)}">⟲</button>
     ${settingsButton()}`;
   bindCommon(el);
+  el.querySelector('[data-tl-toggle]').onclick = () => savePrefs({ timeline: !prefs.timeline });
 }
 
 function renderTimeline() {
   const s = t();
   const el = app.querySelector('#timeline');
-  if (!history.length) { el.innerHTML = ''; return; }
+  // Looking at the past always shows the timeline: it holds the way back.
+  if (!history.length || (!prefs.timeline && viewSeq === null)) { el.innerHTML = ''; return; }
   const idx = viewSeq === null ? history.length - 1 : history.findIndex((h) => h.seq === viewSeq);
   const h = history[idx];
   const moment = momentText(h);
