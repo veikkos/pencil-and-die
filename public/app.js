@@ -7,7 +7,7 @@ import { dieSvg } from './dice.js';
 
 const app = document.getElementById('app');
 let cfg = { language: 'en', complexity: 'beginner', verbosity: 3, activeGameId: null, games: [] };
-let prefs = { voice: false, voiceName: { en: null, fi: null }, timeline: true };
+let prefs = { voice: false, voiceName: { en: null, fi: null }, sayVoice: {}, timeline: true };
 let rules = null;
 let view = 'lobby';
 let gameId = null;
@@ -66,8 +66,9 @@ const ruleText = (group, item) => (cfg.language === 'fi' && FI_RULES[group][item
 
 async function boot() {
   [cfg, prefs, rules] = await Promise.all([api('/api/config'), api('/api/prefs'), api('/api/rules')]);
-  prefs = { voice: false, voiceName: { en: null, fi: null }, timeline: true, ...prefs };
+  prefs = { voice: false, voiceName: { en: null, fi: null }, sayVoice: {}, timeline: true, ...prefs };
   document.documentElement.lang = cfg.language;
+  loadVoices();
   if (cfg.activeGameId) await openGame(cfg.activeGameId, false);
   else render();
 
@@ -185,7 +186,7 @@ const SETTING_GROUPS = [
     { id: 'voice', label: (s) => s.settings.readAloud, hint: (s) => s.settings.readAloudHint,
       choices: (s) => [['off', s.settings.off], ['on', s.settings.on]], value: () => (prefs.voice ? 'on' : 'off'), pick: (v) => savePrefs({ voice: v === 'on' }) },
     { id: 'voice-name', select: true, label: (s) => s.settings.voiceName, hint: (s) => (voicesFor(cfg.language).length ? '' : s.noVoice),
-      choices: () => voiceChoices(), value: () => pickVoice()?.name, pick: (v) => savePrefs({ voiceName: { ...prefs.voiceName, [cfg.language]: v } }),
+      choices: () => voiceChoices(), value: () => pickVoice()?.name, pick: chooseVoice,
       extra: (s) => (voicesFor(cfg.language).length ? `<button class="ghost" data-voice-test title="${esc(s.testVoice)}">▶︎</button>` : '') },
   ] },
 ];
@@ -200,6 +201,8 @@ function openSettings() {
   document.addEventListener('keydown', settingsKey);
   document.body.appendChild(settingsModal);
   drawSettings();
+  // A voice may have been downloaded since the page loaded.
+  loadVoices();
 }
 
 function closeSettings() {
@@ -1318,47 +1321,130 @@ function updateComposer() {
 }
 
 // ---------------------------------------------------------------------------
-// DM voice (browser speech synthesis; works offline with installed system voices)
+// DM voice: the server speaks with this machine's voices (macOS `say`, Enhanced and Premium
+// ones included) and the page plays the audio. Where the server has none for the language,
+// the browser's speech synthesis reads instead.
 // ---------------------------------------------------------------------------
 
 const speech = window.speechSynthesis;
 const LANG_CODES = { en: ['en-GB', 'en-US', 'en'], fi: ['fi-FI', 'fi'] };
+/** The server's voices, best first: [{ name, lang, quality }]. */
+let serverVoices = [];
+
+async function loadVoices() {
+  serverVoices = await api('/api/voices').catch(() => []);
+  drawSettings();
+}
+
+const onServer = (lang) => serverVoices.some((v) => v.lang === lang);
 
 function voicesFor(lang) {
+  if (onServer(lang)) return serverVoices.filter((v) => v.lang === lang);
   if (!speech) return [];
   return speech.getVoices().filter((v) => LANG_CODES[lang].some((code) => v.lang.toLowerCase().startsWith(code.toLowerCase())));
 }
 
+// The server's choice is kept apart from the browser's: the same name means a different voice there.
+const voicePref = (lang) => (onServer(lang) ? 'sayVoice' : 'voiceName');
+
 function pickVoice() {
-  const list = voicesFor(cfg.language);
-  return list.find((v) => v.name === prefs.voiceName?.[cfg.language]) ?? list.find((v) => v.localService) ?? list[0];
+  const lang = cfg.language;
+  const list = voicesFor(lang);
+  return list.find((v) => v.name === prefs[voicePref(lang)]?.[lang]) ?? list.find((v) => v.localService) ?? list[0];
+}
+
+function chooseVoice(name) {
+  const key = voicePref(cfg.language);
+  savePrefs({ [key]: { ...prefs[key], [cfg.language]: name } });
 }
 
 /** Installed voices for the page's language, as [name, label]. */
 function voiceChoices() {
   const list = voicesFor(cfg.language);
+  if (onServer(cfg.language)) return list.map((v) => [v.name, v.lang === 'en' ? `${v.name} (${v.region})` : v.name]);
   // "Eddy (Finnish (Finland))" → "Eddy"; add the region only where names would clash (en-GB vs en-US).
   const base = (v) => v.name.replace(/\s*\(.*\)\s*$/, '');
   const label = (v) => list.filter((x) => base(x) === base(v)).length > 1 ? `${base(v)} (${v.lang.split(/[-_]/)[1] ?? v.lang})` : base(v);
   return list.map((v) => [v.name, label(v)]);
 }
 
-/**
- * Browsers cut long utterances short and may fall back to their default (English) voice
- * when an utterance is queued right after cancel(). So: speak sentence-sized chunks, pin the
- * voice and language on every chunk, and never read with a voice of the wrong language.
- */
-let speakQueueTimer = null;
-function speak(text, { interrupt = false } = {}) {
-  if (!speech) return;
-  const voice = pickVoice();
-  if (!voice) { console.warn(`No ${cfg.language} voice installed; not reading aloud.`); return; }
+/** Sentence-sized pieces: the first one starts sooner, and browsers cut long utterances short. */
+function chunksOf(text) {
   const chunks = [];
   for (const sentence of text.replace(/[*_#`>]/g, '').split(/(?<=[.!?…:])\s+|\n+/)) {
     const last = chunks.at(-1);
     if (last && last.length + sentence.length < 160) chunks[chunks.length - 1] = `${last} ${sentence}`;
     else if (sentence.trim()) chunks.push(sentence.trim());
   }
+  return chunks;
+}
+
+function speak(text, { interrupt = false } = {}) {
+  const voice = pickVoice();
+  if (!voice) { console.warn(`No ${cfg.language} voice installed; not reading aloud.`); return; }
+  if (interrupt) hush();
+  if (onServer(cfg.language)) playOnServer(voice.name, chunksOf(text));
+  else speakInBrowser(voice, chunksOf(text), interrupt);
+}
+
+function hush() {
+  stopAudio();
+  speech?.cancel();
+}
+
+// The server's audio: every piece is asked for at once and played in order.
+let audioQueue = [];
+let audioBusy = false;
+let audioNow = null;
+let audioGen = 0;
+
+function playOnServer(voice, chunks) {
+  audioQueue.push(...chunks.map((text) => fetchSpeech(voice, text)));
+  if (!audioBusy) playNext();
+}
+
+async function fetchSpeech(voice, text) {
+  const res = await fetch('/api/speech', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice, text }) });
+  if (!res.ok) throw new Error((await res.json().catch(() => null))?.error ?? res.statusText);
+  return URL.createObjectURL(await res.blob());
+}
+
+async function playNext() {
+  const job = audioQueue.shift();
+  if (!job) { audioBusy = false; return; }
+  audioBusy = true;
+  const gen = audioGen;
+  const url = await job.catch((err) => { console.warn(`Could not speak: ${err.message}`); return null; });
+  if (gen !== audioGen) { if (url) URL.revokeObjectURL(url); return; }
+  if (!url) return playNext();
+  const audio = new Audio(url);
+  audioNow = audio;
+  const done = () => {
+    URL.revokeObjectURL(url);
+    if (audioNow === audio) audioNow = null;
+    if (gen === audioGen) playNext();
+  };
+  audio.onended = done;
+  audio.onerror = done;
+  audio.play().catch(done);
+}
+
+function stopAudio() {
+  audioGen++;
+  audioQueue.forEach((job) => job.then((url) => URL.revokeObjectURL(url), () => {}));
+  audioQueue = [];
+  audioBusy = false;
+  audioNow?.pause();
+  audioNow = null;
+}
+
+/**
+ * Browsers may fall back to their default (English) voice when an utterance is queued right
+ * after cancel(). So: pin the voice and language on every piece, and wait a moment after a cancel.
+ */
+let speakQueueTimer = null;
+function speakInBrowser(voice, chunks, interrupt) {
+  if (!speech) return;
   const enqueue = () => chunks.forEach((chunk) => {
     const u = new SpeechSynthesisUtterance(chunk);
     u.voice = voice;
@@ -1367,7 +1453,6 @@ function speak(text, { interrupt = false } = {}) {
     speech.speak(u);
   });
   if (interrupt) {
-    speech.cancel();
     clearTimeout(speakQueueTimer);
     speakQueueTimer = setTimeout(enqueue, 120);
   } else enqueue();
@@ -1389,7 +1474,7 @@ function latestDmTurn() {
 async function savePrefs(patch) {
   const turningOn = patch.voice === true && !prefs.voice;
   prefs = await api('/api/prefs', patch);
-  if (!prefs.voice) speech?.cancel();
+  if (!prefs.voice) hush();
   // Catch up on what's already on screen, e.g. the opening narration.
   if (turningOn && shown) speak(latestDmTurn().map((l) => l.text).join('\n'), { interrupt: true });
   render();

@@ -11,10 +11,12 @@ import { buildCharacter, CLASSES, PRESETS, RACES, SKILLS, type CharacterChoices 
 import { sheetOf, type RollAction } from './sheet.ts';
 import { playerView, type MessageKind } from './state.ts';
 import { GameStore, type Language } from './store.ts';
+import { forgetVoices, speech, voices } from './tts.ts';
 
 const PORT = Number(process.env.PORT ?? 4242);
 const HOST = process.env.HOST ?? '127.0.0.1';
 const DB_PATH = process.env.DB_PATH ?? fileURLToPath(new URL('../data/game.db', import.meta.url));
+const TTS_DIR = fileURLToPath(new URL('../data/tts/', import.meta.url));
 
 const db = openDb(DB_PATH);
 const store = new GameStore(db);
@@ -79,6 +81,16 @@ app.post('/api/prefs', (req, res) => {
   const prefs = { ...JSON.parse(getSetting(db, 'prefs') ?? '{}'), ...req.body };
   setSetting(db, 'prefs', JSON.stringify(prefs));
   res.json(prefs);
+});
+
+// The DM's voice: the machine's own voices, spoken here and played by the page.
+app.get('/api/voices', async (_req, res) => {
+  forgetVoices();
+  res.json(await voices());
+});
+
+app.post('/api/speech', async (req, res) => {
+  res.type('audio/mp4').sendFile(await speech(TTS_DIR, String(req.body.voice), String(req.body.text ?? '')));
 });
 
 app.post('/api/verbosity', (req, res) => {

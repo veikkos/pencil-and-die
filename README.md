@@ -47,9 +47,11 @@ in `.claude/settings.local.json`).
   - **Complexity (Beginner / Casual / Intermediate):** applies instantly, also to past moments, so
     you can peek at the numbers underneath and switch back. The DM adapts its style to the level
     the table settles on (it isn't woken for every peek).
-  - **DM voice:** the same for every adventure. It uses the browser's built-in speech synthesis.
-    On macOS, Finnish works with the "Satu" voice (System Settings → Accessibility → Spoken
-    Content → System voice → Manage voices).
+  - **DM voice:** the same for every adventure. On macOS the server speaks with the Mac's own
+    voices (`say`) and the page plays the audio, so Enhanced and Premium voices work; the best
+    installed one is picked first. Download them in System Settings → Accessibility → Spoken
+    Content → System voice → Manage Voices (Finnish: "Satu (Enhanced)" or the neural
+    "Suvi (Premium)"). The audio is cached in `data/tts/`. Elsewhere the browser's voices read.
 - **Scene, fights and resources:** a strip at the top shows everyone in the scene: heroes with
   their health, creatures with a health word only. During a fight it shows the turn order and
   whose turn it is. Heroes get pips for spell slots and limited abilities, and dying heroes show
