@@ -1,8 +1,10 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { entryName } from './combat.ts';
-import type { Db } from './db.ts';
+import { getSetting, setSetting, type Db } from './db.ts';
 import { meetsDc, parseDice, physicalDice, virtualRoll } from './dice.ts';
 import { DM_GUIDE } from './dm-guide.ts';
 import { lengthNudge } from './dm-report.ts';
@@ -586,4 +588,36 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
   registerSceneTools(server, store, { resolve, character });
 
   return server;
+}
+
+/**
+ * A DM session keeps the tool list it fetched when it connected, so after a server update it may be
+ * missing new tools or arguments. On start, compare the tools with the last run's and, if they
+ * changed, tell the DM which ones and how to pick them up.
+ */
+export async function announceToolChanges(store: GameStore, db: Db): Promise<string | undefined> {
+  const [a, b] = InMemoryTransport.createLinkedPair();
+  const server = createMcpServer(store, db);
+  await server.connect(b);
+  const client = new Client({ name: 'self', version: '0' });
+  await client.connect(a);
+  const { tools } = await client.listTools();
+  await client.close();
+  const now: Record<string, string> = Object.fromEntries(tools.map((t) =>
+    [t.name, createHash('sha256').update(JSON.stringify([t.description, t.inputSchema])).digest('hex').slice(0, 12)]));
+  const saved = getSetting(db, 'mcp_tools');
+  setSetting(db, 'mcp_tools', JSON.stringify(now));
+  if (!saved) return undefined;
+  const before: Record<string, string> = JSON.parse(saved);
+  const added = Object.keys(now).filter((n) => !(n in before));
+  const changed = Object.keys(now).filter((n) => n in before && before[n] !== now[n]);
+  const removed = Object.keys(before).filter((n) => !(n in now));
+  if (!added.length && !changed.length && !removed.length) return undefined;
+  const notice = 'SERVER UPDATED: the table\'s tools changed.' +
+    [added.length && ` New: ${added.join(', ')}.`, changed.length && ` Changed: ${changed.join(', ')}.`, removed.length && ` Gone: ${removed.join(', ')}.`].filter(Boolean).join('') +
+    ' If your tool list lacks these or their new arguments, it is from before the update: ask the user to run /mcp and reconnect the dnd server.' +
+    ' Read get_dm_guide again for how to use them.';
+  const active = store.activeGameId();
+  if (active) store.notifyDm(active, notice);
+  return notice;
 }

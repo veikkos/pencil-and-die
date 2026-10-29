@@ -4,6 +4,8 @@ import { parseDice, scoreRoll } from '../src/dice.ts';
 import { checkModifier } from '../src/rules.ts';
 import { sanitizeSketch } from '../src/sketch.ts';
 import { DM_GUIDE } from '../src/dm-guide.ts';
+import { getSetting, setSetting } from '../src/db.ts';
+import { announceToolChanges } from '../src/mcp.ts';
 import { mcpClient, mira, newStore, newTable } from './helpers.ts';
 
 
@@ -200,4 +202,19 @@ test('store: a new adventure brings no setting notices until something changes',
   assert.deepEqual((await store.waitForPlayers(g.id, 10, 0)).notices, []);
   store.setVerbosity(4, g.id);
   assert.equal((await store.waitForPlayers(g.id, 10, 0)).notices.length, 1);
+});
+
+test('mcp: after an update the DM hears which tools changed, once', async () => {
+  const { store, db } = newTable();
+  const g = store.createGame('T');
+  assert.equal(await announceToolChanges(store, db), undefined);
+  const saved = JSON.parse(getSetting(db, 'mcp_tools')!);
+  delete saved.edit_dm_note;
+  saved.dm_roll = 'old';
+  saved.old_tool = 'x';
+  setSetting(db, 'mcp_tools', JSON.stringify(saved));
+  const notice = await announceToolChanges(store, db);
+  assert.match(notice!, /New: edit_dm_note\. Changed: dm_roll\. Gone: old_tool\..*\/mcp/);
+  assert.ok(store.pendingNotices(g.id).includes(notice!));
+  assert.equal(await announceToolChanges(store, db), undefined);
 });

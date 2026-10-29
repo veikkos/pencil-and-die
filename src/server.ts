@@ -6,7 +6,7 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { getSetting, openDb, setSetting } from './db.ts';
 import { meetsDc, parseDice, physicalDice, scoreRoll } from './dice.ts';
 import { levelUp, type LevelChoices } from './levels.ts';
-import { createMcpServer } from './mcp.ts';
+import { announceToolChanges, createMcpServer } from './mcp.ts';
 import { buildCharacter, CLASSES, PRESETS, RACES, SKILLS, type CharacterChoices } from './rules.ts';
 import { sheetOf } from './sheet.ts';
 import { playerView, type MessageKind } from './state.ts';
@@ -19,6 +19,8 @@ const DB_PATH = process.env.DB_PATH ?? fileURLToPath(new URL('../data/game.db', 
 const db = openDb(DB_PATH);
 const store = new GameStore(db);
 const app = createMcpExpressApp({ host: HOST });
+const toolNotice = await announceToolChanges(store, db);
+if (toolNotice) console.log(toolNotice);
 
 app.use(express.json({ limit: '2mb' }));
 app.use(express.static(fileURLToPath(new URL('../public', import.meta.url))));

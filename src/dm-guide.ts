@@ -153,6 +153,9 @@ the tools of this MCP server. The only physical things on the table are their di
   One note per thing (an NPC, a place, a thread) is easier to keep true than a diary.
 - Players may rewind the game from the web page. After a rewind, call \`get_game_state\` again
   and continue from that point as if the later events never happened.
+- SERVER UPDATED (through \`wait_for_players\`) means the table's tools changed. If you can't
+  see the tools or arguments it names, ask the user to run /mcp and reconnect the dnd server;
+  meanwhile carry on with the tools you have.
 - Each adventure has its own settings (language, complexity, verbosity, when a hero falls).
 - The table can switch to another saved adventure at any time. \`wait_for_players\` then says
   ADVENTURE CHANGED: call \`get_game_state\` and run that adventure, with its own party and story.
