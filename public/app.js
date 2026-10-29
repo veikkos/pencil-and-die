@@ -518,7 +518,7 @@ function sheetStatus(c) {
   const s = t();
   const status = c.status ?? 'up';
   const life = status === 'up' ? '' : s.life[status]?.[level()] ?? '';
-  const items = [...c.conditions.map((x) => [condName(x), condHelp(x) ?? '']), ...(c.effects ?? []).map((e) => [e.name, [e.note, e.by && t().heldBy(shown.characters.find((x) => x.id === e.by)?.name ?? '?')].filter(Boolean).join(' ')])];
+  const items = [...c.conditions.map((x) => [condName(x), condHelp(x) ?? '']), ...(c.effects ?? []).map((e) => [condName(e.name), [e.note, e.by && t().heldBy(shown.characters.find((x) => x.id === e.by)?.name ?? '?')].filter(Boolean).join(' ')])];
   return `<div class="sheet-status">
     <h3>${esc(s.sheet.status)}${life ? ` · <b class="life">${esc(life)}</b>` : ''}</h3>
     ${status === 'dying' ? deathSaveRows(c) : ''}
@@ -665,7 +665,7 @@ function sheetHtml(c) {
   const g = s.glossary.terms;
   const pct = Math.round((c.hp / c.maxHp) * 100);
   const nums = isBeginner() ? [] : [
-    [s.ac, c.ac, [g.ac, c.acNote]],
+    [s.ac, c.sheet?.ac ?? c.ac, [g.ac, c.acNote]],
     [s.speed, c.speed, [g.speed]],
     [s.sheet.init, sign(c.sheet.initiative), [g.init, sumText(c.sheet.initiativeParts)]],
     [s.sheet.prof, sign(c.sheet.proficiency), [g.prof]],
@@ -1118,10 +1118,10 @@ function heroCardHtml(card) {
     <div class="name">${esc(c.name)}${c.pendingLevel && viewSeq === null ? ` <span class="lvl-chip" data-levelup="${esc(c.id)}">${esc(s.levelUp.chip)}</span>` : ''}</div>
     <div class="sub">${esc(raceName(c))} · ${esc(className(c))} ${c.level}${c.player ? ` · ${esc(c.player)}` : ''}${life ? ` · <b class="life">${esc(life)}</b>` : ''}</div>
     <div class="hpbar"><i class="${pct <= 30 ? 'low' : ''}" style="width:${pct}%"></i></div>
-    <div class="nums"><span>${s.hp} ${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp}` : ''}</span>${isBeginner() ? '' : `<span>${s.ac} ${c.ac}</span>`}</div>
+    <div class="nums"><span>${s.hp} ${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp}` : ''}</span>${isBeginner() ? '' : `<span>${s.ac} ${c.sheet?.ac ?? c.ac}</span>`}</div>
     ${status === 'dying' ? deathSaveRows(c) : ''}
     ${status === 'dead' ? '' : visibleResources(c).map(resourceRow).join('')}
-    ${c.conditions.length || c.effects?.length ? `<div class="conds">${[...c.conditions.map(condName), ...(c.effects ?? []).map((e) => e.name)].map(esc).join(', ')}</div>` : ''}
+    ${c.conditions.length || c.effects?.length ? `<div class="conds">${[...c.conditions, ...(c.effects ?? []).map((e) => e.name)].map(condName).map(esc).join(', ')}</div>` : ''}
   </button>`;
 }
 
@@ -1133,7 +1133,7 @@ function creatureCardHtml(card) {
   return `<button class="pc creature ${esc(card.side)} ${card.defeated ? 'defeated' : ''} ${card.active ? 'turn' : ''}" data-group="${esc(card.groupId)}" data-health="${esc(card.health ?? '')}"${card.active ? ` title="${esc(s.combat.turnOf(card.name))}"` : ''}>
     ${turnBadge(card)}
     <div class="name">${esc(card.name)}${n > 1 ? ` ×${n}` : ''}</div>
-    ${word ? `<div class="sub">${esc(word)}</div>
+    ${word ? `${card.health === 'unhurt' ? '' : `<div class="sub">${esc(word)}</div>`}
     <div class="hpbar"><i class="${card.health === 'nearDeath' || card.health === 'bloodied' ? 'low' : ''}" style="width:${HEALTH_WIDTH[card.health] ?? 0}%"></i></div>` : ''}
     ${conds.length ? `<div class="conds">${condList(conds)}</div>` : ''}
   </button>`;

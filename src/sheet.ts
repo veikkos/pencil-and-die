@@ -2,6 +2,7 @@
 // numbers, skill modifiers. Computed on read, never stored, so it can't drift from the character.
 // Each number comes with its parts (ability, proficiency…) so the page can show how it adds up.
 
+import { armorClass, meleeDamageBonus } from './effects.ts';
 import { canLevel, featureValue, MAX_LEVEL, XP_FOR_LEVEL } from './levels.ts';
 import { abilityPart, ABILITIES, checkModifier, CLASSES, jackPart, mod, SKILLS, total, type Ability, type Character, type Feature, type Part } from './rules.ts';
 import { armourFor, type Armour } from './armour.ts';
@@ -45,6 +46,8 @@ export interface SheetSpell extends Spell {
 }
 
 export interface Sheet {
+  /** AC right now, with spell and feature effects (Mage Armor, Shield of Faith). */
+  ac: number;
   proficiency: number;
   initiative: number;
   initiativeParts: Part[];
@@ -109,7 +112,9 @@ function attacks(c: Character): Attack[] {
   const out: Attack[] = [...counts].map(([w, count]) => {
     const ability = weaponAbility(c, w);
     const toHitParts = [abilityPart(c, ability), prof, ...(w.kind === 'ranged' ? archery : [])];
-    const bonusParts = [abilityPart(c, ability)];
+    // Rage and the like add to Strength melee damage.
+    const raging = ability === 'str' && w.kind !== 'ranged' ? meleeDamageBonus(c) : 0;
+    const bonusParts: Part[] = [abilityPart(c, ability), ...(raging ? [{ from: 'bonus' as const, value: raging }] : [])];
     const bonus = total(bonusParts);
     return {
       name: w.name, weaponId: w.id, ability, toHit: total(toHitParts), toHitParts,
@@ -211,6 +216,7 @@ export function sheetOf(c: Character): Sheet {
       return { ability: a, mod: modifier, parts, proficient: c.saves.includes(a) };
     }),
     skills,
+    ac: armorClass(c),
     attacks: attacks(c),
     ...(casting ? { spellcasting: casting } : {}),
     spells: spells(c, casting),
@@ -236,7 +242,7 @@ export interface RollAction {
   times?: number;
 }
 
-export interface NamedRoll { label: string; dice: string; modifier: number; critOn?: number; action: RollAction }
+export interface NamedRoll { label: string; dice: string; modifier: number; critOn?: number; action: RollAction; damageType?: string }
 
 const findAction = (c: Character, name: string) => {
   const key = name.trim().toLowerCase();
@@ -280,5 +286,6 @@ export function damageRoll(c: Character, name: string, opts: { critical?: boolea
   const times = spell?.times ?? 1;
   const label = `${what} ${spell?.heal ? 'healing' : 'damage'}${times > 1 ? ` (one of ${times})` : ''}`;
   const action: RollAction = { kind: spell?.heal ? 'healing' : 'damage', of: attack ? 'weapon' : 'spell', id: attack ? attack.weaponId ?? attack.name.toLowerCase() : spell!.id, name: what, ...(times > 1 ? { times } : {}) };
-  return { label, dice, modifier: flat, action };
+  const damageType = attack?.damageType ?? spell?.damageType;
+  return { label, dice, modifier: flat, action, ...(damageType ? { damageType } : {}) };
 }

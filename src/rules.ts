@@ -3,6 +3,7 @@
 
 import { defaultResources, type Resource } from './resources.ts';
 import { spellsById, type Spell } from './spells.ts';
+import type { EffectMods } from './effects.ts';
 
 export const ABILITIES = ['str', 'dex', 'con', 'int', 'wis', 'cha'] as const;
 export type Ability = (typeof ABILITIES)[number];
@@ -49,6 +50,8 @@ export interface Effect {
   note: string;
   /** The hero keeping it up by concentrating; it ends when they lose concentration. */
   by?: string;
+  /** What it does to the hero's numbers (AC, damage, resistances). */
+  mods?: EffectMods;
 }
 
 export interface Race {

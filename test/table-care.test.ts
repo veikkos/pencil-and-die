@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { meetsDc, parseDice, scoreRoll } from '../src/dice.ts';
 import { slug } from '../src/roster.ts';
+import { sheetOf } from '../src/sheet.ts';
 import { buildCharacter } from '../src/rules.ts';
 import type { GameStore } from '../src/store.ts';
 import { mcpClient, mira, newTable } from './helpers.ts';
@@ -112,4 +113,53 @@ test('named rolls carry what they are, so the page can name them in its language
   assert.equal((state().log.at(-1)!.sys?.params.action as { name: string }).name, 'Sneak Attack');
   await c.call('request_roll', { character_id: 'Halla', attack: 'Mace', label: 'Big swing' });
   assert.equal(state().pendingRolls[0].action, undefined);
+});
+
+const gorm = () => buildCharacter('gorm', { name: 'Gorm', player: 'Pete', race: 'half-orc', className: 'barbarian', preset: 'specialist' });
+
+test('area damage: everyone it hits takes their share, heroes and creatures alike', async () => {
+  const { store, g, c, hero, state } = await party();
+  await c.call('add_to_scene', { name: 'Goblin', side: 'enemy', hp: 7, ac: 15 });
+  await c.call('add_to_scene', { name: 'Murkku', side: 'enemy', hp: 20, ac: 16 });
+  const asked = await c.call('request_roll', { character_id: 'Halla', damage: 'Sacred Flame', targets: ['goblin', { who: 'murkku', takes: 'half' }, { who: 'Mira', takes: 'none' }] });
+  assert.match(asked.text, /against goblin, murkku \(half\), mira \(none\)/);
+  throwDice(store, g.id, 'halla', [7]);
+  assert.deepEqual(state().present.map((p) => p.hp), [0, 17]);
+  assert.equal(hero('mira').hp, 10);
+  const wait = await c.call('wait_for_players', { timeout_seconds: 5 });
+  assert.match(wait.text, /7 to goblin \(0\/7 HP, DEFEATED\); 3 to murkku, half \(17\/20 HP\); 0 to Mira, none/);
+  assert.equal((await c.call('request_roll', { character_id: 'Halla', attack: 'Mace', targets: ['goblin'] })).isError, true);
+});
+
+test('effects carry numbers: Rage adds melee damage, resists slashing and ends with the fight', async () => {
+  const { store, db } = newTable();
+  const g = store.createGame('T');
+  store.append(g.id, { type: 'character_created', character: gorm() });
+  const c = await mcpClient(store, db);
+  const me = () => store.state(g.id).characters[0];
+  const axe = () => sheetOf(me()).attacks.find((a) => a.name === 'Greataxe')!;
+  const before = axe().bonus;
+  await c.call('add_to_scene', { name: 'Goblin', side: 'enemy', hp: 7, ac: 15, initiative_bonus: 2 });
+  await c.call('start_combat', {});
+  const used = await c.call('use_resource', { character_id: 'Gorm', resource: 'rage' });
+  assert.match(used.text, /Rage/);
+  assert.equal(me().effects[0].name, 'Rage');
+  assert.equal(axe().bonus, before + 2);
+  const hit = await c.call('dm_roll', { label: 'Scimitar', dice: '1d4', modifier: 10, target: 'Gorm', damage: true, damage_type: 'slashing' });
+  const total = store.state(g.id).rolls.at(-1)!.total;
+  assert.match(hit.text, new RegExp(`${Math.floor(total / 2)} to Gorm, half`));
+  await c.call('end_combat', {});
+  assert.deepEqual(me().effects, []);
+});
+
+test('effects carry numbers: Mage Armor and Shield of Faith change the AC monsters aim at', async () => {
+  const { c, hero } = await party();
+  await c.call('update_character', { character_id: 'Mira', add_effects: [{ name: 'Shield of Faith', note: '+2', concentration: 'Halla' }] });
+  assert.equal(sheetOf(hero('mira')).ac, 16);
+  const swing = await c.call('dm_roll', { label: 'Club', modifier: 0, target: 'Mira' });
+  assert.match(swing.text, /vs Mira AC 16/);
+  await c.call('update_character', { character_id: 'Mira', add_effects: [{ name: 'Taikahaarniska', note: '13 + DEX' }] });
+  assert.equal(sheetOf(hero('mira')).ac, 13 + 3 + 2);
+  await c.call('update_character', { character_id: 'Mira', add_effects: [{ name: 'Lucky charm', note: 'feels nice', ac_bonus: 1 }] });
+  assert.equal(sheetOf(hero('mira')).ac, 19);
 });

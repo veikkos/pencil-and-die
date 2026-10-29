@@ -462,6 +462,7 @@ export const STRINGS = {
     },
     conditionNames: {
       Unconscious: { beginner: 'Tajuton', casual: 'Tajuton', intermediate: 'Tajuton' },
+      Rage: { beginner: 'Raivo', casual: 'Raivo', intermediate: 'Raivo' },
       ...Object.fromEntries(Object.entries({
         Blinded: 'Sokaistu', Charmed: 'Lumottu', Deafened: 'Kuuro', Exhaustion: 'Uupunut', Frightened: 'Pelästynyt',
         Grappled: 'Otteessa', Incapacitated: 'Toimintakyvytön', Invisible: 'Näkymätön', Paralyzed: 'Halvaantunut',
@@ -975,8 +976,8 @@ export const FI_RULES = {
     'Eldritch Invocation: Armor of Shadows': ['Loitsukutsu: varjojen panssari', 'Loitsi Maagin panssari itseesi milloin vain ilman loitsupaikkaa.'],
     'Pact of the Tome': ['Kirjan sopimus', 'Varjojen kirja ja kolme loitsahdusta lisää: Johdatus, Valo ja Pyhä liekki.'],
     "Eldritch Invocation: Devil's Sight": ['Loitsukutsu: paholaisen näkö', 'Näet normaalisti pimeässä, myös maagisessa, 120 jalan päähän.'],
-    'Evocation Savant': ['Herättämisen taitaja', 'Herättämisen koulu: herättämisloitsujen kopiointi loitsukirjaan vie puolet ajasta ja kullasta.'],
-    'Sculpt Spells': ['Loitsujen muovailu', 'Kun loitsit herättämisloitsun, valitsemasi enintään 1 + loitsun taso olentoa säästyvät: ei vahinkoa ja automaattinen pelastus.'],
+    'Evocation Savant': ['Evokaation taitaja', 'Evokaation koulu: evokaatioloitsujen kopiointi loitsukirjaan vie puolet ajasta ja kullasta.'],
+    'Sculpt Spells': ['Loitsujen muovailu', 'Kun loitsit evokaatioloitsun, valitsemasi enintään 1 + loitsun taso olentoa säästyvät: ei vahinkoa ja automaattinen pelastus.'],
   },
   skills: {
     Acrobatics: 'Akrobatia', 'Animal Handling': 'Eläinten käsittely', Arcana: 'Mystiikka', Athletics: 'Atletiikka',

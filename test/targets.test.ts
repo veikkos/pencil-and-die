@@ -55,7 +55,7 @@ test('targeted damage comes off the creature and can defeat it, and a rewind giv
   assert.equal(state().present[0].hp, 2);
   assert.equal(state().log.at(-1)!.sys?.code, 'presenceUpdated');
   const wait = await c.call('wait_for_players', { timeout_seconds: 5 });
-  assert.match(wait.text, /5 damage applied to goblin-1: 2\/7 HP/);
+  assert.match(wait.text, /damage applied: 5 to goblin-1 \(2\/7 HP\)/);
 
   await c.call('request_roll', { character_id: 'Mira', damage: 'Rapier', target: 'goblin-1' });
   throwDice(store, g.id, [8]);
@@ -74,7 +74,7 @@ test('request_roll refuses targets it cannot apply', async () => {
     assert.equal(r.isError, true, JSON.stringify(args));
     assert.match(r.text, why);
   };
-  await bad({ check: 'Stealth', target: 'goblin-1' }, /goes with `attack` or `damage`/);
+  await bad({ check: 'Stealth', target: 'goblin-1' }, /go with `attack` or `damage`/);
   await bad({ attack: 'Rapier', target: 'shopkeeper' }, /no AC/);
   await bad({ damage: 'Rapier', target: 'shopkeeper' }, /no HP/);
   await bad({ attack: 'Rapier', target: 'goblin-1', dc: 12 }, /leave out `dc`/);
@@ -124,7 +124,7 @@ test('dm_roll: a monster attack on a hero is checked against their AC; its damag
   const dmg = await c.call('dm_roll', { label: 'Goblin scimitar damage', dice: '1d6', modifier: 2, target: 'Mira', damage: true });
   const dealt = state().rolls.at(-1)!.total;
   assert.equal(state().characters[0].hp, 10 - dealt);
-  assert.match(dmg.text, new RegExp(`${dealt} damage to Mira: HP ${10 - dealt}/10`));
+  assert.match(dmg.text, new RegExp(`${dealt} to Mira \\(HP ${10 - dealt}/10\\)`));
 
   await c.call('dm_roll', { label: 'Big hit', dice: '1d4', modifier: 20, target: 'Mira', damage: true, critical: true });
   assert.equal(state().rolls.at(-1)!.dice, '2d4');
@@ -140,7 +140,7 @@ test('dm_roll: damage can go to a creature too, and the target checks guard misu
     assert.equal(r.isError, true, JSON.stringify(args));
     assert.match(r.text, why);
   };
-  await bad({ damage: true }, /go with a `target`/);
+  await bad({ damage: true }, /go with a `target` or `targets`/);
   await bad({ target: 'Mira', dc: 12 }, /leave out `dc`/);
   await bad({ target: 'Mira', dice: '2d6' }, /one d20/);
   await bad({ target: 'goblin-2', damage: true, dice: '1d6' }, /already defeated/);

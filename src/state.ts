@@ -5,6 +5,7 @@ import { restCharacter, useResource, withDefaults, type Recharge } from './resou
 import { applyPresencePatch, healthWord, publicPresence, type Presence, type PresencePatch } from './roster.ts';
 import { applyLevel, levelOptions, type LevelGains } from './levels.ts';
 import { featureFromText, splitItemName, type Character, type Effect, type Feature } from './rules.ts';
+import { fightEffects } from './effects.ts';
 import { sheetOf, type RollAction } from './sheet.ts';
 import type { Spell } from './spells.ts';
 
@@ -35,8 +36,10 @@ export interface RollRequest {
   purpose?: 'initiative' | 'death_save' | 'concentration' | 'hit_die';
   /** Attack rolls: the lowest d20 that is a critical hit. */
   critOn?: number;
-  /** A creature in the scene: an attack's DC is its AC, and damage is taken off its HP. */
+  /** A creature in the scene: an attack's DC is its AC. (Older damage rolls also kept their one target here.) */
   targetId?: string;
+  /** Damage: who takes it, and how much of it, when the roll comes in. */
+  targets?: DamageTarget[];
   /** A weapon, spell or feature roll, for the page to name in its own language. */
   action?: RollAction;
   requestedSeq: number;
@@ -122,7 +125,7 @@ export type GameEvent =
   | { type: 'roll_resolved'; rollId: string; faces: number[]; total: number; success?: boolean; byDm?: boolean }
   | { type: 'roll_cancelled'; rollId: string }
   /** `damageTo`: the total comes off that hero's or creature's HP. */
-  | { type: 'dm_roll'; roll: Omit<RollResult, 'requestedSeq' | 'resolvedSeq'>; secret: boolean; damageTo?: DamageTarget }
+  | { type: 'dm_roll'; roll: Omit<RollResult, 'requestedSeq' | 'resolvedSeq'>; secret: boolean; damageTo?: DamageTarget | DamageTarget[] }
   | { type: 'scene_set'; title: string; description: string; present?: Presence[] }
   | { type: 'presence_added'; presences: Presence[] }
   | { type: 'presence_updated'; presenceId: string; patch: PresencePatch; reason?: string }
@@ -141,6 +144,8 @@ export interface DamageTarget {
   id: string;
   /** A critical hit: a dying hero takes two death save failures. */
   critical?: boolean;
+  /** Share of the roll this target takes: 0.5 for a made save or resistance, 2 for vulnerability. */
+  factor?: number;
 }
 
 export interface StoredEvent {
@@ -332,6 +337,15 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
     if (before.status === 'up' && after.status !== 'up') dropConcentration(after.id);
   };
 
+  /** A damage roll's total, shared out to its targets by their factor (halves round down). */
+  const dealDamage = (targets: DamageTarget[], total: number, label: string) => {
+    for (const t of targets) {
+      const dealt = Math.floor(Math.max(0, total) * (t.factor ?? 1));
+      if (t.kind === 'hero') updateCharacter(t.id, { hpDelta: -dealt, critical: t.critical }, label);
+      else updatePresence(t.id, { hpDelta: -dealt });
+    }
+  };
+
   /** Changes a creature and tells the table what they can see of it. */
   const updatePresence = (presenceId: string, patch: PresencePatch) => {
     const before = s.present.find((p) => p.id === presenceId);
@@ -433,7 +447,8 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       sys('rolled', { name: nameOf(req.characterId), label: req.label, purpose: req.purpose, action: req.action, faces: e.faces, mod: req.modifier, total: e.total, rollSeq: seq,
         ...(attackOn ? { hit: e.success } : { success: e.success }) },
         `${nameOf(req.characterId)} rolled ${req.label}: ${e.faces.join(' & ')} ${sign(req.modifier)} = ${e.total}${attackOn ? (e.success ? ' — hit' : ' — miss') : outcome}`);
-      if (req.targetId && req.critOn === undefined) updatePresence(req.targetId, { hpDelta: -Math.max(0, e.total) });
+      if (req.targets) dealDamage(req.targets, e.total, req.label);
+      else if (req.targetId && req.critOn === undefined) updatePresence(req.targetId, { hpDelta: -Math.max(0, e.total) });
       if (req.purpose === 'concentration' && e.success === false) dropConcentration(req.characterId);
       if (req.purpose === 'hit_die') {
         const hero = s.characters.find((c) => c.id === req.characterId);
@@ -467,9 +482,7 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
         sys('dmRolled', { label: e.roll.label, faces: e.roll.faces, mod: e.roll.modifier, total: e.roll.total, ...(attackOn ? { hit: e.roll.success } : {}) },
           `DM rolled ${e.roll.label}: ${e.roll.faces.join(' & ')} ${sign(e.roll.modifier)} = ${e.roll.total}${attackOn ? (e.roll.success ? ' — hit' : ' — miss') : ''}`);
       }
-      const dealt = Math.max(0, e.roll.total);
-      if (e.damageTo?.kind === 'hero') updateCharacter(e.damageTo.id, { hpDelta: -dealt, critical: e.damageTo.critical }, e.roll.label);
-      if (e.damageTo?.kind === 'creature') updatePresence(e.damageTo.id, { hpDelta: -dealt });
+      if (e.damageTo) dealDamage([e.damageTo].flat(), e.roll.total, e.roll.label);
       break;
     }
     case 'scene_set':
@@ -508,6 +521,8 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
     case 'combat_ended':
       if (!s.combat) break;
       s.combat = null;
+      // Rage and Shield last about a fight.
+      for (const c of s.characters) if (fightEffects(c).length) updateCharacter(c.id, { removeEffects: fightEffects(c) }, 'the fight is over');
       s.characters = s.characters.map((c) => (c.status === 'out' ? wakeUp(c, 1) : c));
       sys('combatEnded', {}, 'The fight is over.');
       break;

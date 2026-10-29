@@ -3,6 +3,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { currentActor, dyingHeroId, entryName, groupEntry, heroEntry, planNextTurn, planStartCombat, sameRef, type CombatEntry } from './combat.ts';
 import { parseDice, virtualRoll } from './dice.ts';
+import { presetMods } from './effects.ts';
 import { findResource, hitDieRoll, useResource } from './resources.ts';
 import { findPresence, newPresences, presenceSpec, type PresencePatch } from './roster.ts';
 import type { Character } from './rules.ts';
@@ -63,7 +64,13 @@ export function registerSceneTools(server: McpServer, store: GameStore, h: Helpe
     useResource(c, r.id, a.amount);
     store.append(id, { type: 'resource_used', characterId: c.id, resourceId: r.id, amount: a.amount });
     const after = findResource(h.character(store.state(id), c.id), r.id);
-    return text(`${c.name}: ${after.name} ${after.max - after.used}/${after.max} left`);
+    // Raging is a state with numbers (damage, resistance), so spending a Rage starts it.
+    const rage = r.id === 'rage' && a.amount > 0 && !c.effects.some((x) => x.name === 'Rage');
+    if (rage) {
+      store.append(id, { type: 'character_updated', characterId: c.id, reason: 'Rage',
+        patch: { addEffects: [{ name: 'Rage', note: '+2 melee damage, half damage from weapons, until the fight ends', mods: presetMods(c, 'Rage') }] } });
+    }
+    return text(`${c.name}: ${after.name} ${after.max - after.used}/${after.max} left${rage ? `. ${c.name} is raging: +${presetMods(c, 'Rage')!.meleeDamage} to Strength melee damage (on the sheet and in damage rolls) and half damage from bludgeoning, piercing and slashing (give dm_roll damage_type). It ends with the fight.` : ''}`);
   });
 
   server.registerTool('rest', {
