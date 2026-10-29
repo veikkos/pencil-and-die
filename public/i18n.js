@@ -118,11 +118,22 @@ export const STRINGS = {
       casual: { ok: 'Saves', no: 'Fails' },
       intermediate: { ok: 'Saves', no: 'Fails' },
     },
-    deathSavePrompt: (name) => `${name} is fading. Roll a d20: 10 or more holds on.`,
-    initiativePrompt: (name) => `Who acts first? ${name}, roll a d20.`,
+    rollPrompts: {
+      death_save: (name) => `${name} is fading. Roll a d20: 10 or more holds on.`,
+      initiative: (name) => `Who acts first? ${name}, roll a d20.`,
+      concentration: (name) => `${name} got hurt while keeping a spell going. Roll a d20 to hold on to it.`,
+      hit_die: (name) => `${name} catches their breath. Roll to see how much strength comes back.`,
+    },
     rollLabels: {
       initiative: { beginner: 'Who acts first', casual: 'Initiative', intermediate: 'Initiative' },
       death_save: { beginner: 'Holding on', casual: 'Death save', intermediate: 'Death saving throw' },
+      concentration: { beginner: 'Keeping the spell going', casual: 'Concentration', intermediate: 'Concentration save' },
+      hit_die: { beginner: 'Catching breath', casual: 'Hit die', intermediate: 'Hit die' },
+    },
+    heldBy: (name) => `(lasts while ${name} keeps concentrating)`,
+    actionLabels: {
+      attack: (n) => `${n} attack`, damage: (n) => `${n} damage`, healing: (n) => `${n} healing`,
+      oneOf: (n) => ` (one of ${n})`,
     },
     conditionNames: { Unconscious: { beginner: 'Passed out', casual: 'Unconscious', intermediate: 'Unconscious' } },
     conditionHelp: {
@@ -312,6 +323,7 @@ export const STRINGS = {
       updated: (p) => `${p.name}: ${p.parts.map(([k, v]) => PART_EN[k](v)).join(', ')}${p.reason ? ` (${p.reason})` : ''}`,
       levelOffered: (p) => `${p.name} can reach level ${p.level}!`,
       levelled: (p) => `${p.name} reaches level ${p.level}!`,
+      concentrationLost: (p) => `${p.name} loses concentration: ${joinList(p.effects, 'and')} ${p.effects.length > 1 ? 'end' : 'ends'}.`,
     },
     timelineTypes: { dm: 'DM', player: '', rollRequested: 'Roll asked', roll: 'Roll', character: 'New hero', sketch: 'Sketch', scene: 'Scene', started: 'Adventure begins' },
   },
@@ -431,11 +443,22 @@ export const STRINGS = {
       casual: { ok: 'Onnistuu', no: 'Epäonnistuu' },
       intermediate: { ok: 'Onnistuu', no: 'Epäonnistuu' },
     },
-    deathSavePrompt: (name) => `${name} hiipuu. Heitä d20: 10 tai enemmän riittää pitämään pintansa.`,
-    initiativePrompt: (name) => `Kuka toimii ensin? ${name}, heitä d20.`,
+    rollPrompts: {
+      death_save: (name) => `${name} hiipuu. Heitä d20: 10 tai enemmän riittää pitämään pintansa.`,
+      initiative: (name) => `Kuka toimii ensin? ${name}, heitä d20.`,
+      concentration: (name) => `${name} haavoittui pitäessään loitsua yllä. Heitä d20 nähdäksesi, pysyykö loitsu.`,
+      hit_die: (name) => `${name} vetää henkeä. Heitä, niin näet kuinka paljon voimia palaa.`,
+    },
     rollLabels: {
       initiative: { beginner: 'Kuka toimii ensin', casual: 'Aloite', intermediate: 'Aloite' },
       death_save: { beginner: 'Pinnalla pysyminen', casual: 'Kuolemanpelastus', intermediate: 'Kuolemanpelastusheitto' },
+      concentration: { beginner: 'Loitsun ylläpito', casual: 'Keskittyminen', intermediate: 'Keskittymisen pelastusheitto' },
+      hit_die: { beginner: 'Hengähdys', casual: 'Osumanoppa', intermediate: 'Osumanoppa' },
+    },
+    heldBy: (name) => `(kestää niin kauan kuin ${name} pitää keskittymisensä)`,
+    actionLabels: {
+      attack: (n) => `${n}: hyökkäys`, damage: (n) => `${n}: vahinko`, healing: (n) => `${n}: parannus`,
+      oneOf: (n) => ` (yksi ${n}:stä)`,
     },
     conditionNames: {
       Unconscious: { beginner: 'Tajuton', casual: 'Tajuton', intermediate: 'Tajuton' },
@@ -621,7 +644,7 @@ export const STRINGS = {
       label: 'Kun sankari kaatuu', knockout: 'Tyrmätään', death: 'Voi kuolla',
       hints: { knockout: 'Kaatunut sankari tyrmätään ja herää taistelun jälkeen.', death: 'Sankari, joka epäonnistuu kolmessa kuolemanpelastuksessa, kuolee.' },
     },
-    health: { unhurt: 'Vahingoittumaton', hurt: 'Haavoittunut', bloodied: 'Verta vuotava', nearDeath: 'Kuoleman kynnyksellä', defeated: 'Kukistettu' },
+    health: { unhurt: 'Vahingoittumaton', hurt: 'Haavoittunut', bloodied: 'Pahoin haavoittunut', nearDeath: 'Kuoleman kynnyksellä', defeated: 'Kukistettu' },
     combat: { fight: '⚔ Taistelu!', round: (n) => `⚔ Kierros ${n}`, turnOf: (name) => `Vuorossa: ${name}` },
     sys: {
       rest: (p) => `${joinList(p.names, 'ja')} ${p.names.length > 1 ? 'ottavat' : 'ottaa'} ${p.kind === 'long' ? 'pitkän' : 'lyhyen'} levon.`,
@@ -640,6 +663,7 @@ export const STRINGS = {
       updated: (p) => `${p.name}: ${p.parts.map(([k, v]) => PART_FI[k](v)).join(', ')}${p.reason ? ` (${p.reason})` : ''}`,
       levelOffered: (p) => `${p.name} voi nousta tasolle ${p.level}!`,
       levelled: (p) => `${p.name} nousee tasolle ${p.level}!`,
+      concentrationLost: (p) => `${p.name} menettää keskittymisensä: ${joinList(p.effects, 'ja')} päättyy.`,
     },
     timelineTypes: { dm: 'PJ', player: '', rollRequested: 'Heittopyyntö', roll: 'Heitto', character: 'Uusi sankari', sketch: 'Piirros', scene: 'Paikka', started: 'Seikkailu alkaa' },
   },
@@ -674,7 +698,7 @@ function rollMath(p) {
 }
 
 const HEALTH_EN = { unhurt: 'unhurt', hurt: 'hurt', bloodied: 'bloodied', nearDeath: 'near death', defeated: 'defeated' };
-const HEALTH_FI = { unhurt: 'vahingoittumaton', hurt: 'haavoittunut', bloodied: 'verta vuotava', nearDeath: 'kuoleman kynnyksellä', defeated: 'kukistettu' };
+const HEALTH_FI = { unhurt: 'vahingoittumaton', hurt: 'haavoittunut', bloodied: 'pahoin haavoittunut', nearDeath: 'kuoleman kynnyksellä', defeated: 'kukistettu' };
 const SIDE_EN = { enemy: 'an enemy', neutral: 'neutral', ally: 'an ally' };
 const SIDE_FI = { enemy: 'vihollinen', neutral: 'puolueeton', ally: 'liittolainen' };
 const STATUS_EN = { up: 'back on their feet', dying: 'dying', stable: 'stable', out: 'knocked out', dead: 'fallen' };

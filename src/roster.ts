@@ -82,7 +82,8 @@ export function publicPresence(p: Presence) {
   return { id: p.id, name: p.name, groupId: p.groupId, side: p.side, description: p.description, conditions: p.conditions, defeated: p.defeated, health: healthWord(p) };
 }
 
-export const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'creature';
+/** "Jättisammakko" → "jattisammakko": letters keep their base form instead of becoming dashes. */
+export const slug = (s: string) => s.normalize('NFD').replace(/\p{M}+/gu, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'creature';
 
 /**
  * `reserved` are ids that must not be handed out again even though nobody in `existing` has them,

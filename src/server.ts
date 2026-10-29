@@ -8,7 +8,7 @@ import { meetsDc, parseDice, physicalDice, scoreRoll } from './dice.ts';
 import { levelUp, type LevelChoices } from './levels.ts';
 import { announceToolChanges, createMcpServer } from './mcp.ts';
 import { buildCharacter, CLASSES, PRESETS, RACES, SKILLS, type CharacterChoices } from './rules.ts';
-import { sheetOf } from './sheet.ts';
+import { sheetOf, type RollAction } from './sheet.ts';
 import { playerView, type MessageKind } from './state.ts';
 import { GameStore, type Language } from './store.ts';
 
@@ -189,18 +189,18 @@ app.get('/api/games/:id/history', (req, res) => {
   const id = game(req);
   const s = store.state(id);
   const name = (cid?: string) => s.characters.find((c) => c.id === cid)?.name;
-  const rollOf = new Map<string, { label: string; purpose?: string }>();
+  const rollOf = new Map<string, { label: string; purpose?: string; action?: RollAction }>();
   const entries = store.liveEvents(id).flatMap(({ seq, at, event: e }) => {
     switch (e.type) {
       case 'message': return [{ seq, at, type: e.from === 'dm' ? 'dm' : 'player', kind: e.kind, who: e.from === 'dm' ? null : name(e.characterId), text: e.text }];
       case 'roll_requested':
-        rollOf.set(e.roll.rollId, { label: e.roll.label, purpose: e.roll.purpose });
-        return [{ seq, at, type: 'rollRequested', who: name(e.roll.characterId), text: e.roll.label, purpose: e.roll.purpose }];
+        rollOf.set(e.roll.rollId, { label: e.roll.label, purpose: e.roll.purpose, action: e.roll.action });
+        return [{ seq, at, type: 'rollRequested', who: name(e.roll.characterId), text: e.roll.label, purpose: e.roll.purpose, action: e.roll.action }];
       case 'roll_resolved': {
         // `label` and `result` let the page name engine rolls (initiative, death saves) in its own language.
         const r = rollOf.get(e.rollId);
         const result = `${e.faces.join(' & ')} → ${e.total}`;
-        return [{ seq, at, type: 'roll', text: `${r?.label ?? ''}: ${result}`, label: r?.label ?? '', result, purpose: r?.purpose }];
+        return [{ seq, at, type: 'roll', text: `${r?.label ?? ''}: ${result}`, label: r?.label ?? '', result, purpose: r?.purpose, action: r?.action }];
       }
       case 'character_created': return [{ seq, at, type: 'character', who: e.character.name, text: `${e.character.race} ${e.character.className}` }];
       case 'sketch': return [{ seq, at, type: 'sketch', text: e.caption }];

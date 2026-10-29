@@ -112,15 +112,16 @@ test('weaponFor: loose old names', () => {
 
 test('rolls by name: attack, damage, critical, versatile, errors', () => {
   const m = mira();
-  assert.deepEqual(attackRoll(m, 'rapier'), { label: 'Rapier attack', dice: '1d20', modifier: 5 });
-  assert.deepEqual(damageRoll(m, 'Rapier', { critical: true }), { label: 'Rapier damage', dice: '2d8', modifier: 3 });
+  assert.deepEqual(attackRoll(m, 'rapier'), { label: 'Rapier attack', dice: '1d20', modifier: 5, action: { kind: 'attack', of: 'weapon', id: 'rapier', name: 'Rapier' } });
+  assert.deepEqual(damageRoll(m, 'Rapier', { critical: true }), { label: 'Rapier damage', dice: '2d8', modifier: 3, action: { kind: 'damage', of: 'weapon', id: 'rapier', name: 'Rapier' } });
   assert.throws(() => attackRoll(m, 'Greataxe'), /Mira has no weapon or spell "Greataxe". They have: Rapier, Shortbow, Dagger, Unarmed strike/);
   assert.throws(() => damageRoll(m, 'Unarmed strike'), /rolls no dice: it deals 1 damage/);
   const fighter = hero('human', 'fighter');
   assert.equal(damageRoll(fighter, 'Longsword', { versatile: true }).dice, '1d10');
   const wiz = hero('elf', 'wizard');
   assert.throws(() => attackRoll(wiz, 'Burning Hands'), /DEX save against DC 13/);
-  assert.deepEqual(damageRoll(wiz, 'Magic Missile'), { label: 'Magic Missile damage (one of 3)', dice: '1d4', modifier: 1 });
+  assert.deepEqual(damageRoll(wiz, 'Magic Missile'), { label: 'Magic Missile damage (one of 3)', dice: '1d4', modifier: 1,
+    action: { kind: 'damage', of: 'spell', id: 'magic-missile', name: 'Magic Missile', times: 3 } });
   assert.equal(damageRoll(hero('dwarf', 'cleric'), 'cure wounds').label, 'Cure Wounds healing');
 });
 

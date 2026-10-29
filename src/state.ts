@@ -5,7 +5,7 @@ import { restCharacter, useResource, withDefaults, type Recharge } from './resou
 import { applyPresencePatch, healthWord, publicPresence, type Presence, type PresencePatch } from './roster.ts';
 import { applyLevel, levelOptions, type LevelGains } from './levels.ts';
 import { featureFromText, splitItemName, type Character, type Effect, type Feature } from './rules.ts';
-import { sheetOf } from './sheet.ts';
+import { sheetOf, type RollAction } from './sheet.ts';
 import type { Spell } from './spells.ts';
 
 export type Speaker = 'dm' | 'player' | 'system';
@@ -32,11 +32,13 @@ export interface RollRequest {
   dc?: number;
   /** Players don't see the DC when hidden. */
   hideDc: boolean;
-  purpose?: 'initiative' | 'death_save';
+  purpose?: 'initiative' | 'death_save' | 'concentration' | 'hit_die';
   /** Attack rolls: the lowest d20 that is a critical hit. */
   critOn?: number;
   /** A creature in the scene: an attack's DC is its AC, and damage is taken off its HP. */
   targetId?: string;
+  /** A weapon, spell or feature roll, for the page to name in its own language. */
+  action?: RollAction;
   requestedSeq: number;
 }
 
@@ -100,6 +102,8 @@ export interface CharacterPatch {
   critical?: boolean;
   /** Lets healing raise the dead. */
   revive?: boolean;
+  /** A dying hero stops dying (Medicine, Spare the Dying): still unconscious at 0 HP. */
+  stabilize?: boolean;
 }
 
 export type GameEvent =
@@ -303,6 +307,15 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
     sys('combatOrder', { names: shown }, `Turn order: ${names.join(', ')}.`);
   };
 
+  /** Ends every effect `casterId` keeps up by concentrating (other than `keep`) and says so. */
+  const dropConcentration = (casterId: string, keep?: string) => {
+    const held = (x: Effect) => x.by === casterId && x.name !== keep;
+    const ended = [...new Set(s.characters.flatMap((c) => c.effects.filter(held).map((x) => x.name)))];
+    if (!ended.length) return;
+    s.characters = s.characters.map((c) => (c.effects.some(held) ? { ...c, effects: c.effects.filter((x) => !held(x)) } : c));
+    sys('concentrationLost', { name: nameOf(casterId), effects: ended }, `${nameOf(casterId)} loses concentration: ${ended.join(', ')} ends.`);
+  };
+
   /** Changes a hero's sheet and logs what changed. */
   const updateCharacter = (characterId: string, patch: CharacterPatch, reason?: string) => {
     const before = s.characters.find((c) => c.id === characterId);
@@ -314,6 +327,9 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       sys('updated', { name: after.name, parts, reason },
         `${after.name}: ${parts.map(([k, v]) => `${k} ${v}`).join(', ')}${reason ? ` (${reason})` : ''}`);
     }
+    // A caster holds one concentration at a time, and none once they drop.
+    for (const x of patch.addEffects ?? []) if (x.by) dropConcentration(x.by, x.name);
+    if (before.status === 'up' && after.status !== 'up') dropConcentration(after.id);
   };
 
   /** Changes a creature and tells the table what they can see of it. */
@@ -414,10 +430,21 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       const outcome = e.success === undefined ? '' : e.success ? ' — success' : ' — failure';
       // A targeted attack shows as a hit or a miss; its DC is the target's AC and stays hidden.
       const attackOn = req.targetId && req.critOn !== undefined && e.success !== undefined;
-      sys('rolled', { name: nameOf(req.characterId), label: req.label, purpose: req.purpose, faces: e.faces, mod: req.modifier, total: e.total, rollSeq: seq,
+      sys('rolled', { name: nameOf(req.characterId), label: req.label, purpose: req.purpose, action: req.action, faces: e.faces, mod: req.modifier, total: e.total, rollSeq: seq,
         ...(attackOn ? { hit: e.success } : { success: e.success }) },
         `${nameOf(req.characterId)} rolled ${req.label}: ${e.faces.join(' & ')} ${sign(req.modifier)} = ${e.total}${attackOn ? (e.success ? ' — hit' : ' — miss') : outcome}`);
       if (req.targetId && req.critOn === undefined) updatePresence(req.targetId, { hpDelta: -Math.max(0, e.total) });
+      if (req.purpose === 'concentration' && e.success === false) dropConcentration(req.characterId);
+      if (req.purpose === 'hit_die') {
+        const hero = s.characters.find((c) => c.id === req.characterId);
+        const die = hero?.resources.find((r) => r.id === 'hit-dice');
+        if (hero && die && die.used < die.max) {
+          const after = applyPatch(useResource(hero, 'hit-dice', 1), { hpDelta: Math.max(0, e.total) });
+          s.characters = s.characters.map((c) => (c.id === hero.id ? after : c));
+          const parts = describePatch(hero, after);
+          sys('updated', { name: after.name, parts, reason: 'hit die' }, `${after.name}: ${parts.map(([k, v]) => `${k} ${v}`).join(', ')} (hit die)`);
+        }
+      }
       if (req.purpose === 'initiative' && s.combat?.round === 0) {
         const order = s.combat.order.map((x) => (x.initiative === null && sameRef(x.ref, { kind: 'hero', id: req.characterId }) ? { ...x, initiative: e.total } : x));
         gathered({ ...s.combat, order });
@@ -497,7 +524,13 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       break;
   }
   // Healing, a natural 20, stabilising, falling or resting ends dying; an unanswered death save goes with it.
-  const stale = (r: RollRequest) => r.purpose === 'death_save' && s.characters.find((c) => c.id === r.characterId)?.status !== 'dying';
+  // A concentration save is moot once the caster is down or holds nothing any more.
+  const stale = (r: RollRequest) => {
+    const c = s.characters.find((x) => x.id === r.characterId);
+    if (r.purpose === 'death_save') return c?.status !== 'dying';
+    if (r.purpose === 'concentration') return c?.status !== 'up' || !s.characters.some((x) => x.effects.some((e) => e.by === r.characterId));
+    return false;
+  };
   if (s.pendingRolls.some(stale)) s.pendingRolls = s.pendingRolls.filter((r) => !stale(r));
   return s;
 }

@@ -10,7 +10,7 @@ import { DM_GUIDE } from './dm-guide.ts';
 import { lengthNudge } from './dm-report.ts';
 import { fightRefs, orderText, registerSceneTools, roundText } from './mcp-scene.ts';
 import { canLevel, levelOptions, levelUp, needsChoices, withRecommended, type LevelOptions } from './levels.ts';
-import { findResource } from './resources.ts';
+import { findResource, hitDieRoll } from './resources.ts';
 import { findPresence, newPresences, presenceSpec, stillPresent, toSpec, type Presence } from './roster.ts';
 import { ABILITIES, checkModifier, type Character } from './rules.ts';
 import { attackRoll, damageRoll, sheetOf } from './sheet.ts';
@@ -33,6 +33,10 @@ function describeEvent(s: GameState, { seq, event: e }: StoredEvent): string {
     case 'roll_resolved': {
       const r = s.rolls.find((x) => x.rollId === e.rollId);
       if (!r) return `[${seq}] Roll ${e.rollId} resolved: ${e.total}`;
+      if (r.purpose === 'concentration') {
+        const held = e.success ? 'holds on to their spell' : 'loses concentration; their spell ends (the engine removed its effects)';
+        return `[${seq}] CONCENTRATION ${who(r.characterId)}: ${e.faces.join(', ')} ${sign(r.modifier)} = ${e.total} vs DC ${r.dc} → ${who(r.characterId)} ${held}.`;
+      }
       if (r.purpose === 'death_save') {
         const c = s.characters.find((x) => x.id === r.characterId);
         const face = e.faces[0];
@@ -105,9 +109,15 @@ function toSpell(a: SpellArg): Spell {
     ...Object.fromEntries(Object.entries(opt).filter(([, v]) => v !== undefined)) };
 }
 
+/** A save the engine just asked of a hero who was hurt while concentrating. */
+function concentrationNote(s: GameState, c: Character): string {
+  const save = s.pendingRolls.findLast((r) => r.purpose === 'concentration' && r.characterId === c.id);
+  return save ? ` ${c.name} is concentrating: the engine asked for a concentration save (DC ${save.dc}); on a failure the spell's effects end by themselves.` : '';
+}
+
 function lifeNote(c: Character): string {
   const saves = `saves ${c.deathSaves.successes}, fails ${c.deathSaves.failures}`;
-  if (c.status === 'dying') return `. ${c.name} is dying (${saves}). Death saves are asked automatically on ${c.name}'s turn in combat; outside combat use request_roll with check "death save".`;
+  if (c.status === 'dying') return `. ${c.name} is dying (${saves}). Death saves are asked automatically on ${c.name}'s turn in combat; outside combat use request_roll with check "death save". A Medicine check or Spare the Dying: update_character with stabilize.`;
   if (c.status === 'stable') return `. ${c.name} is stable at 0 HP (unconscious).`;
   if (c.status === 'out') return `. ${c.name} is knocked out at 0 HP: wakes with 1 HP when the fight ends, or sooner if healed.`;
   if (c.status === 'dead') return `. ${c.name} is dead.`;
@@ -362,20 +372,23 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       if (attack && dc !== undefined) throw new Error('With `target` the DC is the target\'s AC; leave out `dc`.');
       if (damage && aim.hp === undefined) throw new Error(`${aim.id} has no HP to lose. Leave out \`target\`.`);
     }
-    const dice = givenDice ?? named?.dice ?? '1d20';
+    const deathSave = !!check && /^(death sav|kuolemanpelast)/i.test(check.trim());
+    const pendingDice = store.state(id).pendingRolls.filter((r) => r.purpose === 'hit_die' && r.characterId === c.id).length;
+    const hitDie = check && /^(hit di|osumanop)/i.test(check.trim()) ? hitDieRoll(c, pendingDice) : undefined;
+    const dice = givenDice ?? named?.dice ?? hitDie?.dice ?? '1d20';
     const spec = parseDice(dice);
     physicalDice(spec, advantage);
-    const deathSave = !!check && /^(death sav|kuolemanpelast)/i.test(check.trim());
     if (deathSave && c.status !== 'dying') throw new Error(`${c.name} is not dying (status ${c.status}); no death save needed.`);
-    const computed = check && !deathSave ? checkModifier(c, check, store.language(id)) : undefined;
-    const finalLabel = deathSave ? 'Death save' : label ?? named?.label ?? computed?.label;
+    const computed = check && !deathSave && !hitDie ? checkModifier(c, check, store.language(id)) : undefined;
+    const finalLabel = deathSave ? 'Death save' : hitDie ? hitDie.label : label ?? named?.label ?? computed?.label;
     if (!finalLabel) throw new Error('Give a `check`, `attack`, `damage` or a `label`.');
     const rollId = randomUUID().slice(0, 8);
     const roll = deathSave
       ? { rollId, characterId: c.id, label: finalLabel, dice: '1d20', modifier: 0, advantage: 'none' as const, dc: undefined, hideDc: true, purpose: 'death_save' as const }
       : { rollId, characterId: c.id, label: finalLabel, dice, modifier: modifier ?? named?.modifier ?? computed?.modifier ?? 0, advantage,
         ...(attack && aim ? { dc: aim.ac, hideDc: true } : { dc, hideDc: hide_dc }),
-        ...(attack ? { critOn: named?.critOn ?? 20 } : {}), ...(aim ? { targetId: aim.id } : {}) };
+        ...(attack ? { critOn: named?.critOn ?? 20 } : {}), ...(aim ? { targetId: aim.id } : {}), ...(named && !label ? { action: named.action } : {}),
+        ...(hitDie ? { modifier: hitDie.modifier, purpose: hitDie.purpose, dc: undefined } : {}) };
     store.append(id, { type: 'roll_requested', roll });
     return text(`Asked ${c.name} to roll ${finalLabel}${aim ? ` against ${aim.id}` : ''}: ${roll.dice}${roll.advantage !== 'none' ? ` with ${roll.advantage}` : ''} ${sign(roll.modifier)} (roll id ${rollId}). The result arrives via wait_for_players.`);
   });
@@ -443,7 +456,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     }
     if (hero && damage) {
       const after = character(store.state(id), hero.id);
-      return text(`${head} → ${Math.max(0, out.total)} damage to ${after.name}: HP ${after.hp}/${after.maxHp}${after.tempHp ? ` (+${after.tempHp} temp)` : ''}${lifeNote(after)}`);
+      return text(`${head} → ${Math.max(0, out.total)} damage to ${after.name}: HP ${after.hp}/${after.maxHp}${after.tempHp ? ` (+${after.tempHp} temp)` : ''}${lifeNote(after)}${concentrationNote(store.state(id), after)}`);
     }
     if (creature && damage) {
       const after = findPresence(store.state(id).present, creature.id);
@@ -470,8 +483,9 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       remove_items: z.array(z.object({ name: z.string(), qty: z.number().int().optional() })).optional(),
       add_conditions: z.array(z.string()).optional(),
       remove_conditions: z.array(z.string()).optional(),
-      add_effects: z.array(z.object({ name: z.string(), note: z.string() })).optional()
-        .describe('Spell or feature effects on the hero, e.g. { name: "Blessed", note: "+1d4 to attacks and saves, 1 minute" }. A long rest ends them all.'),
+      add_effects: z.array(z.object({ name: z.string(), note: z.string(),
+        concentration: z.string().optional().describe('The hero (id or name) concentrating on the spell. The engine then asks them for a concentration save when they are hurt, and ends the effect when they fail, fall or start another concentration spell.') })).optional()
+        .describe('Spell or feature effects on the hero, e.g. { name: "Blessed", note: "+1d4 to attacks and saves, 1 minute", concentration: "Halla" }. A long rest ends them all.'),
       remove_effects: z.array(z.string()).optional(),
       add_features: z.array(z.union([z.string(), z.object({ name: z.string(), text: z.string().default('') })])).optional()
         .describe('A name, or { name, text } with a one-line explanation the players can read.'),
@@ -486,6 +500,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       resource_max: z.array(z.object({ resource: z.string(), max: z.number().int().min(0) })).optional().describe('Change a resource maximum, e.g. more spell slots after levelling.'),
       critical: z.boolean().optional().describe('The damage was a critical hit: a dying hero takes two death save failures.'),
       revive: z.boolean().optional().describe('Raise a dead hero (needs positive hp_delta or hp).'),
+      stabilize: z.boolean().optional().describe('A dying hero stops dying (a Medicine check, Spare the Dying): stable and unconscious at 0 HP, no more death saves.'),
       reason: z.string().optional().describe('Shown in the log, e.g. "goblin arrow".'),
       game_id: gameIdArg,
     },
@@ -497,13 +512,13 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       patch: {
         hpDelta: a.hp_delta, hp: a.hp, maxHp: a.max_hp, tempHp: a.temp_hp, ac: a.ac,
         xpDelta: a.xp_delta, goldDelta: a.gold_delta, addItems: a.add_items, removeItems: a.remove_items,
-        addConditions: a.add_conditions, removeConditions: a.remove_conditions, addEffects: a.add_effects, removeEffects: a.remove_effects, addFeatures: a.add_features?.map((f) => (typeof f === 'string' ? f : { ...f, source: 'other' as const })), notes: a.notes,
-        addSpells: a.add_spells?.map(toSpell), removeSpells: a.remove_spells, critical: a.critical, revive: a.revive,
+        addConditions: a.add_conditions, removeConditions: a.remove_conditions, addEffects: a.add_effects?.map(({ concentration, ...x }) => ({ ...x, ...(concentration ? { by: character(store.state(id), concentration).id } : {}) })), removeEffects: a.remove_effects, addFeatures: a.add_features?.map((f) => (typeof f === 'string' ? f : { ...f, source: 'other' as const })), notes: a.notes,
+        addSpells: a.add_spells?.map(toSpell), removeSpells: a.remove_spells, critical: a.critical, revive: a.revive, stabilize: a.stabilize,
         resourceMax: a.resource_max?.map((m) => ({ resourceId: findResource(c, m.resource).id, max: m.max })),
       },
     });
     const after = character(store.state(id), c.id);
-    return text(`${after.name}: HP ${after.hp}/${after.maxHp}${after.tempHp ? ` (+${after.tempHp} temp)` : ''}, AC ${after.ac}, conditions: ${after.conditions.join(', ') || 'none'}, effects: ${after.effects.map((x) => x.name).join(', ') || 'none'}${lifeNote(after)}${levelHint(after)}`);
+    return text(`${after.name}: HP ${after.hp}/${after.maxHp}${after.tempHp ? ` (+${after.tempHp} temp)` : ''}, AC ${after.ac}, conditions: ${after.conditions.join(', ') || 'none'}, effects: ${after.effects.map((x) => x.name).join(', ') || 'none'}${lifeNote(after)}${levelHint(after)}${concentrationNote(store.state(id), after)}`);
   });
 
   server.registerTool('level_up', {

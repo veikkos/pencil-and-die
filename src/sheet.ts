@@ -225,7 +225,18 @@ export function sheetOf(c: Character): Sheet {
   };
 }
 
-export interface NamedRoll { label: string; dice: string; modifier: number; critOn?: number }
+/** What a named roll is, so the page can say it in its own language: "Tikari: osuma". */
+export interface RollAction {
+  kind: 'attack' | 'damage' | 'healing';
+  of: 'weapon' | 'spell' | 'feature';
+  /** Weapon or spell id, or the feature's name. */
+  id: string;
+  name: string;
+  /** Spells that roll several times (Magic Missile's darts). */
+  times?: number;
+}
+
+export interface NamedRoll { label: string; dice: string; modifier: number; critOn?: number; action: RollAction }
 
 const findAction = (c: Character, name: string) => {
   const key = name.trim().toLowerCase();
@@ -242,8 +253,9 @@ const findAction = (c: Character, name: string) => {
 /** The d20 roll to hit with a weapon or attack spell. */
 export function attackRoll(c: Character, name: string): NamedRoll {
   const { attack, spell } = findAction(c, name);
-  if (attack) return { label: `${attack.name} attack`, dice: '1d20', modifier: attack.toHit, ...(attack.critOn < 20 ? { critOn: attack.critOn } : {}) };
-  if (spell!.toHit !== undefined) return { label: `${spell!.name} attack`, dice: '1d20', modifier: spell!.toHit };
+  if (attack) return { label: `${attack.name} attack`, dice: '1d20', modifier: attack.toHit, ...(attack.critOn < 20 ? { critOn: attack.critOn } : {}),
+    action: { kind: 'attack', of: 'weapon', id: attack.weaponId ?? attack.name.toLowerCase(), name: attack.name } };
+  if (spell!.toHit !== undefined) return { label: `${spell!.name} attack`, dice: '1d20', modifier: spell!.toHit, action: { kind: 'attack', of: 'spell', id: spell!.id, name: spell!.name } };
   if (spell!.saveDc !== undefined) throw new Error(`${spell!.name} needs no attack roll: the targets make a ${spell!.save!.toUpperCase()} save against DC ${spell!.saveDc} (roll theirs with dm_roll).`);
   throw new Error(`${spell!.name} needs no attack roll${spell!.dice ? '; ask for its damage roll instead' : ''}.`);
 }
@@ -256,7 +268,8 @@ export function damageRoll(c: Character, name: string, opts: { critical?: boolea
   const extra = DAMAGE_FEATURES.find((f) => f.toLowerCase() === name.trim().toLowerCase() && c.features.some((x) => x.name === f));
   if (extra) {
     const dice = featureValue(c, extra)!;
-    return { label: `${extra} damage`, dice: opts.critical ? dice.replace(/^(\d*)d/, (_, n) => `${2 * Number(n || 1)}d`) : dice, modifier: 0 };
+    return { label: `${extra} damage`, dice: opts.critical ? dice.replace(/^(\d*)d/, (_, n) => `${2 * Number(n || 1)}d`) : dice, modifier: 0,
+      action: { kind: 'damage', of: 'feature', id: extra, name: extra } };
   }
   const { attack, spell } = findAction(c, name);
   let dice = attack ? (opts.versatile && attack.versatile) || attack.dice : spell!.dice;
@@ -266,5 +279,6 @@ export function damageRoll(c: Character, name: string, opts: { critical?: boolea
   if (opts.critical) dice = dice.replace(/^(\d*)d/, (_, n) => `${2 * Number(n || 1)}d`);
   const times = spell?.times ?? 1;
   const label = `${what} ${spell?.heal ? 'healing' : 'damage'}${times > 1 ? ` (one of ${times})` : ''}`;
-  return { label, dice, modifier: flat };
+  const action: RollAction = { kind: spell?.heal ? 'healing' : 'damage', of: attack ? 'weapon' : 'spell', id: attack ? attack.weaponId ?? attack.name.toLowerCase() : spell!.id, name: what, ...(times > 1 ? { times } : {}) };
+  return { label, dice, modifier: flat, action };
 }

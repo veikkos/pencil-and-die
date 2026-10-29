@@ -105,3 +105,16 @@ export function restCharacter(c: Character, kind: Recharge): Character {
   // Spell and feature effects last minutes or hours; a night's sleep ends them all.
   return kind === 'long' ? { ...c, resources, hp: c.maxHp, effects: [] } : { ...c, resources };
 }
+
+/**
+ * A short-rest roll of one hit die (CON added). When it resolves the engine spends the die and heals
+ * the total. `pending` counts the hit-die rolls already waiting, so a hero can't owe more dice than they have.
+ */
+export function hitDieRoll(c: Character, pending: number) {
+  const r = c.resources.find((x) => x.id === 'hit-dice');
+  const left = r ? r.max - r.used - pending : 0;
+  if (left < 1) throw new Error(`${c.name} has no hit dice left to spend${pending ? ` (${pending} already asked)` : ''}; a long rest gives half of them back.`);
+  if (c.status === 'dead') throw new Error(`${c.name} is dead.`);
+  const sides = CLASSES.find((x) => x.id === c.classId)?.hitDie ?? 8;
+  return { label: 'Hit die', dice: `1d${sides}`, modifier: Math.floor((c.abilities.con - 10) / 2), purpose: 'hit_die' as const };
+}

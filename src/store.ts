@@ -1,6 +1,7 @@
 import { EventEmitter } from 'node:events';
 import { randomUUID } from 'node:crypto';
 import { planRoundStart } from './combat.ts';
+import { planConcentration } from './life.ts';
 import { getSetting, setSetting, type Db } from './db.ts';
 import { replay, apply, type GameEvent, type GameState, type StoredEvent } from './state.ts';
 
@@ -241,6 +242,8 @@ export class GameStore {
     if (fallen) this.append(gameId, { type: 'hero_fell', characterId: fallen.id, outcome: this.fallenHeroes(gameId) === 'death' ? 'dead' : 'knocked_out' });
     // However round 1 opens (a tool, a roll from the page, a cancel), a dying hero first up gets a death save.
     for (const follow of planRoundStart(before, this.state(gameId))) this.append(gameId, follow);
+    // A hero keeping a spell up who got hurt must hold on to it.
+    for (const follow of planConcentration(before, this.state(gameId))) this.append(gameId, follow);
   }
 
   /** Drops every event after `seq`. They stay in the DB, flagged, for the record. */

@@ -1,8 +1,9 @@
+import { randomUUID } from 'node:crypto';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { currentActor, dyingHeroId, entryName, groupEntry, heroEntry, planNextTurn, planStartCombat, sameRef, type CombatEntry } from './combat.ts';
 import { parseDice, virtualRoll } from './dice.ts';
-import { findResource, useResource } from './resources.ts';
+import { findResource, hitDieRoll, useResource } from './resources.ts';
 import { findPresence, newPresences, presenceSpec, type PresencePatch } from './roster.ts';
 import type { Character } from './rules.ts';
 import type { GameState } from './state.ts';
@@ -70,14 +71,29 @@ export function registerSceneTools(server: McpServer, store: GameStore, h: Helpe
     inputSchema: {
       kind: z.enum(['short', 'long']),
       character_ids: z.array(z.string()).optional().describe('Defaults to everyone.'),
+      hit_dice: z.array(z.string()).optional().describe('Short rest: heroes who spend a hit die to heal, one entry per die (["Halla", "Halla", "Riku"]). Each is asked to roll it; the healing applies itself.'),
       game_id: gameIdArg,
     },
   }, (a) => {
     const id = h.resolve(a.game_id);
     const s = store.state(id);
     const ids = a.character_ids ? a.character_ids.map((x) => h.character(s, x).id) : s.characters.map((c) => c.id);
+    if (a.hit_dice?.length && a.kind === 'long') throw new Error('Hit dice are spent on a short rest; a long rest heals fully.');
+    // Check every die first, so a hero short of dice doesn't leave half the rolls asked.
+    const asked = new Map<string, number>();
+    const rolls = (a.hit_dice ?? []).map((x) => {
+      const c = h.character(s, x);
+      const pending = s.pendingRolls.filter((r) => r.purpose === 'hit_die' && r.characterId === c.id).length + (asked.get(c.id) ?? 0);
+      asked.set(c.id, (asked.get(c.id) ?? 0) + 1);
+      return { c, roll: hitDieRoll(c, pending) };
+    });
     store.append(id, { type: 'rest', kind: a.kind, characterIds: ids });
-    return text(`${a.kind} rest taken by ${ids.map((x) => h.character(s, x).name).join(', ') || 'nobody'}.`);
+    for (const { c, roll } of rolls) {
+      store.append(id, { type: 'roll_requested', roll: { rollId: randomUUID().slice(0, 8), characterId: c.id, ...roll, advantage: 'none', hideDc: true } });
+    }
+    const left = a.kind === 'short' && !rolls.length
+      ? ` Hit dice left: ${ids.map((x) => { const c = h.character(store.state(id), x); const r = c.resources.find((y) => y.id === 'hit-dice'); return `${c.name} ${r ? r.max - r.used : 0}`; }).join(', ')}. To heal, rest again with hit_dice or request_roll check "hit die".` : '';
+    return text(`${a.kind} rest taken by ${ids.map((x) => h.character(s, x).name).join(', ') || 'nobody'}.${rolls.length ? ` Asked to roll hit dice: ${rolls.map((r) => r.c.name).join(', ')}; the healing applies itself.` : ''}${left}`);
   });
 
   server.registerTool('add_to_scene', {

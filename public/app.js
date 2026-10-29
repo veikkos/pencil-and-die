@@ -30,6 +30,13 @@ const isBeginner = () => cfg.complexity === 'beginner';
 const isExpert = () => cfg.complexity === 'intermediate';
 /** Engine rolls (initiative, death saves) and conditions arrive in English; name them in the page's language and level. */
 const rollLabel = (purpose, fallback) => t().rollLabels[purpose]?.[level()] ?? fallback;
+/** A weapon, spell or feature roll ("Dagger damage") in the page's language. */
+function actionLabel(a) {
+  const name = a.of === 'weapon' ? itemName(a.name) : a.of === 'spell' ? spellText({ id: a.id, name: a.name, summary: '' })[0] : featureText({ name: a.name, text: '' })[0];
+  return t().actionLabels[a.kind](name) + (a.times > 1 ? t().actionLabels.oneOf(a.times) : '');
+}
+/** Any roll's label: engine purposes and named actions in the page's language, the DM's own words as they are. */
+const labelOf = (r) => (r.action ? actionLabel(r.action) : r.purpose ? rollLabel(r.purpose, r.label) : r.label);
 /** The DM may write "poisoned" or "Poisoned". */
 const condKey = (c, map) => Object.keys(map).find((k) => k.toLowerCase() === String(c).toLowerCase());
 const condName = (c) => t().conditionNames[condKey(c, t().conditionNames)]?.[level()] ?? c;
@@ -511,7 +518,7 @@ function sheetStatus(c) {
   const s = t();
   const status = c.status ?? 'up';
   const life = status === 'up' ? '' : s.life[status]?.[level()] ?? '';
-  const items = [...c.conditions.map((x) => [condName(x), condHelp(x) ?? '']), ...(c.effects ?? []).map((e) => [e.name, e.note])];
+  const items = [...c.conditions.map((x) => [condName(x), condHelp(x) ?? '']), ...(c.effects ?? []).map((e) => [e.name, [e.note, e.by && t().heldBy(shown.characters.find((x) => x.id === e.by)?.name ?? '?')].filter(Boolean).join(' ')])];
   return `<div class="sheet-status">
     <h3>${esc(s.sheet.status)}${life ? ` · <b class="life">${esc(life)}</b>` : ''}</h3>
     ${status === 'dying' ? deathSaveRows(c) : ''}
@@ -910,15 +917,16 @@ function renderTimeline() {
 
 function momentText(x) {
   const s = t();
-  const text = !x.purpose ? x.text
-    : x.type === 'roll' ? `${rollLabel(x.purpose, x.label)}: ${x.result}`
-    : rollLabel(x.purpose, x.text);
+  const text = !x.purpose && !x.action ? x.text
+    : x.type === 'roll' ? `${labelOf(x)}: ${x.result}`
+    : labelOf({ ...x, label: x.text });
   return `${s.timelineTypes[x.type] ?? ''}${x.who ? ` ${x.who}` : ''}${text ? `: ${text}` : ''}`;
 }
 
 /** sys params with engine words (roll names, conditions) swapped for the page's own. */
 function localParams({ code, params: p }) {
-  if (code === 'rolled' && p.purpose) return { ...p, label: rollLabel(p.purpose, p.label) };
+  if (code === 'rolled') return { ...p, label: labelOf(p) };
+  if (code === 'concentrationLost') return { ...p, effects: p.effects.map(condName) };
   if (code === 'updated') return { ...p, parts: p.parts.map(([k, v]) => [k, k === 'condOn' || k === 'condOff' ? condName(v) : v]) };
   if (code === 'presenceUpdated') return { ...p, condOn: p.condOn?.map(condName), condOff: p.condOff?.map(condName) };
   return p;
@@ -1175,9 +1183,8 @@ function diceFor(roll) {
 /** Engine rolls get plain words for beginners and the rules name for everyone else. */
 function rollHeading(r, who) {
   const name = who?.name ?? '?';
-  if (!r.purpose) return t().rollTitle(name, r.label);
-  if (isBeginner()) return r.purpose === 'death_save' ? t().deathSavePrompt(name) : t().initiativePrompt(name);
-  return t().rollTitle(name, rollLabel(r.purpose, r.label));
+  if (isBeginner() && t().rollPrompts[r.purpose]) return t().rollPrompts[r.purpose](name);
+  return t().rollTitle(name, labelOf(r));
 }
 
 function renderRolls() {

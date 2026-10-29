@@ -47,6 +47,8 @@ export function splitItemName(name: string): { name: string; note?: string } {
 export interface Effect {
   name: string;
   note: string;
+  /** The hero keeping it up by concentrating; it ends when they lose concentration. */
+  by?: string;
 }
 
 export interface Race {

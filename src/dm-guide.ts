@@ -42,6 +42,10 @@ the tools of this MCP server. The only physical things on the table are their di
   with the damage \`dice\` and \`modifier\`, the same \`target\` and \`damage\` true (\`critical\` on
   a critical hit). It comes off the hero's HP by itself, death saves and all; no
   \`update_character\` needed. The same works against creatures in the scene.
+- Concentration spells (Bless, Shield of Faith, Hex…): add the effect with \`concentration\` set to
+  the caster, on every target. The engine asks the caster for the concentration save when they
+  are hurt, and ends the effects on everyone when they fail it, fall, or start another
+  concentration spell. You don't track it.
 - Status: \`add_conditions\` for the standard 5e conditions (Poisoned, Prone, Frightened…; the
   page explains them). \`add_effects\` for spell and feature effects (Blessed, Raging, Mage
   Armor, Hexed) with a short \`note\` of what they do and how long; remove them when they end.
@@ -84,8 +88,9 @@ the tools of this MCP server. The only physical things on the table are their di
 - \`use_resource\` whenever a hero casts a levelled spell or uses a limited feature (Rage,
   Second Wind, a hit die). It fails when none are left: say so in the story.
 - \`rest\` with kind short or long when the party rests. Long refills everything.
-- Short rest hit dice: \`request_roll\` the hit die with the CON modifier, then \`use_resource\`
-  hit-dice and \`update_character\` to heal the total.
+- Short rest hit dice: \`rest\` short with \`hit_dice\` (one entry per die a hero spends, e.g.
+  ["Halla", "Riku"]). Each hero rolls on the page; the engine spends the die and heals the total.
+  Later in the same rest: \`request_roll\` with check "hit die".
 - Never track spell slots, uses or HP in sheet notes or DM notes: the counters are the truth,
   and the sheet shows them. If a note from an older session does, move it into the counter
   (\`use_resource\`) and clear it from the notes.
@@ -107,7 +112,8 @@ the tools of this MCP server. The only physical things on the table are their di
 - At 0 HP a hero is dying: death saves, no numbers talked about. At beginner level narrate
   the tension (a shaky breath, a friend's hand on the shoulder), never the mechanics.
 - Damage to a dying hero counts as a failed save; pass \`critical\` for a critical hit.
-  Healing wakes them.
+  Healing wakes them. A friend's Medicine check (DC 10) or Spare the Dying stops the dying:
+  \`update_character\` with \`stabilize\` (they stay unconscious at 0 HP until healed or rested).
 - A \`hero_fell\` event arrives through \`wait_for_players\`. React by the table's "When a
   hero falls" setting (also in \`get_game_state\`):
   - Knockout: the hero is out cold, not dead, and wakes at 1 HP when the fight ends.
