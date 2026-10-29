@@ -46,6 +46,17 @@ export function scoreRoll(spec: DiceSpec, advantage: Advantage, modifier: number
   return { faces, kept, total: kept + modifier };
 }
 
+/** Whether a roll meets its DC. An attack (one with `critOn`) always hits on a critical and always misses on a natural 1. */
+export function meetsDc(r: { dc?: number; critOn?: number; advantage: Advantage }, faces: number[], total: number): boolean | undefined {
+  if (r.dc === undefined) return undefined;
+  if (r.critOn !== undefined) {
+    const d20 = r.advantage === 'advantage' ? Math.max(...faces) : r.advantage === 'disadvantage' ? Math.min(...faces) : faces[0];
+    if (d20 >= r.critOn) return true;
+    if (d20 === 1) return false;
+  }
+  return total >= r.dc;
+}
+
 export function virtualRoll(spec: DiceSpec, advantage: Advantage, modifier: number, rng: () => number = Math.random): RollOutcome {
   const need = physicalDice(spec, advantage);
   const faces = Array.from({ length: need.count }, () => 1 + Math.floor(rng() * need.sides));

@@ -129,7 +129,7 @@ const countFell = (store: ReturnType<typeof newStore>, id: string) => store.live
 
 test('fallen: by default three failed saves knock the hero out', () => {
   const { store, g, c, hurt, save } = table();
-  assert.equal(store.fallenHeroes(), 'knockout');
+  assert.equal(store.fallenHeroes(g.id), 'knockout');
   hurt(-10);
   const cursor = store.dmCursor(g.id);
   save(2); save(2); save(2);
@@ -144,11 +144,11 @@ test('fallen: by default three failed saves knock the hero out', () => {
 
 test('fallen: in death mode the hero dies, and the recorded outcome survives a setting change and replay', () => {
   const { store, db, g, c, hurt, save } = table();
-  store.setFallenHeroes('death');
+  store.setFallenHeroes('death', g.id);
   hurt(-10);
   save(2); save(2); save(2);
   assert.equal(c().status, 'dead');
-  store.setFallenHeroes('knockout');
+  store.setFallenHeroes('knockout', g.id);
   const latest = store.state(g.id).seq;
   assert.equal(store.stateAt(g.id, latest).characters[0].status, 'dead');
   assert.equal(new GameStore(db).stateAt(g.id, latest).characters[0].status, 'dead');
@@ -156,7 +156,7 @@ test('fallen: in death mode the hero dies, and the recorded outcome survives a s
 
 test('fallen: rewinding before the third failure and changing the setting records the new outcome once', () => {
   const { store, g, c, hurt, save } = table();
-  store.setFallenHeroes('death');
+  store.setFallenHeroes('death', g.id);
   hurt(-10);
   save(2); save(2);
   const before = store.state(g.id).seq;
@@ -164,7 +164,7 @@ test('fallen: rewinding before the third failure and changing the setting record
   assert.equal(c().status, 'dead');
   store.rewind(g.id, before + 1);
   assert.equal(store.state(g.id).pendingRolls.length, 1);
-  store.setFallenHeroes('knockout');
+  store.setFallenHeroes('knockout', g.id);
   store.append(g.id, { type: 'roll_resolved', rollId: store.state(g.id).pendingRolls[0].rollId, faces: [2], total: 2 });
   assert.equal(countFell(store, g.id), 1);
   assert.equal((lastEvent(store, g.id).event as { outcome: string }).outcome, 'knocked_out');
@@ -173,10 +173,10 @@ test('fallen: rewinding before the third failure and changing the setting record
 
 test('fallen: the setting validates, defaults and notifies the DM', () => {
   const { store, g } = table();
-  assert.throws(() => store.setFallenHeroes('x' as never));
-  assert.equal(store.fallenHeroes(), 'knockout');
-  store.setFallenHeroes('death');
-  assert.equal(store.fallenHeroes(), 'death');
+  assert.throws(() => store.setFallenHeroes('x' as never, g.id));
+  assert.equal(store.fallenHeroes(g.id), 'knockout');
+  store.setFallenHeroes('death', g.id);
+  assert.equal(store.fallenHeroes(g.id), 'death');
   assert.ok(store.pendingNotices(g.id).some((n) => n === FALLEN_GUIDE.death));
 });
 
@@ -192,7 +192,7 @@ test('fallen: healing a knocked-out hero brings them back up', () => {
 
 test('fallen: the dead stay dead when healed, and revive brings them back', () => {
   const { store, g, c, hurt, save } = table();
-  store.setFallenHeroes('death');
+  store.setFallenHeroes('death', g.id);
   hurt(-10);
   save(2); save(2); save(2);
   hurt(5);
@@ -209,7 +209,7 @@ test('fallen: rewinding to the roll that caused the fall records the outcome onc
   save(2); save(2); save(2);
   assert.equal(countFell(store, g.id), 1);
   const third = store.liveEvents(g.id).findLast((e) => e.event.type === 'roll_resolved')!;
-  store.setFallenHeroes('death');
+  store.setFallenHeroes('death', g.id);
   store.rewind(g.id, third.seq);
   assert.equal(countFell(store, g.id), 1);
   assert.equal((lastEvent(store, g.id).event as { outcome: string }).outcome, 'dead');
@@ -237,8 +237,8 @@ test('life: a pending death save goes away once the hero is no longer dying', ()
 });
 
 test('fallen: a dead hero is no longer listed as unconscious', () => {
-  const { store, c, hurt, save } = table();
-  store.setFallenHeroes('death');
+  const { store, g, c, hurt, save } = table();
+  store.setFallenHeroes('death', g.id);
   hurt(-10);
   save(2); save(2); save(2);
   assert.equal(c().status, 'dead');

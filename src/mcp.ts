@@ -8,7 +8,7 @@ import { DM_GUIDE } from './dm-guide.ts';
 import { fightRefs, orderText, registerSceneTools, roundText } from './mcp-scene.ts';
 import { canLevel, levelOptions, levelUp, needsChoices, withRecommended, type LevelOptions } from './levels.ts';
 import { findResource } from './resources.ts';
-import { newPresences, presenceSpec, stillPresent, toSpec, type Presence } from './roster.ts';
+import { findPresence, newPresences, presenceSpec, stillPresent, toSpec, type Presence } from './roster.ts';
 import { ABILITIES, checkModifier, type Character } from './rules.ts';
 import { attackRoll, damageRoll, sheetOf } from './sheet.ts';
 import { findSpell, SPELLS, type Spell, type SpellLevel } from './spells.ts';
@@ -37,13 +37,18 @@ function describeEvent(s: GameState, { seq, event: e }: StoredEvent): string {
         const end = c?.status === 'stable' ? ` ${c.name} is stable.` : face === 20 ? ` ${who(r.characterId)} is back up with 1 HP!` : '';
         return `[${seq}] DEATH SAVE ${who(r.characterId)}: ${face} → ${face === 20 ? 'natural 20' : face === 1 ? 'natural 1, two failures' : face >= 10 ? 'success' : 'failure'}${saves}${end}`;
       }
-      const vs = r.dc !== undefined ? ` vs DC ${r.dc} → ${e.success ? 'SUCCESS' : 'FAILURE'}` : '';
+      const aimed = r.targetId ? s.present.find((p) => p.id === r.targetId) : undefined;
+      const vs = r.dc === undefined ? ''
+        : aimed && r.critOn !== undefined ? ` vs ${aimed.id} AC ${r.dc} → ${e.success ? `HIT: request_roll damage with target "${aimed.id}"` : 'MISS'}`
+        : ` vs DC ${r.dc} → ${e.success ? 'SUCCESS' : 'FAILURE'}`;
       const kept = r.advantage === 'advantage' ? Math.max(...e.faces) : r.advantage === 'disadvantage' ? Math.min(...e.faces) : e.faces[0];
       const crit = r.critOn === undefined ? '' : kept >= r.critOn ? ` — CRITICAL HIT${kept < 20 ? ` (${kept} is a critical for ${who(r.characterId)})` : ''}: roll damage with \`critical\`` : kept === 1 ? ' — natural 1, a miss' : '';
+      const dealt = aimed && r.critOn === undefined
+        ? ` → ${Math.max(0, e.total)} damage applied to ${aimed.id}: ${aimed.hp}/${aimed.maxHp} HP${aimed.defeated ? ', DEFEATED' : ''}` : '';
       const lastInitiative = r.purpose === 'initiative' && s.combat && s.combat.round > 0
         && s.rolls.findLast((x) => x.purpose === 'initiative') === r;
       const order = lastInitiative ? ` Initiative order: ${orderText(s)}. ${roundText(s)}` : '';
-      return `[${seq}] ROLL ${who(r.characterId)} — ${r.label}: dice ${e.faces.join(', ')}${r.advantage !== 'none' ? ` (${r.advantage})` : ''} ${sign(r.modifier)} = ${e.total}${vs}${crit}${order}`;
+      return `[${seq}] ROLL ${who(r.characterId)} — ${r.label}: dice ${e.faces.join(', ')}${r.advantage !== 'none' ? ` (${r.advantage})` : ''} ${sign(r.modifier)} = ${e.total}${vs}${crit}${dealt}${order}`;
     }
     case 'character_created': {
       const c = e.character;
@@ -122,7 +127,8 @@ function historyLine({ seq, at, event: e }: StoredEvent): string {
     e.type === 'character_updated' ? `${e.characterId} ${JSON.stringify(e.patch)}` :
     e.type === 'roll_requested' ? `roll requested: ${e.roll.label}` :
     e.type === 'roll_resolved' ? `roll resolved: ${e.total}` :
-    e.type === 'dm_note' ? `note: ${short(e.text)}` : '';
+    e.type === 'dm_note' ? `note: ${short(e.text)}` :
+    e.type === 'dm_note_edited' ? `note ${e.noteSeq}: ${e.text === undefined ? 'retired' : short(e.text)}` : '';
   return `${seq}\t${at.slice(0, 19)}\t${e.type}\t${detail}`;
 }
 
@@ -198,10 +204,10 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     if (!game_id) store.setDmGame(id);
     const s = store.state(id);
     return json({
-      language: `${LANGUAGE_NAMES[store.language()]}: write everything the players see in this language.`,
-      complexity: COMPLEXITY_GUIDE[store.complexity()],
-      verbosity: VERBOSITY_GUIDE[store.verbosity()],
-      fallenHeroes: FALLEN_GUIDE[store.fallenHeroes()],
+      language: `${LANGUAGE_NAMES[store.language(id)]}: write everything the players see in this language.`,
+      complexity: COMPLEXITY_GUIDE[store.complexity(id)],
+      verbosity: VERBOSITY_GUIDE[store.verbosity(id)],
+      fallenHeroes: FALLEN_GUIDE[store.fallenHeroes(id)],
       id: s.id, title: s.title, started: s.started, seq: s.seq, scene: s.scene,
       characters: s.characters.map((c) => {
         const { features: _f, inventory: _i, ...numbers } = sheetOf(c);
@@ -244,7 +250,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     if (switched) store.setDmGame(now!);
     if (!events.length && !notices.length) return text(switched || 'Nothing yet. The table is quiet. Call wait_for_players again.');
     const s = store.state(id);
-    const header = [...notices, `(Table language: ${LANGUAGE_NAMES[store.language()]}. Complexity: ${store.complexity()}. Verbosity: ${store.verbosity()}/4. When a hero falls: ${store.fallenHeroes()}.)`].join('\n');
+    const header = [...notices, `(Table language: ${LANGUAGE_NAMES[store.language(id)]}. Complexity: ${store.complexity(id)}. Verbosity: ${store.verbosity(id)}/4. When a hero falls: ${store.fallenHeroes(id)}.)`].join('\n');
     const pending = s.pendingRolls.length
       ? `\n\nStill waiting on rolls: ${s.pendingRolls.map((r) => `${character(s, r.characterId).name} — ${r.label} (${r.rollId})`).join('; ')}`
       : '';
@@ -298,7 +304,24 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
   }, ({ text: t, game_id }) => {
     const id = resolve(game_id);
     const ev = store.append(id, { type: 'dm_note', text: t });
-    return text(`Noted (seq ${ev.seq}).`);
+    return text(`Noted (note ${ev.seq}).`);
+  });
+
+  server.registerTool('edit_dm_note', {
+    description: 'Rewrite one of your notes when a fact changes (an NPC died, a secret came out), or retire it when it no longer matters. Notes are numbered by the seq they were added at, as get_game_state lists them.',
+    inputSchema: {
+      note: z.number().int().describe('The note\'s seq.'),
+      text: z.string().min(1).optional().describe('The new text. Leave out with `retire`.'),
+      retire: z.boolean().default(false).describe('Drop the note from your notebook. It stays in the history.'),
+      game_id: gameIdArg,
+    },
+  }, ({ note, text: t, retire, game_id }) => {
+    const id = resolve(game_id);
+    const notes = store.state(id).dmNotes;
+    if (!notes.some((n) => n.seq === note)) throw new Error(`No note ${note}. Notes: ${notes.map((n) => n.seq).join(', ') || 'none'}.`);
+    if (retire === (t !== undefined)) throw new Error('Give either `text` or `retire`.');
+    store.append(id, { type: 'dm_note_edited', noteSeq: note, ...(retire ? {} : { text: t }) });
+    return text(retire ? `Note ${note} retired.` : `Note ${note} rewritten.`);
   });
 
   // ---- Dice ----------------------------------------------------------------
@@ -310,6 +333,7 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       check: z.string().optional().describe('e.g. "Stealth", "Perception", "dex save", "str".'),
       attack: z.string().optional().describe('Weapon or spell to hit with, e.g. "Longsword", "Fire Bolt".'),
       damage: z.string().optional().describe('Weapon or spell whose damage (or healing) to roll, e.g. "Longsword", "Cure Wounds".'),
+      target: z.string().optional().describe('With `attack` or `damage`: the creature in the scene it is aimed at (id such as "goblin-2"). An attack is then checked against its AC (hit or miss), and damage comes off its HP by itself. Leave out for resistance or anything the engine should not apply as is.'),
       critical: z.boolean().optional().describe('With `damage`: a critical hit, the dice are doubled.'),
       versatile: z.boolean().optional().describe('With `damage`: the weapon is held in two hands.'),
       label: z.string().optional().describe('What is shown. Defaults from check, attack or damage.'),
@@ -320,26 +344,36 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       hide_dc: z.boolean().default(true),
       game_id: gameIdArg,
     },
-  }, ({ character_id, check, attack, damage, critical, versatile, label, dice: givenDice, modifier, advantage, dc, hide_dc, game_id }) => {
+  }, ({ character_id, check, attack, damage, target, critical, versatile, label, dice: givenDice, modifier, advantage, dc, hide_dc, game_id }) => {
     const id = resolve(game_id);
     const c = character(store.state(id), character_id);
     if ([check, attack, damage].filter(Boolean).length > 1) throw new Error('Give only one of `check`, `attack` and `damage`.');
     const named = attack ? attackRoll(c, attack) : damage ? damageRoll(c, damage, { critical, versatile }) : undefined;
+    const aim = target === undefined ? undefined : findPresence(store.state(id).present, target);
+    if (aim) {
+      if (!attack && !damage) throw new Error('`target` goes with `attack` or `damage`.');
+      if (aim.defeated) throw new Error(`${aim.id} is already defeated.`);
+      if (damage && named?.label.includes('healing')) throw new Error(`${damage} heals; heal with update_presence or update_character instead of a target.`);
+      if (attack && aim.ac === undefined) throw new Error(`${aim.id} has no AC. Give it one with update_presence, or leave out \`target\` and compare yourself.`);
+      if (attack && dc !== undefined) throw new Error('With `target` the DC is the target\'s AC; leave out `dc`.');
+      if (damage && aim.hp === undefined) throw new Error(`${aim.id} has no HP to lose. Leave out \`target\`.`);
+    }
     const dice = givenDice ?? named?.dice ?? '1d20';
     const spec = parseDice(dice);
     physicalDice(spec, advantage);
     const deathSave = !!check && /^(death sav|kuolemanpelast)/i.test(check.trim());
     if (deathSave && c.status !== 'dying') throw new Error(`${c.name} is not dying (status ${c.status}); no death save needed.`);
-    const computed = check && !deathSave ? checkModifier(c, check, store.language()) : undefined;
+    const computed = check && !deathSave ? checkModifier(c, check, store.language(id)) : undefined;
     const finalLabel = deathSave ? 'Death save' : label ?? named?.label ?? computed?.label;
     if (!finalLabel) throw new Error('Give a `check`, `attack`, `damage` or a `label`.');
     const rollId = randomUUID().slice(0, 8);
     const roll = deathSave
       ? { rollId, characterId: c.id, label: finalLabel, dice: '1d20', modifier: 0, advantage: 'none' as const, dc: undefined, hideDc: true, purpose: 'death_save' as const }
-      : { rollId, characterId: c.id, label: finalLabel, dice, modifier: modifier ?? named?.modifier ?? computed?.modifier ?? 0, advantage, dc, hideDc: hide_dc,
-        ...(attack ? { critOn: named?.critOn ?? 20 } : {}) };
+      : { rollId, characterId: c.id, label: finalLabel, dice, modifier: modifier ?? named?.modifier ?? computed?.modifier ?? 0, advantage,
+        ...(attack && aim ? { dc: aim.ac, hideDc: true } : { dc, hideDc: hide_dc }),
+        ...(attack ? { critOn: named?.critOn ?? 20 } : {}), ...(aim ? { targetId: aim.id } : {}) };
     store.append(id, { type: 'roll_requested', roll });
-    return text(`Asked ${c.name} to roll ${finalLabel}: ${roll.dice}${roll.advantage !== 'none' ? ` with ${roll.advantage}` : ''} ${sign(roll.modifier)} (roll id ${rollId}). The result arrives via wait_for_players.`);
+    return text(`Asked ${c.name} to roll ${finalLabel}${aim ? ` against ${aim.id}` : ''}: ${roll.dice}${roll.advantage !== 'none' ? ` with ${roll.advantage}` : ''} ${sign(roll.modifier)} (roll id ${rollId}). The result arrives via wait_for_players.`);
   });
 
   server.registerTool('cancel_roll', {

@@ -85,12 +85,12 @@ test('store: waitForPlayers returns player input and advances the cursor', async
 test('store: language change notifies the DM; complexity only reports where it settled', async () => {
   const store = newStore();
   const g = store.createGame('Test');
-  store.setLanguage('fi');
+  store.setLanguage('fi', g.id);
   assert.match(store.pendingNotices(g.id)[0], /Finnish/);
 
-  store.setComplexity('intermediate');
-  store.setComplexity('beginner');
-  store.setComplexity('casual');
+  store.setComplexity('intermediate', g.id);
+  store.setComplexity('beginner', g.id);
+  store.setComplexity('casual', g.id);
   const { notices } = await store.waitForPlayers(g.id, 10, 0);
   assert.equal(notices.filter((n) => n.startsWith('COMPLEXITY')).length, 1);
   assert.match(notices.at(-1)!, /COMPLEXITY is casual/);
@@ -109,19 +109,19 @@ test('sketch: plain drawing allowed, scripts rejected', () => {
 test('store: verbosity defaults to 3 and the DM hears where it settled', async () => {
   const store = newStore();
   const g = store.createGame('Test');
-  assert.equal(store.verbosity(), 3);
+  assert.equal(store.verbosity(g.id), 3);
   assert.equal((await store.waitForPlayers(g.id, 10, 0)).notices.filter((n) => n.startsWith('VERBOSITY')).length, 0);
-  store.setVerbosity(1);
-  store.setVerbosity(4);
+  store.setVerbosity(1, g.id);
+  store.setVerbosity(4, g.id);
   const { notices } = await store.waitForPlayers(g.id, 10, 0);
   assert.deepEqual(notices.filter((n) => n.startsWith('VERBOSITY')).map((n) => n.slice(0, 15)), ['VERBOSITY 4/4 (']);
-  assert.throws(() => store.setVerbosity(5));
+  assert.throws(() => store.setVerbosity(5, g.id));
 });
 
 test('dm guide: mentions the scene, combat and resource tools, and they are registered', async () => {
   const { store, db } = newTable();
   const tools = await (await mcpClient(store, db)).listTools();
-  for (const tool of ['add_to_scene', 'update_presence', 'remove_from_scene', 'start_combat', 'next_turn', 'add_to_combat', 'end_combat', 'use_resource', 'rest', 'hero_fell', 'death save', 'level_up']) {
+  for (const tool of ['add_to_scene', 'update_presence', 'remove_from_scene', 'start_combat', 'next_turn', 'add_to_combat', 'end_combat', 'use_resource', 'rest', 'hero_fell', 'death save', 'level_up', 'edit_dm_note', '`target`']) {
     assert.ok(DM_GUIDE.includes(tool), `guide mentions ${tool}`);
     if (/^[a-z_]+$/.test(tool) && tool !== 'hero_fell') assert.ok(tools.includes(tool), `${tool} registered`);
   }
@@ -167,4 +167,27 @@ test('mcp: no switch notice when the adventure stays the same', async () => {
   store.append(a.id, { type: 'message', from: 'player', kind: 'ooc', text: 'hello' });
   const { text } = await mcp.call('wait_for_players', { timeout_seconds: 5 });
   assert.doesNotMatch(text, /ADVENTURE CHANGED/);
+});
+
+test('store: settings belong to an adventure; the latest choice is what the next one starts with', async () => {
+  const store = newStore();
+  const a = store.createGame('A');
+  store.setLanguage('fi', a.id);
+  store.setFallenHeroes('death', a.id);
+  const b = store.createGame('B');
+  assert.deepEqual(store.settings(b.id), { language: 'fi', complexity: 'beginner', verbosity: 3, fallenHeroes: 'death' });
+
+  store.setLanguage('en', b.id);
+  store.setVerbosity(1, b.id);
+  assert.equal(store.language(a.id), 'fi');
+  assert.equal(store.verbosity(a.id), 3);
+  assert.equal(store.language(), 'en');
+  // Only the adventure whose setting changed hears about it.
+  assert.ok(store.pendingNotices(b.id).some((n) => n.startsWith('LANGUAGE')));
+  assert.ok(!store.pendingNotices(a.id).some((n) => /English/.test(n)));
+
+  // Changing the defaults (the lobby) leaves existing adventures alone.
+  store.setComplexity('intermediate');
+  assert.equal(store.complexity(a.id), 'beginner');
+  assert.equal(store.complexity(store.createGame('C').id), 'intermediate');
 });

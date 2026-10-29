@@ -27,7 +27,8 @@ function answer(method, path) {
   if (path === '/api/rules') return data.rules;
   if (path === '/api/prefs') return prefs;
   const m = /^\/api\/games\/([^/]+)\/(state|history)$/.exec(path);
-  if (m && game && m[1] === game.id) return m[2] === 'state' ? { ...game.state, dmStatus, language: config.language, complexity: config.complexity } : game.history;
+  const { language, complexity, verbosity, fallenHeroes } = config;
+  if (m && game && m[1] === game.id) return m[2] === 'state' ? { ...game.state, dmStatus, settings: { language, complexity, verbosity, fallenHeroes } } : game.history;
   if (method === 'POST') return { ok: true };
   return null;
 }

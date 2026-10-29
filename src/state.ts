@@ -35,6 +35,8 @@ export interface RollRequest {
   purpose?: 'initiative' | 'death_save';
   /** Attack rolls: the lowest d20 that is a critical hit. */
   critOn?: number;
+  /** A creature in the scene: an attack's DC is its AC, and damage is taken off its HP. */
+  targetId?: string;
   requestedSeq: number;
 }
 
@@ -125,7 +127,9 @@ export type GameEvent =
   | { type: 'combatant_added'; entry: CombatEntry }
   | { type: 'combat_ended' }
   | { type: 'sketch'; caption: string; svg: string }
-  | { type: 'dm_note'; text: string };
+  | { type: 'dm_note'; text: string }
+  /** Rewrites a note, or with no text retires it; `noteSeq` is the seq the note was added at. */
+  | { type: 'dm_note_edited'; noteSeq: number; text?: string };
 
 export interface StoredEvent {
   seq: number;
@@ -291,6 +295,31 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
     sys('combatOrder', { names: shown }, `Turn order: ${names.join(', ')}.`);
   };
 
+  /** Changes a creature and tells the table what they can see of it. */
+  const updatePresence = (presenceId: string, patch: PresencePatch) => {
+    const before = s.present.find((p) => p.id === presenceId);
+    if (!before) return;
+    const after = applyPresencePatch(before, patch);
+    s.present = s.present.map((p) => (p.id === presenceId ? after : p));
+    if (after.defeated && !before.defeated) {
+      sys('defeated', { name: after.name }, `${after.name} is defeated.`);
+      return;
+    }
+    const params: Record<string, unknown> = { name: after.name };
+    const hb = healthWord(before);
+    const ha = healthWord(after);
+    if (ha !== hb && ha !== undefined) params.health = ha;
+    const condOn = after.conditions.filter((c) => !before.conditions.includes(c));
+    const condOff = before.conditions.filter((c) => !after.conditions.includes(c));
+    if (condOn.length) params.condOn = condOn;
+    if (condOff.length) params.condOff = condOff;
+    if (after.side !== before.side) params.sideChange = after.side;
+    if (Object.keys(params).length > 1) {
+      const bits = [params.health && `now ${params.health}`, condOn.length && `${condOn.join(', ')}`, condOff.length && `no longer ${condOff.join(', ')}`, params.sideChange && `now ${params.sideChange}`].filter(Boolean);
+      sys('presenceUpdated', params, `${after.name}: ${bits.join(', ')}`);
+    }
+  };
+
   switch (e.type) {
     case 'game_created':
       s.title = e.title;
@@ -371,8 +400,12 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
         s.characters = s.characters.map((c) => (c.id === req.characterId ? applyDeathSave(c, e.faces[0]) : c));
       }
       const outcome = e.success === undefined ? '' : e.success ? ' — success' : ' — failure';
-      sys('rolled', { name: nameOf(req.characterId), label: req.label, purpose: req.purpose, faces: e.faces, mod: req.modifier, total: e.total, success: e.success, rollSeq: seq },
-        `${nameOf(req.characterId)} rolled ${req.label}: ${e.faces.join(' & ')} ${sign(req.modifier)} = ${e.total}${outcome}`);
+      // A targeted attack shows as a hit or a miss; its DC is the target's AC and stays hidden.
+      const attackOn = req.targetId && req.critOn !== undefined && e.success !== undefined;
+      sys('rolled', { name: nameOf(req.characterId), label: req.label, purpose: req.purpose, faces: e.faces, mod: req.modifier, total: e.total, rollSeq: seq,
+        ...(attackOn ? { hit: e.success } : { success: e.success }) },
+        `${nameOf(req.characterId)} rolled ${req.label}: ${e.faces.join(' & ')} ${sign(req.modifier)} = ${e.total}${attackOn ? (e.success ? ' — hit' : ' — miss') : outcome}`);
+      if (req.targetId && req.critOn === undefined) updatePresence(req.targetId, { hpDelta: -Math.max(0, e.total) });
       if (req.purpose === 'initiative' && s.combat?.round === 0) {
         const order = s.combat.order.map((x) => (x.initiative === null && sameRef(x.ref, { kind: 'hero', id: req.characterId }) ? { ...x, initiative: e.total } : x));
         gathered({ ...s.combat, order });
@@ -404,30 +437,9 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       sys('arrived', { names }, `${names.join(', ')} ${names.length > 1 ? 'are' : 'is'} here.`);
       break;
     }
-    case 'presence_updated': {
-      const before = s.present.find((p) => p.id === e.presenceId);
-      if (!before) break;
-      const after = applyPresencePatch(before, e.patch);
-      s.present = s.present.map((p) => (p.id === e.presenceId ? after : p));
-      if (after.defeated && !before.defeated) {
-        sys('defeated', { name: after.name }, `${after.name} is defeated.`);
-        break;
-      }
-      const params: Record<string, unknown> = { name: after.name };
-      const hb = healthWord(before);
-      const ha = healthWord(after);
-      if (ha !== hb && ha !== undefined) params.health = ha;
-      const condOn = after.conditions.filter((c) => !before.conditions.includes(c));
-      const condOff = before.conditions.filter((c) => !after.conditions.includes(c));
-      if (condOn.length) params.condOn = condOn;
-      if (condOff.length) params.condOff = condOff;
-      if (after.side !== before.side) params.sideChange = after.side;
-      if (Object.keys(params).length > 1) {
-        const bits = [params.health && `now ${params.health}`, condOn.length && `${condOn.join(', ')}`, condOff.length && `no longer ${condOff.join(', ')}`, params.sideChange && `now ${params.sideChange}`].filter(Boolean);
-        sys('presenceUpdated', params, `${after.name}: ${bits.join(', ')}`);
-      }
+    case 'presence_updated':
+      updatePresence(e.presenceId, e.patch);
       break;
-    }
     case 'presence_removed': {
       const gone = s.present.filter((p) => e.presenceIds.includes(p.id));
       if (!gone.length) break;
@@ -459,6 +471,11 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       break;
     case 'dm_note':
       s.dmNotes = [...s.dmNotes, { seq, text: e.text }];
+      break;
+    case 'dm_note_edited':
+      s.dmNotes = e.text === undefined
+        ? s.dmNotes.filter((n) => n.seq !== e.noteSeq)
+        : s.dmNotes.map((n) => (n.seq === e.noteSeq ? { ...n, text: e.text! } : n));
       break;
   }
   // Healing, a natural 20, stabilising, falling or resting ends dying; an unanswered death save goes with it.

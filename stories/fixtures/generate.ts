@@ -97,7 +97,10 @@ await snapshot('initiative', g.id);
 
 const faces: Record<string, number> = { [mira.id]: 18, [torvald.id]: 4, [elowen.id]: 11 };
 for (const r of await pending(g.id)) await throwDice(g.id, r.rollId, [faces[r.characterId]]);
-await dm('update_presence', { presence_id: 'goblin-1', hp_delta: -4, reason: 'Mira’s dagger' });
+await dm('request_roll', { character_id: mira.id, attack: 'Dagger', target: 'goblin-1' });
+await throwDice(g.id, (await pending(g.id))[0].rollId, [15]);
+await dm('request_roll', { character_id: mira.id, damage: 'Dagger', target: 'goblin-1' });
+await throwDice(g.id, (await pending(g.id))[0].rollId, [1]);
 await dm('update_presence', { presence_id: 'goblin-2', hp_delta: -7, reason: 'magic missile' });
 await dm('update_character', { character_id: torvald.id, hp_delta: -6, reason: 'goblin knife' });
 await dm('update_character', { character_id: elowen.id, add_conditions: ['Frightened'], reason: 'a goblin shriek' });

@@ -91,7 +91,7 @@ export const STRINGS = {
     },
     bonusAdded: 'Your character\'s skill is added for you.',
     goodAt: 'Good at',
-    simpleRolled: (p) => `${p.name} rolled ${rollMath(p)}${p.success === undefined ? '' : p.success ? ' — it works!' : ' — not this time.'}`,
+    simpleRolled: (p) => `${p.name} rolled ${rollMath(p)}${p.hit !== undefined ? (p.hit ? ' — a hit!' : ' — a miss.') : p.success === undefined ? '' : p.success ? ' — it works!' : ' — not this time.'}`,
     sketchEmpty: 'The DM has not drawn anything yet.',
     sketchOf: (i, n) => `${i} / ${n}`,
     resources: {
@@ -286,6 +286,8 @@ export const STRINGS = {
       language: 'Language', languageHint: 'The language of the page and of the DM.',
       readAloud: 'Read the DM aloud', readAloudHint: 'New DM lines are spoken with the voice below.',
       voiceName: 'Voice', off: 'Off', on: 'On',
+      forGame: (title) => `For “${title}”. New adventures start with your latest choices. Voice is the same everywhere.`,
+      forNew: 'What new adventures start with. Each adventure keeps its own settings. Voice is the same everywhere.',
     },
     fallen: {
       label: 'When a hero falls', knockout: 'Knocked out', death: 'Can die',
@@ -305,7 +307,7 @@ export const STRINGS = {
       combatEnded: () => 'The fight is over.',
       joined: (p) => `${p.name} the ${p.race} ${p.cls} joins the party.`,
       started: () => 'The adventure begins.',
-      rolled: (p) => `${p.name} rolled ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)} = ${p.total}${p.success === undefined ? '' : p.success ? ' — success' : ' — failure'}`,
+      rolled: (p) => `${p.name} rolled ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)} = ${p.total}${p.hit !== undefined ? (p.hit ? ' — hit' : ' — miss') : p.success === undefined ? '' : p.success ? ' — success' : ' — failure'}`,
       dmRolled: (p) => `DM rolled ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)} = ${p.total}`,
       updated: (p) => `${p.name}: ${p.parts.map(([k, v]) => PART_EN[k](v)).join(', ')}${p.reason ? ` (${p.reason})` : ''}`,
       levelOffered: (p) => `${p.name} can reach level ${p.level}!`,
@@ -402,7 +404,7 @@ export const STRINGS = {
     },
     bonusAdded: 'Hahmosi taito lisätään automaattisesti.',
     goodAt: 'Hyvä tässä',
-    simpleRolled: (p) => `${p.name} heitti ${rollMath(p)}${p.success === undefined ? '' : p.success ? ' — se onnistuu!' : ' — ei tällä kertaa.'}`,
+    simpleRolled: (p) => `${p.name} heitti ${rollMath(p)}${p.hit !== undefined ? (p.hit ? ' — osuma!' : ' — ohi.') : p.success === undefined ? '' : p.success ? ' — se onnistuu!' : ' — ei tällä kertaa.'}`,
     sketchEmpty: 'Pelinjohtaja ei ole vielä piirtänyt mitään.',
     sketchOf: (i, n) => `${i} / ${n}`,
     resources: {
@@ -612,6 +614,8 @@ export const STRINGS = {
       language: 'Kieli', languageHint: 'Sivun ja pelinjohtajan kieli.',
       readAloud: 'Lue pelinjohtaja ääneen', readAloudHint: 'Pelinjohtajan uudet repliikit luetaan alla valitulla äänellä.',
       voiceName: 'Ääni', off: 'Pois', on: 'Päällä',
+      forGame: (title) => `Seikkailulle ”${title}”. Uudet seikkailut alkavat viimeisimmillä valinnoillasi. Ääni on sama kaikkialla.`,
+      forNew: 'Näillä uudet seikkailut alkavat. Jokaisella seikkailulla on omat asetuksensa. Ääni on sama kaikkialla.',
     },
     fallen: {
       label: 'Kun sankari kaatuu', knockout: 'Tyrmätään', death: 'Voi kuolla',
@@ -631,7 +635,7 @@ export const STRINGS = {
       combatEnded: () => 'Taistelu on ohi.',
       joined: (p) => `${p.name} liittyy seurueeseen.`,
       started: () => 'Seikkailu alkaa.',
-      rolled: (p) => `${p.name} heitti: ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)} = ${p.total}${p.success === undefined ? '' : p.success ? ' — onnistui' : ' — epäonnistui'}`,
+      rolled: (p) => `${p.name} heitti: ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)} = ${p.total}${p.hit !== undefined ? (p.hit ? ' — osui' : ' — ohi') : p.success === undefined ? '' : p.success ? ' — onnistui' : ' — epäonnistui'}`,
       dmRolled: (p) => `Pelinjohtaja heitti: ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)} = ${p.total}`,
       updated: (p) => `${p.name}: ${p.parts.map(([k, v]) => PART_FI[k](v)).join(', ')}${p.reason ? ` (${p.reason})` : ''}`,
       levelOffered: (p) => `${p.name} voi nousta tasolle ${p.level}!`,

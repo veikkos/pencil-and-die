@@ -4,7 +4,7 @@ import express, { type NextFunction, type Request, type Response } from 'express
 import { createMcpExpressApp } from '@modelcontextprotocol/sdk/server/express.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { getSetting, openDb, setSetting } from './db.ts';
-import { parseDice, physicalDice, scoreRoll } from './dice.ts';
+import { meetsDc, parseDice, physicalDice, scoreRoll } from './dice.ts';
 import { levelUp, type LevelChoices } from './levels.ts';
 import { createMcpServer } from './mcp.ts';
 import { buildCharacter, CLASSES, PRESETS, RACES, SKILLS, type CharacterChoices } from './rules.ts';
@@ -48,14 +48,23 @@ const game = (req: Request) => {
   return id;
 };
 
+// The settings here are the defaults for new adventures; each adventure's own come with its state.
 app.get('/api/config', (_req, res) => {
-  res.json({ language: store.language(), complexity: store.complexity(), verbosity: store.verbosity(), fallenHeroes: store.fallenHeroes(), activeGameId: store.activeGameId() ?? null, games: store.listGames() });
+  res.json({ ...store.settings(), activeGameId: store.activeGameId() ?? null, games: store.listGames() });
 });
+
+/** A setting change names its adventure with `gameId`; without one it changes the defaults. */
+const settingGame = (req: Request) => {
+  const id = req.body.gameId;
+  if (id === undefined || id === null) return undefined;
+  store.requireGame(String(id));
+  return String(id);
+};
 
 app.post('/api/language', (req, res) => {
   const lang = req.body.language as Language;
   if (lang !== 'en' && lang !== 'fi') throw new Error('language must be "en" or "fi"');
-  store.setLanguage(lang);
+  store.setLanguage(lang, settingGame(req));
   res.json({ language: lang });
 });
 
@@ -71,18 +80,21 @@ app.post('/api/prefs', (req, res) => {
 });
 
 app.post('/api/verbosity', (req, res) => {
-  store.setVerbosity(Number(req.body.verbosity));
-  res.json({ verbosity: store.verbosity() });
+  const id = settingGame(req);
+  store.setVerbosity(Number(req.body.verbosity), id);
+  res.json({ verbosity: store.verbosity(id) });
 });
 
 app.post('/api/fallen-heroes', (req, res) => {
-  store.setFallenHeroes(req.body.fallenHeroes);
-  res.json({ fallenHeroes: store.fallenHeroes() });
+  const id = settingGame(req);
+  store.setFallenHeroes(req.body.fallenHeroes, id);
+  res.json({ fallenHeroes: store.fallenHeroes(id) });
 });
 
 app.post('/api/complexity', (req, res) => {
-  store.setComplexity(req.body.complexity);
-  res.json({ complexity: store.complexity() });
+  const id = settingGame(req);
+  store.setComplexity(req.body.complexity, id);
+  res.json({ complexity: store.complexity(id) });
 });
 
 app.get('/api/rules', (_req, res) => {
@@ -109,7 +121,7 @@ app.get('/api/games/:id/state', (req, res) => {
   const id = game(req);
   const at = req.query.at ? Number(req.query.at) : undefined;
   const s = at ? store.stateAt(id, at) : store.state(id);
-  res.json({ ...playerView(s), complexity: store.complexity(), latestSeq: store.state(id).seq, dmStatus: store.getDmStatus(id), language: store.language() });
+  res.json({ ...playerView(s), settings: store.settings(id), latestSeq: store.state(id).seq, dmStatus: store.getDmStatus(id) });
 });
 
 app.post('/api/character-preview', (req, res) => {
@@ -160,7 +172,7 @@ app.post('/api/games/:id/rolls/:rollId', (req, res) => {
   if (!roll) throw new Error('That roll is no longer pending');
   const faces = (req.body.faces as unknown[]).map(Number);
   const out = scoreRoll(parseDice(roll.dice), roll.advantage, roll.modifier, faces);
-  const success = roll.dc === undefined ? undefined : out.total >= roll.dc;
+  const success = meetsDc(roll, out.faces, out.total);
   const ev = store.append(id, { type: 'roll_resolved', rollId: roll.rollId, faces: out.faces, total: out.total, success });
   res.json({ ...out, success, seq: ev.seq });
 });
@@ -210,25 +222,17 @@ app.get('/api/stream', (req, res) => {
   const send = (data: unknown) => res.write(`data: ${JSON.stringify(data)}\n\n`);
   const onChange = (gameId: string) => send({ type: 'change', gameId });
   const onActive = (gameId: string) => send({ type: 'active', gameId });
-  const onLanguage = (language: string) => send({ type: 'language', language });
-  const onComplexity = (complexity: string) => send({ type: 'complexity', complexity });
-  store.changes.on('complexity', onComplexity);
-  const onVerbosity = (verbosity: number) => send({ type: 'verbosity', verbosity });
-  store.changes.on('verbosity', onVerbosity);
-  const onFallenHeroes = (fallenHeroes: string) => send({ type: 'fallenHeroes', fallenHeroes });
-  store.changes.on('fallenHeroes', onFallenHeroes);
+  // An adventure's change is also the new default, so the lobby takes every one.
+  const onSettings = (gameId?: string) => send({ type: 'settings', gameId: gameId ?? null, settings: store.settings(gameId) });
+  store.changes.on('settings', onSettings);
   store.changes.on('change', onChange);
   store.changes.on('active', onActive);
-  store.changes.on('language', onLanguage);
   const ping = setInterval(() => res.write(': ping\n\n'), 20_000);
   req.on('close', () => {
     clearInterval(ping);
     store.changes.off('change', onChange);
     store.changes.off('active', onActive);
-    store.changes.off('language', onLanguage);
-    store.changes.off('complexity', onComplexity);
-    store.changes.off('verbosity', onVerbosity);
-    store.changes.off('fallenHeroes', onFallenHeroes);
+    store.changes.off('settings', onSettings);
   });
 });
 

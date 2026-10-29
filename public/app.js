@@ -68,10 +68,8 @@ async function boot() {
   stream.onmessage = (m) => {
     const ev = JSON.parse(m.data);
     if (ev.type === 'change' && ev.gameId === gameId) scheduleRefresh();
-    if (ev.type === 'language') { cfg.language = ev.language; document.documentElement.lang = ev.language; render(); }
-    if (ev.type === 'complexity') { cfg.complexity = ev.complexity; rerenderAll(); }
-    if (ev.type === 'verbosity') { cfg.verbosity = ev.verbosity; rerenderAll(); }
-    if (ev.type === 'fallenHeroes') { cfg.fallenHeroes = ev.fallenHeroes; rerenderAll(); }
+    // The lobby shows the defaults, which follow every change; an adventure only its own.
+    if (ev.type === 'settings' && (settingsGame() === null || ev.gameId === settingsGame())) applySettings(ev.settings);
   };
 }
 
@@ -87,6 +85,7 @@ async function refresh() {
   const firstLoad = !live;
   live = state;
   history = hist;
+  applySettings(state.settings, false);
   if (viewSeq !== null && !history.some((h) => h.seq === viewSeq)) viewSeq = null;
   if (viewSeq === null) shown = live;
   if (firstLoad) spokenSeq = live.seq;
@@ -105,40 +104,28 @@ async function openGame(id, activate = true) {
   await refresh();
 }
 
-async function setLanguage(lang) {
-  if (lang === cfg.language) return;
-  await api('/api/language', { language: lang });
-  cfg.language = lang;
-  document.documentElement.lang = lang;
-  render();
+/** The adventure the settings overlay changes; null in the lobby, where it changes the defaults. */
+const settingsGame = () => (view === 'lobby' || !gameId ? null : gameId);
+
+/** Takes settings from the server; `draw` false when the caller renders anyway. */
+function applySettings(next, draw = true) {
+  const changed = ['language', 'complexity', 'verbosity', 'fallenHeroes'].some((k) => cfg[k] !== next[k]);
+  cfg = { ...cfg, ...next };
+  document.documentElement.lang = cfg.language;
+  if (changed) app.dataset.lang = '';
+  if (changed && draw) render();
 }
 
-async function setComplexity(level) {
-  if (level === cfg.complexity) return;
-  await api('/api/complexity', { complexity: level });
-  cfg.complexity = level;
-  rerenderAll();
+async function changeSetting(path, key, value) {
+  if (value === cfg[key]) return;
+  await api(path, { [key]: value, gameId: settingsGame() });
+  applySettings({ ...cfg, [key]: value });
 }
 
-async function setVerbosity(level) {
-  if (level === cfg.verbosity) return;
-  await api('/api/verbosity', { verbosity: level });
-  cfg.verbosity = level;
-  rerenderAll();
-}
-
-async function setFallenHeroes(mode) {
-  if (mode === cfg.fallenHeroes) return;
-  await api('/api/fallen-heroes', { fallenHeroes: mode });
-  cfg.fallenHeroes = mode;
-  rerenderAll();
-}
-
-/** Forces every region to rebuild (language/complexity changed). */
-function rerenderAll() {
-  app.dataset.lang = '';
-  render();
-}
+const setLanguage = (lang) => changeSetting('/api/language', 'language', lang);
+const setComplexity = (level) => changeSetting('/api/complexity', 'complexity', level);
+const setVerbosity = (level) => changeSetting('/api/verbosity', 'verbosity', level);
+const setFallenHeroes = (mode) => changeSetting('/api/fallen-heroes', 'fallenHeroes', mode);
 
 function render() {
   if (view === 'lobby' || !gameId || !live) renderLobby();
@@ -157,7 +144,13 @@ function settingsButton() {
 
 function bindCommon(root) {
   root.querySelectorAll('[data-settings]').forEach((b) => b.onclick = openSettings);
-  root.querySelectorAll('[data-go-lobby]').forEach((b) => b.onclick = async () => { view = 'lobby'; cfg = await api('/api/config'); render(); });
+  root.querySelectorAll('[data-go-lobby]').forEach((b) => b.onclick = async () => {
+    view = 'lobby';
+    const { games, activeGameId, ...defaults } = await api('/api/config');
+    cfg = { ...cfg, games, activeGameId };
+    applySettings(defaults, false);
+    render();
+  });
 }
 
 // ---- Settings overlay ---------------------------------------------------------
@@ -232,6 +225,7 @@ function drawSettings() {
   settingsModal.innerHTML = `<div class="card" role="dialog" aria-modal="true" aria-labelledby="settings-title">
     <div class="settings-head"><h2 id="settings-title">${esc(s.settings.title)}</h2>
       <button class="ghost" data-close title="${esc(s.settings.close)}" aria-label="${esc(s.settings.close)}">✕</button></div>
+    <p class="muted settings-scope">${esc(settingsGame() && live ? s.settings.forGame(live.title) : s.settings.forNew)}</p>
     ${SETTING_GROUPS.map((g) => `<section class="settings-group">
       <h3>${esc(s.settings.groups[g.id])}</h3>
       ${g.rows.filter((row) => row.id !== 'voice-name' || prefs.voice).map((row) => {

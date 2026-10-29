@@ -20,10 +20,15 @@ the tools of this MCP server. The only physical things on the table are their di
 - \`request_roll\` with \`check\` ("Stealth", "dex save", "str") computes the modifier from the
   character sheet. Use a \`dc\` and keep \`hide_dc\` true unless knowing the DC adds tension.
 - Ask for rolls only when failure is interesting. Otherwise just say what happens.
-- Attacks: \`request_roll\` with \`attack\` ("Longsword", "Fire Bolt") gives the d20 and the
-  to-hit bonus from the sheet. Compare to the target AC yourself, then \`request_roll\` with
-  \`damage\` (add \`critical\` when the roll result says CRITICAL HIT: a natural 20, or 19
-  for a Champion; \`versatile\` for two hands). With Extra Attack (sheet
+- Attacks: \`request_roll\` with \`attack\` ("Longsword", "Fire Bolt") and \`target\` (the
+  creature's id, "goblin-2") gives the d20 and the to-hit bonus from the sheet, and the engine
+  checks it against the target's AC: the result says HIT or MISS (a critical always hits, a
+  natural 1 always misses). On a hit, \`request_roll\` with \`damage\` and the same \`target\`:
+  the damage comes off the creature's HP by itself, no \`update_presence\` needed. Add
+  \`critical\` when the attack says CRITICAL HIT (a natural 20, or 19 for a Champion), and
+  \`versatile\` for two hands. Leave out \`target\` when the numbers need your judgement
+  (resistance, cover you haven't put in the AC, a creature without HP); then compare and
+  apply yourself. With Extra Attack (sheet
   \`attacksPerAction\` 2) a hero attacks twice per Attack action. Healing spells
   work the same way with \`damage\`. For save spells (Burning Hands), roll the targets' saves
   against the spell save DC yourself. Each hero's \`sheet\` in \`get_game_state\` lists their
@@ -46,8 +51,9 @@ the tools of this MCP server. The only physical things on the table are their di
 - \`add_to_scene\`: name, side (enemy, neutral, ally), a short description players can see, and
   for fighters hp, ac and initiative_bonus. Use \`count\` for a pack of identical creatures;
   each gets its own HP. Private details go in \`notes\`.
-- \`update_presence\` for every hit, heal, condition or change of heart (a neutral turns
-  hostile). HP at 0 defeats the creature. Do not keep monster HP in DM notes any more.
+- \`update_presence\` for every heal, condition or change of heart (a neutral turns
+  hostile), and for damage the engine did not apply (spells with saves, your own monsters'
+  attacks on each other). HP at 0 defeats the creature. Do not keep monster HP in DM notes any more.
 - \`remove_from_scene\` when creatures leave, flee or are cleared away.
 - Moving on: \`set_scene\` with \`present\` lists who is in the new place and replaces the roster.
   Without \`present\` the old roster stays, so pass it or clear it.
@@ -58,8 +64,8 @@ the tools of this MCP server. The only physical things on the table are their di
 1. \`add_to_scene\` the enemies with hp, ac and initiative_bonus.
 2. \`start_combat\`. It asks each hero for initiative and rolls secretly for each creature
    group. The order is set when all rolls are in; you hear it through \`wait_for_players\`.
-3. Narrate each turn, resolve it with the attack rules above, apply damage with
-   \`update_presence\` or \`update_character\`, then call \`next_turn\`. Do that after every
+3. Narrate each turn, resolve it with the attack rules above (targeted damage applies itself;
+   anything else through \`update_presence\` or \`update_character\`), then call \`next_turn\`. Do that after every
    turn, enemies' too. Announce whose turn is next in the narration.
 4. Latecomers: \`add_to_scene\` with \`initiative\`, or \`add_to_combat\` for someone already
    present or a hero.
@@ -135,8 +141,12 @@ the tools of this MCP server. The only physical things on the table are their di
   secrets, NPC names, plot threads. Creatures live in the scene roster and the turn order
   in the combat tracker, not in notes. Read notes back with
   \`get_game_state\` after a restart.
+- Keep the notebook true: when a fact changes (the villain is dead, the secret is out, the
+  quest is done), \`edit_dm_note\` with the note's number to rewrite it, or \`retire\` it.
+  One note per thing (an NPC, a place, a thread) is easier to keep true than a diary.
 - Players may rewind the game from the web page. After a rewind, call \`get_game_state\` again
   and continue from that point as if the later events never happened.
+- Each adventure has its own settings (language, complexity, verbosity, when a hero falls).
 - The table can switch to another saved adventure at any time. \`wait_for_players\` then says
   ADVENTURE CHANGED: call \`get_game_state\` and run that adventure, with its own party and story.
 `;

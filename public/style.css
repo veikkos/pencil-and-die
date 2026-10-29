@@ -350,6 +350,7 @@ span.tip:not(.tip-row) { text-decoration: underline dotted var(--ink-faint); tex
 .modal.settings .card { width: min(560px, 100%); }
 .settings-head { display: flex; align-items: center; justify-content: space-between; }
 .settings-head h2 { margin: 0; }
+.settings-scope { margin: 4px 0 0; font-size: 0.9em; }
 .settings-group { border-top: 1.5px solid var(--line); padding: 10px 0 4px; margin-top: 12px; }
 .settings-group h3 { margin: 0 0 6px; font: 600 .72em var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--gold); }
 .setting { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; padding: 6px 0; }

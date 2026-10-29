@@ -81,62 +81,83 @@ export class GameStore {
     const id = randomUUID().slice(0, 8);
     const now = new Date().toISOString();
     this.db.prepare('INSERT INTO games (id, title, created_at, updated_at) VALUES (?, ?, ?, ?)').run(id, title, now, now);
+    // The adventure keeps the defaults it started with, whatever they become later.
+    const start = this.settings();
+    for (const [key, value] of [['language', start.language], ['complexity', start.complexity], ['verbosity', String(start.verbosity)], ['fallen_heroes', start.fallenHeroes]]) {
+      setSetting(this.db, `${key}:${id}`, value);
+    }
     this.append(id, { type: 'game_created', title });
     this.setActiveGame(id);
     return this.state(id);
   }
 
-  language(): Language {
-    return getSetting(this.db, 'language') === 'fi' ? 'fi' : 'en';
+  /**
+   * Table settings belong to an adventure. Without a game id they are the defaults: what a new
+   * adventure starts with, and what the lobby shows. Changing an adventure's setting makes it the
+   * default too. Adventures from before settings were per adventure follow the defaults.
+   */
+  private setting(key: string, gameId?: string): string | undefined {
+    return (gameId && getSetting(this.db, `${key}:${gameId}`)) || getSetting(this.db, key);
   }
 
-  setLanguage(lang: Language): void {
-    if (lang === this.language()) return;
-    setSetting(this.db, 'language', lang);
-    const active = this.activeGameId();
-    if (active) this.notifyDm(active, `LANGUAGE: the table switched to ${LANGUAGE_NAMES[lang]}. From now on write everything the players see (narration, answers, roll labels, scene titles, sketch labels) in ${LANGUAGE_NAMES[lang]}.`);
-    this.changes.emit('language', lang);
+  private putSetting(key: string, value: string, gameId?: string): void {
+    if (gameId) setSetting(this.db, `${key}:${gameId}`, value);
+    setSetting(this.db, key, value);
   }
 
-  complexity(): Complexity {
-    const c = getSetting(this.db, 'complexity') as Complexity | undefined;
+  settings(gameId?: string): { language: Language; complexity: Complexity; verbosity: Verbosity; fallenHeroes: FallenMode } {
+    return { language: this.language(gameId), complexity: this.complexity(gameId), verbosity: this.verbosity(gameId), fallenHeroes: this.fallenHeroes(gameId) };
+  }
+
+  language(gameId?: string): Language {
+    return this.setting('language', gameId) === 'fi' ? 'fi' : 'en';
+  }
+
+  setLanguage(lang: Language, gameId?: string): void {
+    if (lang === this.language(gameId)) return;
+    this.putSetting('language', lang, gameId);
+    if (gameId) this.notifyDm(gameId, `LANGUAGE: the table switched to ${LANGUAGE_NAMES[lang]}. From now on write everything the players see (narration, answers, roll labels, scene titles, sketch labels) in ${LANGUAGE_NAMES[lang]}.`);
+    this.changes.emit('settings', gameId);
+  }
+
+  complexity(gameId?: string): Complexity {
+    const c = this.setting('complexity', gameId) as Complexity | undefined;
     return c && COMPLEXITY_LEVELS.includes(c) ? c : 'beginner';
   }
 
-  setComplexity(level: Complexity): void {
+  setComplexity(level: Complexity, gameId?: string): void {
     if (!COMPLEXITY_LEVELS.includes(level)) throw new Error(`complexity must be one of ${COMPLEXITY_LEVELS.join(', ')}`);
-    if (level === this.complexity()) return;
+    if (level === this.complexity(gameId)) return;
     // Players flip this to peek at the numbers and back, so the DM isn't woken for it;
     // it hears about the level that stuck with the next player input (see takeNotices).
-    setSetting(this.db, 'complexity', level);
-    this.changes.emit('complexity', level);
+    this.putSetting('complexity', level, gameId);
+    this.changes.emit('settings', gameId);
   }
 
-  verbosity(): Verbosity {
-    const v = Number(getSetting(this.db, 'verbosity'));
+  verbosity(gameId?: string): Verbosity {
+    const v = Number(this.setting('verbosity', gameId));
     return (VERBOSITY_LEVELS as readonly number[]).includes(v) ? (v as Verbosity) : 3;
   }
 
-  setVerbosity(level: number): void {
+  setVerbosity(level: number, gameId?: string): void {
     if (!(VERBOSITY_LEVELS as readonly number[]).includes(level)) throw new Error('verbosity must be 1–4');
-    if (level === this.verbosity()) return;
+    if (level === this.verbosity(gameId)) return;
     // Like complexity, the DM learns the level that stuck with the next player input.
-    setSetting(this.db, 'verbosity', String(level));
-    this.changes.emit('verbosity', level);
+    this.putSetting('verbosity', String(level), gameId);
+    this.changes.emit('settings', gameId);
   }
 
-  fallenHeroes(): FallenMode {
-    const m = getSetting(this.db, 'fallen_heroes');
+  fallenHeroes(gameId?: string): FallenMode {
+    const m = this.setting('fallen_heroes', gameId);
     return (FALLEN_MODES as readonly string[]).includes(m ?? '') ? (m as FallenMode) : 'knockout';
   }
 
-  setFallenHeroes(mode: FallenMode): void {
+  setFallenHeroes(mode: FallenMode, gameId?: string): void {
     if (!FALLEN_MODES.includes(mode)) throw new Error(`fallenHeroes must be one of ${FALLEN_MODES.join(', ')}`);
-    if (mode === this.fallenHeroes()) return;
-    setSetting(this.db, 'fallen_heroes', mode);
-    const active = this.activeGameId();
-    if (active) this.notifyDm(active, FALLEN_GUIDE[mode]);
-    this.changes.emit('fallenHeroes', mode);
+    if (mode === this.fallenHeroes(gameId)) return;
+    this.putSetting('fallen_heroes', mode, gameId);
+    if (gameId) this.notifyDm(gameId, FALLEN_GUIDE[mode]);
+    this.changes.emit('settings', gameId);
   }
 
   activeGameId(): string | undefined {
@@ -214,7 +235,7 @@ export class GameStore {
   private settle(gameId: string, before: GameState): void {
     // The reducer may not read settings, so the outcome of a third failed save is recorded as its own event.
     const fallen = this.state(gameId).characters.find((c) => c.status === 'dying' && c.deathSaves.failures >= 3);
-    if (fallen) this.append(gameId, { type: 'hero_fell', characterId: fallen.id, outcome: this.fallenHeroes() === 'death' ? 'dead' : 'knocked_out' });
+    if (fallen) this.append(gameId, { type: 'hero_fell', characterId: fallen.id, outcome: this.fallenHeroes(gameId) === 'death' ? 'dead' : 'knocked_out' });
     // However round 1 opens (a tool, a roll from the page, a cancel), a dying hero first up gets a death save.
     for (const follow of planRoundStart(before, this.state(gameId))) this.append(gameId, follow);
   }
@@ -261,15 +282,15 @@ export class GameStore {
   private takeNotices(gameId: string): string[] {
     const notices = this.pendingNotices(gameId);
     if (notices.length) setSetting(this.db, `dm_notices:${gameId}`, '[]');
-    const level = this.complexity();
+    const level = this.complexity(gameId);
     if (getSetting(this.db, `dm_complexity:${gameId}`) !== level) {
       setSetting(this.db, `dm_complexity:${gameId}`, level);
       notices.push(`COMPLEXITY is ${level}. ${COMPLEXITY_GUIDE[level]}`);
     }
-    const verbosity = String(this.verbosity());
+    const verbosity = String(this.verbosity(gameId));
     if ((getSetting(this.db, `dm_verbosity:${gameId}`) ?? '3') !== verbosity) {
       setSetting(this.db, `dm_verbosity:${gameId}`, verbosity);
-      notices.push(VERBOSITY_GUIDE[this.verbosity()]);
+      notices.push(VERBOSITY_GUIDE[this.verbosity(gameId)]);
     }
     return notices;
   }
