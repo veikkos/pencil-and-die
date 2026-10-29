@@ -86,6 +86,9 @@ export class GameStore {
     for (const [key, value] of [['language', start.language], ['complexity', start.complexity], ['verbosity', String(start.verbosity)], ['fallen_heroes', start.fallenHeroes]]) {
       setSetting(this.db, `${key}:${id}`, value);
     }
+    // get_game_state tells the DM where a new adventure starts; notices are only for changes.
+    setSetting(this.db, `dm_complexity:${id}`, start.complexity);
+    setSetting(this.db, `dm_verbosity:${id}`, String(start.verbosity));
     this.append(id, { type: 'game_created', title });
     this.setActiveGame(id);
     return this.state(id);

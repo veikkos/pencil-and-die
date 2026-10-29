@@ -191,3 +191,13 @@ test('store: settings belong to an adventure; the latest choice is what the next
   assert.equal(store.complexity(a.id), 'beginner');
   assert.equal(store.complexity(store.createGame('C').id), 'intermediate');
 });
+
+test('store: a new adventure brings no setting notices until something changes', async () => {
+  const store = newStore();
+  store.setComplexity('casual');
+  store.setVerbosity(2);
+  const g = store.createGame('New');
+  assert.deepEqual((await store.waitForPlayers(g.id, 10, 0)).notices, []);
+  store.setVerbosity(4, g.id);
+  assert.equal((await store.waitForPlayers(g.id, 10, 0)).notices.length, 1);
+});
