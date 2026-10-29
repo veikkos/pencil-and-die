@@ -5,6 +5,7 @@ import { entryName } from './combat.ts';
 import type { Db } from './db.ts';
 import { meetsDc, parseDice, physicalDice, virtualRoll } from './dice.ts';
 import { DM_GUIDE } from './dm-guide.ts';
+import { lengthNudge } from './dm-report.ts';
 import { fightRefs, orderText, registerSceneTools, roundText } from './mcp-scene.ts';
 import { canLevel, levelOptions, levelUp, needsChoices, withRecommended, type LevelOptions } from './levels.ts';
 import { findResource } from './resources.ts';
@@ -271,7 +272,8 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
     const id = resolve(game_id);
     const characterId = character_id ? character(store.state(id), character_id).id : undefined;
     const ev = store.append(id, { type: 'message', from: 'dm', kind, characterId, text: t });
-    return text(`Shown to the table (seq ${ev.seq}).${sketchReminder(store.state(id))}`);
+    const nudge = kind === 'ooc' ? '' : lengthNudge(t, store.verbosity(id));
+    return text(`Shown to the table (seq ${ev.seq}).${nudge}${sketchReminder(store.state(id))}`);
   });
 
   server.registerTool('set_scene', {

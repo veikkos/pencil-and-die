@@ -12,6 +12,7 @@
     "dev": "node --disable-warning=ExperimentalWarning --watch src/server.ts",
     "test": "node --disable-warning=ExperimentalWarning --test 'test/**/*.test.ts'",
     "typecheck": "tsc --noEmit",
+    "dm-report": "node --disable-warning=ExperimentalWarning src/dm-report.ts",
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build -o storybook-static",
     "storybook:fixtures": "node --disable-warning=ExperimentalWarning stories/fixtures/generate.ts"
