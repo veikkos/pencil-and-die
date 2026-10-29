@@ -5,13 +5,13 @@ Dungeon Master**. The only physical things are your dice: the page tells you exa
 throw and where to type the results.
 
 - Web page at <http://localhost:4242>: party creation (name → people → calling → build preset),
-  story log, pencil-sketch canvas, party cards, dice prompts and an input for actions, speech,
-  questions to the DM and table talk.
-- MCP server at `http://localhost:4242/mcp`: the tools Claude uses to run the game (narrate,
-  request rolls, roll for monsters, update character sheets, set scenes, draw sketches, keep
-  private notes, rewind).
-- Everything is stored in SQLite (`data/game.db`) as an append-only event log: games,
-  characters, messages, rolls, sketches, DM notes, the sketch style guide and table preferences.
+  story log, pencil-sketch canvas, scene strip, character sheets, dice prompts, level-up choices
+  and an input for actions, speech, questions to the DM and table talk.
+- MCP server at `http://localhost:4242/mcp`: the tools Claude uses to run the game. The engine
+  keeps the numbers (modifiers, hit or miss against a creature's AC, creature HP, turn order,
+  spell slots and uses, death saves, levels); Claude decides what happens and tells the story.
+- Everything is stored in SQLite (`data/game.db`). Each game is an append-only event log, which
+  is what makes continuing and rewinding work; settings and the sketch style guide sit beside it.
   Close it any time and continue later.
 
 ## Run it
@@ -40,19 +40,24 @@ in `.claude/settings.local.json`).
 
 ## Playing
 
-- **Language (EN/FI):** switches the whole UI and tells the DM to narrate in that language from
-  now on.
-- **Complexity (Beginner / Casual / Intermediate):** applies instantly, also to past moments, so
-  you can peek at the numbers underneath and switch back. The DM adapts its style to the level the
-  table settles on (it isn't woken for every peek).
-- **DM voice:** uses the browser's built-in speech synthesis. On macOS, Finnish works with the
-  "Satu" voice (System Settings → Accessibility → Spoken Content → System voice → Manage
-  voices). Choose the voice next to the toggle.
+- **Settings (⚙):** each adventure keeps its own language, verbosity, complexity and what happens
+  when a hero falls. A new adventure starts with the choices you made last; the ⚙ in the lobby
+  sets those defaults.
+  - **Language (EN/FI):** switches the whole page and tells the DM to narrate in that language.
+  - **Complexity (Beginner / Casual / Intermediate):** applies instantly, also to past moments, so
+    you can peek at the numbers underneath and switch back. The DM adapts its style to the level
+    the table settles on (it isn't woken for every peek).
+  - **DM voice:** the same for every adventure. It uses the browser's built-in speech synthesis.
+    On macOS, Finnish works with the "Satu" voice (System Settings → Accessibility → Spoken
+    Content → System voice → Manage voices).
 - **Scene, fights and resources:** a strip at the top shows everyone in the scene: heroes with
   their health, creatures with a health word only. During a fight it shows the turn order and
   whose turn it is. Heroes get pips for spell slots and limited abilities, and dying heroes show
-  their death save pips. **When a hero falls** chooses what a third failed death save means:
+  their death save pips. **When a hero falls** (⚙) chooses what a third failed death save means:
   knocked out with a cost (default) or can die.
+- **Character sheet:** tap a hero to see what they can do, what's left and what's affecting them;
+  tap any number for how it adds up. When a hero has the XP and the DM calls for it, a level-up
+  dialog offers the choices (up to level 5) with the recommended picks preselected.
 - **Timeline:** drag the slider to see the game at any earlier moment (story, sheets, sketch,
   pending rolls). Nothing changes until you press **Continue from here**. That cuts off
   everything after that point and the DM is told to carry on from there. Use it to fix a mistyped
@@ -77,10 +82,16 @@ Node runs the TypeScript directly (type stripping), so there is no build step. E
 |---|---|
 | `src/server.ts` | Express: table REST API, SSE stream, MCP endpoint |
 | `src/mcp.ts` | DM tools, resources (`dnd://dm-guide`, `sketch://style`) and the `dm` prompt |
-| `src/store.ts` | Event store: append, replay, rewind, preview, DM wait loop and notices |
+| `src/mcp-scene.ts` | DM tools for the scene roster, combat, resources and rests |
+| `src/store.ts` | Event store: append, replay, rewind, preview, per-adventure settings, DM wait loop and notices |
 | `src/state.ts` | Event types and the pure reducer that rebuilds game state |
 | `src/rules.ts` | 5e SRD slice: races, classes, presets, character builder, check modifiers |
-| `src/dice.ts` | Dice notation, advantage, validating physical results |
+| `src/sheet.ts` | The sheet's numbers, computed from the character: attacks, damage, spells, skills |
+| `src/levels.ts` | Levels 2–5 per class: what the rules give and the choices players make |
+| `src/spells.ts`, `src/weapons.ts`, `src/armour.ts` | SRD data |
+| `src/roster.ts`, `src/combat.ts` | Creatures in the scene; initiative and turn order |
+| `src/resources.ts`, `src/life.ts` | Spell slots, uses and rests; dying, death saves and falling |
+| `src/dice.ts` | Dice notation, advantage, validating physical results, hit or miss |
 | `src/sketch.ts` | Sketch style guide and SVG sanitizing |
 | `src/dm-guide.ts` | Instructions Claude follows as DM |
 | `public/` | The page (vanilla JS modules, no build) |
