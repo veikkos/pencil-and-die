@@ -248,8 +248,16 @@ export function attackRoll(c: Character, name: string): NamedRoll {
   throw new Error(`${spell!.name} needs no attack roll${spell!.dice ? '; ask for its damage roll instead' : ''}.`);
 }
 
-/** The damage (or healing) roll of a weapon or spell. A critical hit doubles the dice. */
+/** Features whose extra damage is rolled on its own, after the weapon's: their dice grow with level. */
+const DAMAGE_FEATURES = ['Sneak Attack', 'Divine Smite', 'Colossus Slayer'];
+
+/** The damage (or healing) roll of a weapon, spell or extra-damage feature. A critical hit doubles the dice. */
 export function damageRoll(c: Character, name: string, opts: { critical?: boolean; versatile?: boolean } = {}): NamedRoll {
+  const extra = DAMAGE_FEATURES.find((f) => f.toLowerCase() === name.trim().toLowerCase() && c.features.some((x) => x.name === f));
+  if (extra) {
+    const dice = featureValue(c, extra)!;
+    return { label: `${extra} damage`, dice: opts.critical ? dice.replace(/^(\d*)d/, (_, n) => `${2 * Number(n || 1)}d`) : dice, modifier: 0 };
+  }
   const { attack, spell } = findAction(c, name);
   let dice = attack ? (opts.versatile && attack.versatile) || attack.dice : spell!.dice;
   const flat = attack ? attack.bonus : total(spell!.rollParts ?? []);

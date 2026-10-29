@@ -3,7 +3,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { entryName } from './combat.ts';
 import type { Db } from './db.ts';
-import { parseDice, physicalDice, virtualRoll } from './dice.ts';
+import { meetsDc, parseDice, physicalDice, virtualRoll } from './dice.ts';
 import { DM_GUIDE } from './dm-guide.ts';
 import { fightRefs, orderText, registerSceneTools, roundText } from './mcp-scene.ts';
 import { canLevel, levelOptions, levelUp, needsChoices, withRecommended, type LevelOptions } from './levels.ts';
@@ -391,25 +391,61 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
   });
 
   server.registerTool('dm_roll', {
-    description: 'Roll virtual dice yourself, for monsters, NPCs and secret checks. Public rolls appear in the story log; secret ones only to you.',
+    description: 'Roll virtual dice yourself, for monsters, NPCs and secret checks. Public rolls appear in the story log; secret ones only to you. ' +
+      'A monster\'s attack: give `target` (a hero, or a creature in the scene) and the d20 is checked against its AC. Its damage: `target` with `damage` true, and the total comes off the target\'s HP.',
     inputSchema: {
       label: z.string().describe('e.g. "Goblin scimitar attack", "Initiative: goblins".'),
       dice: z.string().default('1d20'),
       modifier: z.number().int().default(0),
       advantage: z.enum(['none', 'advantage', 'disadvantage']).default('none'),
       dc: z.number().int().optional(),
+      target: z.string().optional().describe('Who the attack or damage is aimed at: a hero (id or name) or a creature id such as "goblin-2".'),
+      damage: z.boolean().default(false).describe('With `target`: this roll is damage, not an attack. It is applied to the target\'s HP.'),
+      critical: z.boolean().optional().describe('With `damage`: a critical hit. The dice are doubled, and a dying hero takes two death save failures.'),
       secret: z.boolean().default(false),
       game_id: gameIdArg,
     },
-  }, ({ label, dice, modifier, advantage, dc, secret, game_id }) => {
+  }, ({ label, dice, modifier, advantage, dc, target, damage, critical, secret, game_id }) => {
     const id = resolve(game_id);
-    const out = virtualRoll(parseDice(dice), advantage, modifier);
-    const success = dc === undefined ? undefined : out.total >= dc;
+    const s = store.state(id);
+    if (!target && (damage || critical)) throw new Error('`damage` and `critical` go with a `target`.');
+    const hero = target ? s.characters.find((x) => x.id === target || x.name.toLowerCase() === target.toLowerCase()) : undefined;
+    const creature = target && !hero ? findPresence(s.present, target) : undefined;
+    const aim = hero ?? creature;
+    const aimId = hero?.id ?? creature?.id;
+    if (aim && !damage) {
+      if (dc !== undefined) throw new Error('With `target` the DC is the target\'s AC; leave out `dc`.');
+      if (aim.ac === undefined) throw new Error(`${creature!.id} has no AC. Give it one with update_presence, or leave out \`target\`.`);
+      if (parseDice(dice).sides !== 20 || parseDice(dice).count !== 1) throw new Error('An attack is one d20. For damage, add `damage: true`.');
+    }
+    if (creature && damage && creature.hp === undefined) throw new Error(`${creature.id} has no HP to lose. Leave out \`target\`.`);
+    if (hero?.status === 'dead') throw new Error(`${hero.name} is dead.`);
+    if (creature?.defeated) throw new Error(`${creature.id} is already defeated.`);
+    const rolled = critical ? dice.replace(/^\s*(\d*)\s*d/i, (_, n) => `${2 * Number(n || 1)}d`) : dice;
+    const out = virtualRoll(parseDice(rolled), advantage, modifier);
+    const attack = aim && !damage ? { dc: aim.ac, critOn: 20, targetId: aimId } : {};
+    const roll = { rollId: randomUUID().slice(0, 8), characterId: '', label, dice: rolled, modifier, advantage, dc, hideDc: true, ...attack, faces: out.faces, total: out.total };
+    const success = meetsDc(roll, out.faces, out.total);
     store.append(id, {
-      type: 'dm_roll', secret,
-      roll: { rollId: randomUUID().slice(0, 8), characterId: '', label, dice, modifier, advantage, dc, hideDc: true, faces: out.faces, total: out.total, success, byDm: true },
+      type: 'dm_roll', secret, roll: { ...roll, success, byDm: true },
+      ...(aim && damage ? { damageTo: { kind: hero ? 'hero' : 'creature', id: aimId!, ...(critical ? { critical } : {}) } } : {}),
     });
-    return text(`${label}: ${out.faces.join(', ')} ${sign(modifier)} = ${out.total}${success === undefined ? '' : success ? ' (success)' : ' (failure)'}${out.faces.includes(20) && parseDice(dice).sides === 20 ? ' — natural 20!' : ''}`);
+    const head = `${label}: ${out.faces.join(', ')} ${sign(modifier)} = ${out.total}`;
+    if (aim && !damage) {
+      const d20 = advantage === 'advantage' ? Math.max(...out.faces) : advantage === 'disadvantage' ? Math.min(...out.faces) : out.faces[0];
+      const name = hero?.name ?? creature!.id;
+      return text(`${head} vs ${name} AC ${aim.ac} → ${d20 === 20 ? 'CRITICAL HIT: roll damage with `critical`' : success ? 'HIT' : d20 === 1 ? 'natural 1, a MISS' : 'MISS'}` +
+        `${success ? `. Roll the damage: dm_roll with target "${hero?.name ?? creature!.id}" and damage true.` : '.'}`);
+    }
+    if (hero && damage) {
+      const after = character(store.state(id), hero.id);
+      return text(`${head} → ${Math.max(0, out.total)} damage to ${after.name}: HP ${after.hp}/${after.maxHp}${after.tempHp ? ` (+${after.tempHp} temp)` : ''}${lifeNote(after)}`);
+    }
+    if (creature && damage) {
+      const after = findPresence(store.state(id).present, creature.id);
+      return text(`${head} → ${Math.max(0, out.total)} damage to ${after.id}: ${after.hp}/${after.maxHp} HP${after.defeated ? ', DEFEATED' : ''}`);
+    }
+    return text(`${head}${success === undefined ? '' : success ? ' (success)' : ' (failure)'}${out.faces.includes(20) && parseDice(dice).sides === 20 ? ' — natural 20!' : ''}`);
   });
 
   // ---- Characters ----------------------------------------------------------

@@ -117,7 +117,8 @@ export type GameEvent =
   | { type: 'roll_requested'; roll: Omit<RollRequest, 'requestedSeq'> }
   | { type: 'roll_resolved'; rollId: string; faces: number[]; total: number; success?: boolean; byDm?: boolean }
   | { type: 'roll_cancelled'; rollId: string }
-  | { type: 'dm_roll'; roll: Omit<RollResult, 'requestedSeq' | 'resolvedSeq'>; secret: boolean }
+  /** `damageTo`: the total comes off that hero's or creature's HP. */
+  | { type: 'dm_roll'; roll: Omit<RollResult, 'requestedSeq' | 'resolvedSeq'>; secret: boolean; damageTo?: DamageTarget }
   | { type: 'scene_set'; title: string; description: string; present?: Presence[] }
   | { type: 'presence_added'; presences: Presence[] }
   | { type: 'presence_updated'; presenceId: string; patch: PresencePatch; reason?: string }
@@ -130,6 +131,13 @@ export type GameEvent =
   | { type: 'dm_note'; text: string }
   /** Rewrites a note, or with no text retires it; `noteSeq` is the seq the note was added at. */
   | { type: 'dm_note_edited'; noteSeq: number; text?: string };
+
+export interface DamageTarget {
+  kind: 'hero' | 'creature';
+  id: string;
+  /** A critical hit: a dying hero takes two death save failures. */
+  critical?: boolean;
+}
 
 export interface StoredEvent {
   seq: number;
@@ -295,6 +303,19 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
     sys('combatOrder', { names: shown }, `Turn order: ${names.join(', ')}.`);
   };
 
+  /** Changes a hero's sheet and logs what changed. */
+  const updateCharacter = (characterId: string, patch: CharacterPatch, reason?: string) => {
+    const before = s.characters.find((c) => c.id === characterId);
+    if (!before) return;
+    const after = applyPatch(before, patch);
+    s.characters = s.characters.map((c) => (c.id === characterId ? after : c));
+    const parts = describePatch(before, after);
+    if (parts.length) {
+      sys('updated', { name: after.name, parts, reason },
+        `${after.name}: ${parts.map(([k, v]) => `${k} ${v}`).join(', ')}${reason ? ` (${reason})` : ''}`);
+    }
+  };
+
   /** Changes a creature and tells the table what they can see of it. */
   const updatePresence = (presenceId: string, patch: PresencePatch) => {
     const before = s.present.find((p) => p.id === presenceId);
@@ -330,18 +351,9 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       sys('joined', { name: created.name, race: created.race, cls: created.className },
         `${created.name} the ${created.race} ${created.className} joins the party.`);
       break;
-    case 'character_updated': {
-      const before = s.characters.find((c) => c.id === e.characterId);
-      if (!before) break;
-      const after = applyPatch(before, e.patch);
-      s.characters = s.characters.map((c) => (c.id === e.characterId ? after : c));
-      const parts = describePatch(before, after);
-      if (parts.length) {
-        sys('updated', { name: after.name, parts, reason: e.reason },
-          `${after.name}: ${parts.map(([k, v]) => `${k} ${v}`).join(', ')}${e.reason ? ` (${e.reason})` : ''}`);
-      }
+    case 'character_updated':
+      updateCharacter(e.characterId, e.patch, e.reason);
       break;
-    }
     case 'resource_used': {
       const before = s.characters.find((c) => c.id === e.characterId);
       if (!before) break;
@@ -420,13 +432,19 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       }
       break;
     }
-    case 'dm_roll':
+    case 'dm_roll': {
       s.rolls = [...s.rolls, { ...e.roll, requestedSeq: seq, resolvedSeq: seq }];
+      // An attack on a target shows as a hit or a miss, like the heroes' own.
+      const attackOn = e.roll.targetId && e.roll.critOn !== undefined && e.roll.success !== undefined;
       if (!e.secret) {
-        sys('dmRolled', { label: e.roll.label, faces: e.roll.faces, mod: e.roll.modifier, total: e.roll.total },
-          `DM rolled ${e.roll.label}: ${e.roll.faces.join(' & ')} ${sign(e.roll.modifier)} = ${e.roll.total}`);
+        sys('dmRolled', { label: e.roll.label, faces: e.roll.faces, mod: e.roll.modifier, total: e.roll.total, ...(attackOn ? { hit: e.roll.success } : {}) },
+          `DM rolled ${e.roll.label}: ${e.roll.faces.join(' & ')} ${sign(e.roll.modifier)} = ${e.roll.total}${attackOn ? (e.roll.success ? ' — hit' : ' — miss') : ''}`);
       }
+      const dealt = Math.max(0, e.roll.total);
+      if (e.damageTo?.kind === 'hero') updateCharacter(e.damageTo.id, { hpDelta: -dealt, critical: e.damageTo.critical }, e.roll.label);
+      if (e.damageTo?.kind === 'creature') updatePresence(e.damageTo.id, { hpDelta: -dealt });
       break;
+    }
     case 'scene_set':
       s.scene = { title: e.title, description: e.description, seq };
       if (e.present !== undefined) s.present = e.present;

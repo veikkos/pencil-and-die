@@ -98,3 +98,50 @@ test('DM notes can be rewritten and retired', async () => {
   assert.equal((await c.call('edit_dm_note', { note })).isError, true);
   assert.match((await c.call('edit_dm_note', { note: 999, retire: true })).text, /No note 999/);
 });
+
+test('extra-damage features roll on their own and apply to the target', async () => {
+  const { store, g, c, state } = await goblinFight();
+  const asked = await c.call('request_roll', { character_id: 'Mira', damage: 'Sneak Attack', target: 'goblin-1' });
+  assert.match(asked.text, /Sneak Attack damage against goblin-1: 1d6 \+0/);
+  throwDice(store, g.id, [5]);
+  assert.equal(state().present[0].hp, 2);
+  const crit = await c.call('request_roll', { character_id: 'Mira', damage: 'sneak attack', critical: true });
+  assert.match(crit.text, /2d6/);
+  // Only heroes with the feature have it.
+  store.append(g.id, { type: 'character_created', character: { ...mira(), id: 'tor', name: 'Tor', features: [] } });
+  assert.equal((await c.call('request_roll', { character_id: 'Tor', damage: 'Sneak Attack' })).isError, true);
+});
+
+test('dm_roll: a monster attack on a hero is checked against their AC; its damage comes off their HP', async () => {
+  const { c, state } = await goblinFight();
+  const attack = await c.call('dm_roll', { label: 'Goblin scimitar', modifier: 4, target: 'Mira' });
+  assert.match(attack.text, /vs Mira AC 14 → (CRITICAL HIT|HIT|MISS|natural 1, a MISS)/);
+  const roll = state().rolls.at(-1)!;
+  assert.equal(roll.dc, 14);
+  assert.equal(roll.targetId, 'mira');
+  assert.equal(state().log.at(-1)!.sys?.params.hit, roll.success);
+
+  const dmg = await c.call('dm_roll', { label: 'Goblin scimitar damage', dice: '1d6', modifier: 2, target: 'Mira', damage: true });
+  const dealt = state().rolls.at(-1)!.total;
+  assert.equal(state().characters[0].hp, 10 - dealt);
+  assert.match(dmg.text, new RegExp(`${dealt} damage to Mira: HP ${10 - dealt}/10`));
+
+  await c.call('dm_roll', { label: 'Big hit', dice: '1d4', modifier: 20, target: 'Mira', damage: true, critical: true });
+  assert.equal(state().rolls.at(-1)!.dice, '2d4');
+  assert.equal(state().characters[0].status, 'dying');
+});
+
+test('dm_roll: damage can go to a creature too, and the target checks guard misuse', async () => {
+  const { c, state } = await goblinFight();
+  await c.call('dm_roll', { label: 'Falling rock', dice: '1d4', modifier: 10, target: 'goblin-2', damage: true });
+  assert.equal(state().present[1].defeated, true);
+  const bad = async (args: Record<string, unknown>, why: RegExp) => {
+    const r = await c.call('dm_roll', { label: 'x', ...args });
+    assert.equal(r.isError, true, JSON.stringify(args));
+    assert.match(r.text, why);
+  };
+  await bad({ damage: true }, /go with a `target`/);
+  await bad({ target: 'Mira', dc: 12 }, /leave out `dc`/);
+  await bad({ target: 'Mira', dice: '2d6' }, /one d20/);
+  await bad({ target: 'goblin-2', damage: true, dice: '1d6' }, /already defeated/);
+});

@@ -28,13 +28,20 @@ the tools of this MCP server. The only physical things on the table are their di
   \`critical\` when the attack says CRITICAL HIT (a natural 20, or 19 for a Champion), and
   \`versatile\` for two hands. Leave out \`target\` when the numbers need your judgement
   (resistance, cover you haven't put in the AC, a creature without HP); then compare and
-  apply yourself. With Extra Attack (sheet
+  apply yourself. Extra damage from a feature (Sneak Attack, Divine Smite, Colossus Slayer) is a
+  roll of its own: \`request_roll\` with \`damage\` "Sneak Attack" and the same \`target\`, right
+  after the weapon's (for a smite with a higher slot, give the bigger \`dice\`). With Extra Attack (sheet
   \`attacksPerAction\` 2) a hero attacks twice per Attack action. Healing spells
   work the same way with \`damage\`. For save spells (Burning Hands), roll the targets' saves
   against the spell save DC yourself. Each hero's \`sheet\` in \`get_game_state\` lists their
   attacks, spells (with DC and to-hit) and modifiers. What a spell or feature does beyond
   its numbers (Bless, Rage, Sneak Attack) is still yours to apply.
 - Monsters' rolls are yours: use \`dm_roll\` (secret when the players shouldn't know the number).
+  A monster's attack: \`dm_roll\` with its to-hit as \`modifier\` and \`target\` (the hero's name):
+  the engine checks the hero's AC and says HIT, MISS or CRITICAL HIT. Then the damage: \`dm_roll\`
+  with the damage \`dice\` and \`modifier\`, the same \`target\` and \`damage\` true (\`critical\` on
+  a critical hit). It comes off the hero's HP by itself, death saves and all; no
+  \`update_character\` needed. The same works against creatures in the scene.
 - Status: \`add_conditions\` for the standard 5e conditions (Poisoned, Prone, Frightened…; the
   page explains them). \`add_effects\` for spell and feature effects (Blessed, Raging, Mage
   Armor, Hexed) with a short \`note\` of what they do and how long; remove them when they end.
@@ -43,8 +50,8 @@ the tools of this MCP server. The only physical things on the table are their di
   ("glows blue; crush it once to heal 2d4+2"). The players read it on the sheet.
 - New spells or features: \`update_character\` \`add_spells\` / \`add_features\` (give features
   a one-line \`text\` the players can read).
-- Use \`update_character\` for every change of HP, items, gold, XP or conditions, so the
-  sheet on screen stays true. Give a short \`reason\`.
+- Use \`update_character\` for every other change of HP (damage the engine did not apply),
+  items, gold, XP or conditions, so the sheet on screen stays true. Give a short \`reason\`.
 
 ## Who is here
 - The scene roster shows everyone present besides the heroes. Keep it true to the fiction.
