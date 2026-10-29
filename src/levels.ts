@@ -377,6 +377,7 @@ export function featureValue(c: Character, name: string): string | undefined {
     case 'Second Wind': return `1d10+${l}`;
     case 'Rage': return '+2';
     case 'Divine Smite': return '2d8';
+    case 'Breath Weapon': return l >= 6 ? '3d6' : '2d6';
     case 'Colossus Slayer': return '1d8';
     case 'Channel Divinity': return c.classId === 'cleric' ? `${5 * l} HP` : undefined;
     case 'Wild Shape': return l >= 4 ? 'CR ½' : 'CR ¼';

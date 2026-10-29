@@ -163,3 +163,68 @@ test('effects carry numbers: Mage Armor and Shield of Faith change the AC monste
   await c.call('update_character', { character_id: 'Mira', add_effects: [{ name: 'Lucky charm', note: 'feels nice', ac_bonus: 1 }] });
   assert.equal(sheetOf(hero('mira')).ac, 19);
 });
+
+const kipina = () => buildCharacter('kipina', { name: 'Kipinä', player: 'Ida', race: 'dragonborn', className: 'sorcerer', preset: 'specialist' });
+
+test('racial resistances halve by themselves: a red dragonborn against fire, a dwarf against poison', async () => {
+  const { store, g, c, hero } = await party();
+  store.append(g.id, { type: 'character_created', character: kipina() });
+  const breath = await c.call('dm_roll', { label: 'Fire', dice: '1d4', modifier: 9, damage: true, damage_type: 'fire', targets: ['Kipinä', 'Mira'] });
+  const total = store.state(g.id).rolls.at(-1)!.total;
+  assert.match(breath.text, new RegExp(`${Math.floor(total / 2)} to Kipinä, half`));
+  assert.equal(hero('mira').hp, 0);
+  await c.call('dm_roll', { label: 'Poison', dice: '1d4', modifier: 3, damage: true, damage_type: 'poison', target: 'Halla' });
+  assert.ok(hero('halla').hp >= 12 - 3, 'half of 4–7 poison');
+});
+
+test('Breath Weapon: rolled by the player at targets, spent until a short rest', async () => {
+  const { store, db } = newTable();
+  const g = store.createGame('T');
+  store.append(g.id, { type: 'character_created', character: kipina() });
+  const c = await mcpClient(store, db);
+  await c.call('add_to_scene', { name: 'Kobold', side: 'enemy', hp: 5, ac: 12, count: 2 });
+  const asked = await c.call('request_roll', { character_id: 'Kipinä', damage: 'Breath Weapon', targets: ['kobold-1', { who: 'kobold-2', takes: 'half' }] });
+  assert.match(asked.text, /Breath Weapon damage against kobold-1, kobold-2 \(half\): 2d6 \+0.*save DEX against DC 12/);
+  throwDice(store, g.id, 'kipina', [3, 3]);
+  assert.deepEqual(store.state(g.id).present.map((p) => p.hp), [0, 2]);
+  assert.match((await c.call('request_roll', { character_id: 'Kipinä', damage: 'Breath Weapon', target: 'kobold-2' })).text, /used their Breath Weapon/);
+  await c.call('rest', { kind: 'short' });
+  assert.equal((await c.call('request_roll', { character_id: 'Kipinä', damage: 'Breath Weapon', target: 'kobold-2' })).isError, false);
+});
+
+test('healing with targets applies itself, with a Life cleric\'s bonus; own rolls take targets too', async () => {
+  const { store, g, c, hero, state } = await party();
+  await c.call('update_character', { character_id: 'Mira', hp_delta: -10 });
+  const asked = await c.call('request_roll', { character_id: 'Halla', damage: 'Healing Word', target: 'Mira' });
+  assert.match(asked.text, /Healing Word healing against mira: 1d4 \+6/);
+  throwDice(store, g.id, 'halla', [2]);
+  assert.equal(hero('mira').hp, 8);
+  assert.equal(hero('mira').status, 'up');
+
+  await c.call('add_to_scene', { name: 'Goblin', side: 'enemy', hp: 7, ac: 15 });
+  await c.call('request_roll', { character_id: 'Mira', label: 'Oil flask', dice: '1d6', targets: ['goblin'], damage_type: 'fire' });
+  throwDice(store, g.id, 'mira', [5]);
+  assert.equal(state().present[0].hp, 2);
+  await c.call('request_roll', { character_id: 'Mira', label: 'Potion', dice: '2d4', target: 'Halla', heal: true });
+  assert.equal(state().pendingRolls[0].heal, true);
+  assert.equal((await c.call('request_roll', { character_id: 'Mira', label: 'Oops', target: 'goblin' })).isError, true);
+});
+
+test('Bless: attack and save cards ask for a d4 too, and the total adds it', async () => {
+  const { store, g, c, state } = await party();
+  await c.call('update_character', { character_id: 'Mira', add_effects: [{ name: 'Blessed', note: '+1d4', concentration: 'Halla' }] });
+  await c.call('add_to_scene', { name: 'Goblin', side: 'enemy', hp: 7, ac: 15 });
+  await c.call('request_roll', { character_id: 'Mira', attack: 'Rapier', target: 'goblin' });
+  const roll = state().pendingRolls[0];
+  assert.deepEqual(roll.bonusDice, [{ dice: '1d4', from: 'Blessed' }]);
+  // What the page sends: the d20, then the d4. 9 + 5 = 14 misses AC 15; the d4 makes it a hit.
+  const out = scoreRoll(parseDice(roll.dice), roll.advantage, roll.modifier, [9]);
+  store.append(g.id, { type: 'roll_resolved', rollId: roll.rollId, faces: out.faces, bonusFaces: [3], total: out.total + 3, success: meetsDc(roll, out.faces, out.total + 3) });
+  assert.equal(state().rolls.at(-1)!.success, true);
+  assert.equal(state().log.findLast((l) => l.sys?.code === 'rolled')!.sys!.params.extra, 3);
+  // Checks get no d4; saves do.
+  await c.call('request_roll', { character_id: 'Mira', check: 'Stealth' });
+  assert.equal(state().pendingRolls.at(-1)!.bonusDice, undefined);
+  await c.call('request_roll', { character_id: 'Mira', check: 'dex save', dc: 12 });
+  assert.equal(state().pendingRolls.at(-1)!.bonusDice?.length, 1);
+});

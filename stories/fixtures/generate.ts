@@ -108,10 +108,10 @@ await dm('update_character', { character_id: torvald.id, add_conditions: ['prone
 await dm('use_resource', { character_id: elowen.id, resource: 'spell-slots-1' });
 await dm('update_character', { character_id: mira.id, notes: 'Owes Brannock 3 silver.\nThe bell rings at low tide.' });
 await dm('update_character', { character_id: mira.id, add_items: [{ name: 'Brass clapper', note: 'Pried from the drowned bell. Hums when the tide turns.' }] });
-await dm('request_roll', { character_id: torvald.id, label: 'Battleaxe attack', modifier: 5, dc: 13 });
+await dm('request_roll', { character_id: torvald.id, attack: 'Longsword', target: 'goblin-3' });
 await snapshot('combat', g.id);
 
-await throwDice(g.id, (await pending(g.id))[0].rollId, [3]);
+await throwDice(g.id, (await pending(g.id))[0].rollId, [3, 2]); // the d20, then Bless's d4
 await dm('update_character', { character_id: mira.id, hp_delta: -40, reason: 'goblin ambush' });
 while (!(await pending(g.id)).some((r) => r.purpose === 'death_save')) await dm('next_turn');
 await snapshot('dying', g.id);

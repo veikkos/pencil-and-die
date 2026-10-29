@@ -7,7 +7,7 @@ import { entryName } from './combat.ts';
 import { getSetting, setSetting, type Db } from './db.ts';
 import { meetsDc, parseDice, physicalDice, virtualRoll } from './dice.ts';
 import { DM_GUIDE } from './dm-guide.ts';
-import { armorClass, presetMods, resists } from './effects.ts';
+import { armorClass, presetMods, resists, rollBonusDice } from './effects.ts';
 import { lengthNudge } from './dm-report.ts';
 import { fightRefs, orderText, registerSceneTools, roundText } from './mcp-scene.ts';
 import { canLevel, levelOptions, levelUp, needsChoices, withRecommended, type LevelOptions } from './levels.ts';
@@ -46,17 +46,18 @@ function describeEvent(s: GameState, { seq, event: e }: StoredEvent): string {
         return `[${seq}] DEATH SAVE ${who(r.characterId)}: ${face} → ${face === 20 ? 'natural 20' : face === 1 ? 'natural 1, two failures' : face >= 10 ? 'success' : 'failure'}${saves}${end}`;
       }
       const aimed = r.targetId ? s.present.find((p) => p.id === r.targetId) : undefined;
+      const bonus = e.bonusFaces?.length ? ` + ${r.bonusDice?.map((b) => b.from).join(', ')} ${e.bonusFaces.join(', ')}` : '';
       const vs = r.dc === undefined ? ''
         : aimed && r.critOn !== undefined ? ` vs ${aimed.id} AC ${r.dc} → ${e.success ? `HIT: request_roll damage with target "${aimed.id}"` : 'MISS'}`
         : ` vs DC ${r.dc} → ${e.success ? 'SUCCESS' : 'FAILURE'}`;
       const kept = r.advantage === 'advantage' ? Math.max(...e.faces) : r.advantage === 'disadvantage' ? Math.min(...e.faces) : e.faces[0];
       const crit = r.critOn === undefined ? '' : kept >= r.critOn ? ` — CRITICAL HIT${kept < 20 ? ` (${kept} is a critical for ${who(r.characterId)})` : ''}: roll damage with \`critical\`` : kept === 1 ? ' — natural 1, a miss' : '';
-      const dealt = r.targets ? ` → damage applied: ${damageReport(s, r.targets, e.total)}`
+      const dealt = r.targets ? ` → ${r.heal ? 'healing' : 'damage'} applied: ${damageReport(s, r.targets, e.total, r.heal)}`
         : aimed && r.critOn === undefined ? ` → ${Math.max(0, e.total)} damage applied to ${aimed.id}: ${aimed.hp}/${aimed.maxHp} HP${aimed.defeated ? ', DEFEATED' : ''}` : '';
       const lastInitiative = r.purpose === 'initiative' && s.combat && s.combat.round > 0
         && s.rolls.findLast((x) => x.purpose === 'initiative') === r;
       const order = lastInitiative ? ` Initiative order: ${orderText(s)}. ${roundText(s)}` : '';
-      return `[${seq}] ROLL ${who(r.characterId)} — ${r.label}: dice ${e.faces.join(', ')}${r.advantage !== 'none' ? ` (${r.advantage})` : ''} ${sign(r.modifier)} = ${e.total}${vs}${crit}${dealt}${order}`;
+      return `[${seq}] ROLL ${who(r.characterId)} — ${r.label}: dice ${e.faces.join(', ')}${r.advantage !== 'none' ? ` (${r.advantage})` : ''} ${sign(r.modifier)}${bonus} = ${e.total}${vs}${crit}${dealt}${order}`;
     }
     case 'character_created': {
       const c = e.character;
@@ -120,17 +121,17 @@ const targetsArg = z.array(z.union([z.string(), z.object({
  * Who a damage roll hits and how much of it each takes. Without an explicit `takes`, a hero whose
  * effects resist the damage type (Rage against slashing) takes half by themselves.
  */
-function damageTargets(s: GameState, list: z.infer<typeof targetsArg> & {}, damageType: string | undefined, critical?: boolean): DamageTarget[] {
+function damageTargets(s: GameState, list: z.infer<typeof targetsArg> & {}, damageType: string | undefined, critical?: boolean, heal = false): DamageTarget[] {
   return list.map((t) => {
     const who = typeof t === 'string' ? t : t.who;
     const hero = s.characters.find((x) => x.id === who || x.name.toLowerCase() === who.toLowerCase());
     if (hero) {
-      if (hero.status === 'dead') throw new Error(`${hero.name} is dead.`);
-      const factor = typeof t === 'string' ? (resists(hero, damageType) ? 0.5 : 1) : TAKES[t.takes];
+      if (hero.status === 'dead') throw new Error(`${hero.name} is dead${heal ? '; only update_character with revive raises the dead' : ''}.`);
+      const factor = typeof t === 'string' ? (!heal && resists(hero, damageType) ? 0.5 : 1) : TAKES[t.takes];
       return { kind: 'hero' as const, id: hero.id, ...(factor !== 1 ? { factor } : {}), ...(critical ? { critical } : {}) };
     }
     const p = findPresence(s.present, who);
-    if (p.defeated) throw new Error(`${p.id} is already defeated.`);
+    if (p.defeated && !heal) throw new Error(`${p.id} is already defeated.`);
     if (p.hp === undefined) throw new Error(`${p.id} has no HP to lose. Leave it out of the targets.`);
     const factor = typeof t === 'string' ? 1 : TAKES[t.takes];
     return { kind: 'creature' as const, id: p.id, ...(factor !== 1 ? { factor } : {}) };
@@ -138,9 +139,9 @@ function damageTargets(s: GameState, list: z.infer<typeof targetsArg> & {}, dama
 }
 
 /** "5 to goblin-1 (0/7 HP, DEFEATED); 2 to Mira, half (8/10 HP)" — read after the damage went in. */
-function damageReport(s: GameState, targets: DamageTarget[], total: number): string {
+function damageReport(s: GameState, targets: DamageTarget[], total: number, heal = false): string {
   return targets.map((t) => {
-    const dealt = Math.floor(Math.max(0, total) * (t.factor ?? 1));
+    const dealt = `${heal ? '+' : ''}${Math.floor(Math.max(0, total) * (t.factor ?? 1))}`;
     const share = t.factor === undefined ? '' : t.factor === 0.5 ? ', half' : t.factor === 2 ? ', double' : t.factor === 0 ? ', none' : '';
     if (t.kind === 'hero') {
       const c = s.characters.find((x) => x.id === t.id)!;
@@ -391,6 +392,8 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       damage: z.string().optional().describe('Weapon or spell whose damage (or healing) to roll, e.g. "Longsword", "Cure Wounds".'),
       target: z.string().optional().describe('With `attack` or `damage`: the creature in the scene it is aimed at (id such as "goblin-2"). An attack is then checked against its AC (hit or miss), and damage comes off its HP by itself. Leave out for resistance or anything the engine should not apply as is.'),
       targets: targetsArg.describe('With `damage`: everyone it hits (an area spell like Thunderwave or Burning Hands), each taking full, half (made the save, resists), double or none. Heroes and creatures alike; the damage applies itself to each.'),
+      heal: z.boolean().optional().describe('A roll of your own (label, dice) that heals its targets instead (a potion, a blessing). Healing spells heal by themselves.'),
+      damage_type: z.string().optional().describe('Damage type of a roll of your own, so resistances apply.'),
       critical: z.boolean().optional().describe('With `damage`: a critical hit, the dice are doubled.'),
       versatile: z.boolean().optional().describe('With `damage`: the weapon is held in two hands.'),
       label: z.string().optional().describe('What is shown. Defaults from check, attack or damage.'),
@@ -401,22 +404,28 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       hide_dc: z.boolean().default(true),
       game_id: gameIdArg,
     },
-  }, ({ character_id, check, attack, damage, target, targets, critical, versatile, label, dice: givenDice, modifier, advantage, dc, hide_dc, game_id }) => {
+  }, ({ character_id, check, attack, damage, target, targets, heal, damage_type, critical, versatile, label, dice: givenDice, modifier, advantage, dc, hide_dc, game_id }) => {
     const id = resolve(game_id);
     const c = character(store.state(id), character_id);
     if ([check, attack, damage].filter(Boolean).length > 1) throw new Error('Give only one of `check`, `attack` and `damage`.');
     const named = attack ? attackRoll(c, attack) : damage ? damageRoll(c, damage, { critical, versatile }) : undefined;
-    if ((target || targets?.length) && !attack && !damage) throw new Error('`target` and `targets` go with `attack` or `damage`.');
+    // A roll of the DM's own (a trap, a potion bomb): label and dice, aimed at targets.
+    const own = !attack && !damage && !check && (target || targets?.length);
+    if (own && !givenDice) throw new Error('A roll of your own with `target` / `targets` needs its `dice` (and a `label`).');
     if (targets?.length && attack) throw new Error('An attack has one `target`; `targets` are for damage (an area spell, a blast).');
-    if (damage && (target || targets?.length) && named?.action.kind === 'healing') throw new Error(`${damage} heals; heal with update_presence or update_character instead of a target.`);
+    if ((target || targets?.length) && check) throw new Error('`target` and `targets` go with `attack`, `damage` or a roll of your own (`label` and `dice`).');
+    const healing = heal || named?.action.kind === 'healing';
     const aim = attack && target !== undefined ? findPresence(store.state(id).present, target) : undefined;
     if (aim) {
       if (aim.defeated) throw new Error(`${aim.id} is already defeated.`);
       if (aim.ac === undefined) throw new Error(`${aim.id} has no AC. Give it one with update_presence, or leave out \`target\` and compare yourself.`);
       if (dc !== undefined) throw new Error('With `target` the DC is the target\'s AC; leave out `dc`.');
     }
-    const hits = damage && (target || targets?.length)
-      ? damageTargets(store.state(id), [...(target ? [target] : []), ...(targets ?? [])], named?.damageType) : undefined;
+    const hits = (damage || own) && (target || targets?.length)
+      ? damageTargets(store.state(id), [...(target ? [target] : []), ...(targets ?? [])], damage_type ?? named?.damageType, false, healing) : undefined;
+    // A breath weapon is spent when it is breathed.
+    const breath = named?.action.id === 'Breath Weapon' ? findResource(c, 'breath-weapon') : undefined;
+    if (breath && breath.used >= breath.max) throw new Error(`${c.name} has used their Breath Weapon; it comes back after a short rest.`);
     const deathSave = !!check && /^(death sav|kuolemanpelast)/i.test(check.trim());
     const pendingDice = store.state(id).pendingRolls.filter((r) => r.purpose === 'hit_die' && r.characterId === c.id).length;
     const hitDie = check && /^(hit di|osumanop)/i.test(check.trim()) ? hitDieRoll(c, pendingDice) : undefined;
@@ -432,11 +441,15 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
       ? { rollId, characterId: c.id, label: finalLabel, dice: '1d20', modifier: 0, advantage: 'none' as const, dc: undefined, hideDc: true, purpose: 'death_save' as const }
       : { rollId, characterId: c.id, label: finalLabel, dice, modifier: modifier ?? named?.modifier ?? computed?.modifier ?? 0, advantage,
         ...(attack && aim ? { dc: aim.ac, hideDc: true } : { dc, hideDc: hide_dc }),
-        ...(attack ? { critOn: named?.critOn ?? 20 } : {}), ...(aim ? { targetId: aim.id } : {}), ...(hits ? { targets: hits } : {}), ...(named && !label ? { action: named.action } : {}),
-        ...(hitDie ? { modifier: hitDie.modifier, purpose: hitDie.purpose, dc: undefined } : {}) };
+        ...(attack ? { critOn: named?.critOn ?? 20 } : {}), ...(aim ? { targetId: aim.id } : {}), ...(hits ? { targets: hits, ...(healing ? { heal: true } : {}) } : {}), ...(named && !label ? { action: named.action } : {}),
+        ...(hitDie ? { modifier: hitDie.modifier, purpose: hitDie.purpose, dc: undefined } : {}),
+        // Bless and the like add their die to attacks and saving throws.
+        ...((attack || (check && /save|pelastus/i.test(check))) && rollBonusDice(c).length ? { bonusDice: rollBonusDice(c) } : {}) };
     store.append(id, { type: 'roll_requested', roll });
+    if (breath) store.append(id, { type: 'resource_used', characterId: c.id, resourceId: breath.id, amount: 1 });
+    const breathDc = breath ? `. Breath Weapon: the targets save DEX against DC ${8 + Math.floor((c.abilities.con - 10) / 2) + c.proficiencyBonus}; its use is spent until a short rest` : '';
     const against = aim ? aim.id : hits?.map((x) => `${x.id}${x.factor === 0.5 ? ' (half)' : x.factor === 2 ? ' (double)' : x.factor === 0 ? ' (none)' : ''}`).join(', ');
-    return text(`Asked ${c.name} to roll ${finalLabel}${against ? ` against ${against}` : ''}: ${roll.dice}${roll.advantage !== 'none' ? ` with ${roll.advantage}` : ''} ${sign(roll.modifier)} (roll id ${rollId}). The result arrives via wait_for_players.`);
+    return text(`Asked ${c.name} to roll ${finalLabel}${against ? ` against ${against}` : ''}: ${roll.dice}${roll.advantage !== 'none' ? ` with ${roll.advantage}` : ''} ${sign(roll.modifier)} (roll id ${rollId})${breathDc}. The result arrives via wait_for_players.`);
   });
 
   server.registerTool('cancel_roll', {

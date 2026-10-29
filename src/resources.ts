@@ -44,10 +44,13 @@ const CLASS_RESOURCES: Record<string, (a: Abilities, level: number) => Resource[
   monk: (_, l) => (l >= 2 ? [res('ki', 'Ki points', l, 'short')] : []),
 };
 
-export function defaultResources(classId: string, abilities: Abilities, level = 1): Resource[] {
+export function defaultResources(classId: string, abilities: Abilities, level = 1, raceId?: string): Resource[] {
   const hitDie = CLASSES.find((c) => c.id === classId)?.hitDie ?? 8;
-  return [...(CLASS_RESOURCES[classId]?.(abilities, level) ?? []), res('hit-dice', `Hit dice (d${hitDie})`, level, 'long')];
+  return [...(CLASS_RESOURCES[classId]?.(abilities, level) ?? []), ...raceResources(raceId), res('hit-dice', `Hit dice (d${hitDie})`, level, 'long')];
 }
+
+/** Uses a race gives: a dragonborn breathes once per short rest. */
+const raceResources = (raceId?: string) => (raceId === 'dragonborn' ? [res('breath-weapon', 'Breath Weapon', 1, 'short')] : []);
 
 /** The resources a hero has at a new level: new maximums, spent uses kept, anything the DM added kept. */
 export function resourcesAt(c: Character, level: number, abilities = c.abilities): Resource[] {
@@ -66,7 +69,9 @@ export function withDefaults(c: Character): Character {
     ...c,
     // Fighters used to be made with AC 18, missing their Defense style's +1.
     ac: c.classId === 'fighter' && c.ac === 18 && c.acNote === 'Chain mail + shield' ? 19 : c.ac,
-    resources: c.resources ?? defaultResources(c.classId, c.abilities, c.level),
+    resources: c.resources
+      ? [...c.resources, ...raceResources(c.raceId).filter((r) => !c.resources.some((x) => x.id === r.id))]
+      : defaultResources(c.classId, c.abilities, c.level, c.raceId),
     features: upgradeFeatures(c.raceId, c.classId, c.features),
     spells: c.spells ?? defaultSpells(c.raceId, c.classId),
     effects: c.effects ?? [],

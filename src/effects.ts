@@ -17,6 +17,8 @@ export interface EffectMods {
   resist?: DamageKind[];
   /** Over when the fight is (Rage, Shield). */
   endsWithFight?: boolean;
+  /** A die added to attack rolls and saving throws (Bless 1d4); the player throws it too. */
+  rollDice?: string;
 }
 
 const PHYSICAL = ['bludgeoning', 'piercing', 'slashing'];
@@ -25,6 +27,7 @@ const PHYSICAL = ['bludgeoning', 'piercing', 'slashing'];
 const PRESETS: [RegExp, (c: Character) => EffectMods][] = [
   [/^(rage|raging|raivo|raivoissaan)$/i, (c) => ({ meleeDamage: c.level >= 9 ? 3 : 2, resist: PHYSICAL, endsWithFight: true })],
   [/^(mage armou?r|taikahaarniska)$/i, () => ({ acBase: 13 })],
+  [/^(bless|blessed|siunattu|siunaus)$/i, () => ({ rollDice: '1d4' })],
   [/^(shield of faith|uskon kilpi)$/i, () => ({ ac: 2 })],
   [/^(shield|suojakilpi|kilpiloitsu)$/i, () => ({ ac: 5, endsWithFight: true })],
 ];
@@ -44,8 +47,22 @@ export function armorClass(c: Character): number {
 
 export const meleeDamageBonus = (c: Character) => mods(c).reduce((n, m) => n + (m.meleeDamage ?? 0), 0);
 
-export const resists = (c: Character, type: DamageKind | undefined) =>
-  !!type && mods(c).some((m) => m.resist?.includes(type.toLowerCase()));
+/** Resistances a hero's race or class gives for good, by feature name. */
+const FEATURE_RESIST: Record<string, DamageKind[]> = {
+  'Dwarven Resilience': ['poison'],
+  'Damage Resistance': ['fire'], // a red dragonborn's ancestry
+  'Hellish Resistance': ['fire'],
+};
+
+export const resists = (c: Character, type: DamageKind | undefined) => {
+  if (!type) return false;
+  const t = type.toLowerCase();
+  return mods(c).some((m) => m.resist?.includes(t)) || c.features.some((f) => FEATURE_RESIST[f.name]?.includes(t));
+};
+
+/** Extra dice a hero adds to attacks and saves (Bless), with the effect they come from. */
+export const rollBonusDice = (c: Character) =>
+  c.effects.filter((e) => e.mods?.rollDice).map((e) => ({ dice: e.mods!.rollDice!, from: e.name }));
 
 /** The heroes' effects that end with the fight, by name. */
 export const fightEffects = (c: Character) => c.effects.filter((e) => e.mods?.endsWithFight).map((e) => e.name);

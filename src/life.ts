@@ -1,3 +1,4 @@
+import { rollBonusDice } from './effects.ts';
 import { checkModifier, type Character } from './rules.ts';
 import type { CharacterPatch, GameEvent, GameState } from './state.ts';
 
@@ -58,6 +59,7 @@ export function planConcentration(before: GameState, after: GameState): GameEven
     return [{ type: 'roll_requested', roll: {
       rollId: `conc-${c.id}-${after.seq}`, characterId: c.id, label: 'Concentration', dice: '1d20',
       modifier: checkModifier(c, 'con save').modifier, advantage: 'none', dc: Math.max(10, Math.floor(lost / 2)), hideDc: true, purpose: 'concentration',
+      ...(rollBonusDice(c).length ? { bonusDice: rollBonusDice(c) } : {}),
     } }];
   });
 }

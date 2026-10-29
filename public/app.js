@@ -925,7 +925,7 @@ function momentText(x) {
 
 /** sys params with engine words (roll names, conditions) swapped for the page's own. */
 function localParams({ code, params: p }) {
-  if (code === 'rolled') return { ...p, label: labelOf(p) };
+  if (code === 'rolled') return { ...p, label: labelOf(p), ...(p.extraFrom ? { extraFrom: p.extraFrom.map(condName) } : {}) };
   if (code === 'concentrationLost') return { ...p, effects: p.effects.map(condName) };
   if (code === 'updated') return { ...p, parts: p.parts.map(([k, v]) => [k, k === 'condOn' || k === 'condOff' ? condName(v) : v]) };
   if (code === 'presenceUpdated') return { ...p, condOn: p.condOn?.map(condName), condOff: p.condOff?.map(condName) };
@@ -1085,12 +1085,15 @@ function buildStrip(characters, present, combat) {
     card.name = card.members[0].name;
     card.defeated = card.members.every((m) => m.defeated);
   }
-  if (!combat) return [...heroes, ...creatures];
+  // The fallen stay in view (there may be loot) but at the end, out of the turn order.
+  const standing = creatures.filter((c) => !c.defeated);
+  const fallen = creatures.filter((c) => c.defeated);
+  if (!combat) return [...heroes, ...standing, ...fallen];
   const out = [];
   combat.order.forEach((entry, i) => {
     const found = entry.ref.kind === 'hero'
       ? heroes.filter((h) => h.hero.id === entry.ref.id)
-      : creatures.filter((g) => g.groupId === entry.ref.groupId);
+      : standing.filter((g) => g.groupId === entry.ref.groupId);
     for (const card of found) {
       // While initiative is gathered the order is not sorted yet, so no positions to show.
       card.turn = combat.round === 0 ? '…' : i + 1;
@@ -1098,7 +1101,7 @@ function buildStrip(characters, present, combat) {
       out.push(card);
     }
   });
-  return [...out, ...[...heroes, ...creatures].filter((c) => !out.includes(c))];
+  return [...out, ...[...heroes, ...standing].filter((c) => !out.includes(c)), ...fallen];
 }
 
 const HEALTH_WIDTH = { unhurt: 100, hurt: 75, bloodied: 45, nearDeath: 15, defeated: 0 };
@@ -1143,6 +1146,8 @@ function renderParty() {
   const el = app.querySelector('#party');
   const cards = buildStrip(shown.characters, shown.present, shown.combat);
   el.innerHTML = cards.map((c) => (c.kind === 'hero' ? heroCardHtml(c) : creatureCardHtml(c))).join('');
+  // When the strip is wider than the screen it scrolls; keep whoever's turn it is in view.
+  el.querySelector('.pc.turn')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   el.querySelectorAll('[data-sheet]').forEach((b) => b.onclick = () => showSheet(shown.characters.find((c) => c.id === b.dataset.sheet)));
   el.querySelectorAll('[data-group]').forEach((b) => b.onclick = () => {
     const card = cards.find((c) => c.kind === 'creature' && c.groupId === b.dataset.group && (c.health ?? '') === b.dataset.health);
@@ -1197,6 +1202,9 @@ function renderRolls() {
   el.innerHTML = rolls.map((r) => {
     const who = shown.characters.find((c) => c.id === r.characterId);
     const { count, sides } = diceFor(r);
+    // Bless and the like add their own die on top: thrown with the rest, added for you.
+    const bonus = (r.bonusDice ?? []).flatMap((b) => { const d = diceFor({ dice: b.dice, advantage: 'none' }); return Array.from({ length: d.count }, () => ({ sides: d.sides, from: condName(b.from) })); });
+    const dice = [...Array.from({ length: count }, () => ({ sides })), ...bonus];
     const draft = rollDrafts[r.rollId] ?? [];
     const instruction =
       r.advantage === 'advantage' ? s.advantage :
@@ -1204,15 +1212,15 @@ function renderRolls() {
       count === 1 ? s.throwOne(`d${sides}`) : s.throwMany(count, `d${sides}`);
     return `<div class="roll" data-roll="${r.rollId}">
       <div class="dice">
-        ${Array.from({ length: count }, (_, n) => `<label class="die">
-          ${dieSvg(sides, 64)}
-          <input type="number" inputmode="numeric" min="1" max="${sides}" data-face="${n}" data-max="${sides}" value="${draft[n] ?? ''}" placeholder="?" aria-label="${esc(s.die)} ${n + 1} (d${sides})">
-          <small>${count > 1 ? `${esc(s.die)} ${n + 1} · ` : ''}${s.outOfRange(sides)}</small>
+        ${dice.map((d, n) => `<label class="die${d.from ? ' bonus' : ''}">
+          ${dieSvg(d.sides, d.from ? 48 : 64)}
+          <input type="number" inputmode="numeric" min="1" max="${d.sides}" data-face="${n}" data-max="${d.sides}" value="${draft[n] ?? ''}" placeholder="?" aria-label="${esc(d.from ?? s.die)} ${n + 1} (d${d.sides})">
+          <small>${d.from ? `${esc(d.from)} · ` : count > 1 ? `${esc(s.die)} ${n + 1} · ` : ''}${s.outOfRange(d.sides)}</small>
         </label>`).join('')}
       </div>
       <div class="info">
         <h3>🎲 ${esc(rollHeading(r, who))}</h3>
-        <div class="how"><b>${esc(instruction)}</b>${isExpert() ? '' : ` · ${esc(`d${sides}`)} = ${esc(s.dieHelp[sides])}`}</div>
+        <div class="how"><b>${esc(instruction)}</b>${bonus.length ? ` <b>${esc(s.plusBonus(bonus.map((b) => `d${b.sides}`).join(' + '), [...new Set(bonus.map((b) => b.from))].join(', ')))}</b>` : ''}${isExpert() ? '' : ` · ${esc(`d${sides}`)} = ${esc(s.dieHelp[sides])}`}</div>
         <div class="notes">${esc(s.typeResult)}. ${esc(isBeginner() ? s.bonusAdded : r.modifier ? s.modifierAdded(sign(r.modifier)) : s.noModifier)}${!isBeginner() && r.dc !== undefined && r.dc !== null ? ` ${esc(s.beat(r.dc))}` : ''}</div>
       </div>
       <button class="btn primary submit" disabled>${esc(s.submitRoll)}</button>

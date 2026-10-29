@@ -131,6 +131,7 @@ export const STRINGS = {
       hit_die: { beginner: 'Catching breath', casual: 'Hit die', intermediate: 'Hit die' },
     },
     heldBy: (name) => `(lasts while ${name} keeps concentrating)`,
+    plusBonus: (dice, from) => `and ${dice} for ${from}`,
     actionLabels: {
       attack: (n) => `${n} attack`, damage: (n) => `${n} damage`, healing: (n) => `${n} healing`,
       oneOf: (n) => ` (one of ${n})`,
@@ -318,7 +319,7 @@ export const STRINGS = {
       combatEnded: () => 'The fight is over.',
       joined: (p) => `${p.name} the ${p.race} ${p.cls} joins the party.`,
       started: () => 'The adventure begins.',
-      rolled: (p) => `${p.name} rolled ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)} = ${p.total}${p.hit !== undefined ? (p.hit ? ' — hit' : ' — miss') : p.success === undefined ? '' : p.success ? ' — success' : ' — failure'}`,
+      rolled: (p) => `${p.name} rolled ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)}${p.extra ? ` + ${p.extra} (${p.extraFrom.join(', ')})` : ''} = ${p.total}${p.hit !== undefined ? (p.hit ? ' — hit' : ' — miss') : p.success === undefined ? '' : p.success ? ' — success' : ' — failure'}`,
       dmRolled: (p) => `DM rolled ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)} = ${p.total}${p.hit === undefined ? '' : p.hit ? ' — hit' : ' — miss'}`,
       updated: (p) => `${p.name}: ${p.parts.map(([k, v]) => PART_EN[k](v)).join(', ')}${p.reason ? ` (${p.reason})` : ''}`,
       levelOffered: (p) => `${p.name} can reach level ${p.level}!`,
@@ -456,6 +457,7 @@ export const STRINGS = {
       hit_die: { beginner: 'Hengähdys', casual: 'Osumanoppa', intermediate: 'Osumanoppa' },
     },
     heldBy: (name) => `(kestää niin kauan kuin ${name} pitää keskittymisensä)`,
+    plusBonus: (dice, from) => `ja ${dice}: ${from}`,
     actionLabels: {
       attack: (n) => `${n}: hyökkäys`, damage: (n) => `${n}: vahinko`, healing: (n) => `${n}: parannus`,
       oneOf: (n) => ` (yksi ${n}:stä)`,
@@ -463,6 +465,7 @@ export const STRINGS = {
     conditionNames: {
       Unconscious: { beginner: 'Tajuton', casual: 'Tajuton', intermediate: 'Tajuton' },
       Rage: { beginner: 'Raivo', casual: 'Raivo', intermediate: 'Raivo' },
+      Blessed: { beginner: 'Siunattu', casual: 'Siunattu', intermediate: 'Siunattu' },
       ...Object.fromEntries(Object.entries({
         Blinded: 'Sokaistu', Charmed: 'Lumottu', Deafened: 'Kuuro', Exhaustion: 'Uupunut', Frightened: 'Pelästynyt',
         Grappled: 'Otteessa', Incapacitated: 'Toimintakyvytön', Invisible: 'Näkymätön', Paralyzed: 'Halvaantunut',
@@ -547,7 +550,7 @@ export const STRINGS = {
         range: 'Kantama jalkoina: normaali / pitkä. Laukaukset pitkälle ovat vaikeampia.',
       },
       armour: {
-        light: 'Kevyt panssari: koko KET-muuntimesi lisätään panssariluokkaan.',
+        light: 'Kevyt panssari: koko ketteryysmuuttujasi lisätään panssariluokkaan.',
         medium: 'Keskiraskas panssari: KET lisätään panssariluokkaan, mutta enintään +2.',
         heavy: 'Raskas panssari: KET ei vaikuta; panssari yksin määrää panssariluokan.',
         shield: 'Kilpi toisessa kädessä nostaa panssariluokkaa.',
@@ -659,7 +662,7 @@ export const STRINGS = {
       combatEnded: () => 'Taistelu on ohi.',
       joined: (p) => `${p.name} liittyy seurueeseen.`,
       started: () => 'Seikkailu alkaa.',
-      rolled: (p) => `${p.name} heitti: ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)} = ${p.total}${p.hit !== undefined ? (p.hit ? ' — osui' : ' — ohi') : p.success === undefined ? '' : p.success ? ' — onnistui' : ' — epäonnistui'}`,
+      rolled: (p) => `${p.name} heitti: ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)}${p.extra ? ` + ${p.extra} (${p.extraFrom.join(', ')})` : ''} = ${p.total}${p.hit !== undefined ? (p.hit ? ' — osui' : ' — ohi') : p.success === undefined ? '' : p.success ? ' — onnistui' : ' — epäonnistui'}`,
       dmRolled: (p) => `Pelinjohtaja heitti: ${p.label}: ${p.faces.join(' & ')} ${sign(p.mod)} = ${p.total}${p.hit === undefined ? '' : p.hit ? ' — osui' : ' — ohi'}`,
       updated: (p) => `${p.name}: ${p.parts.map(([k, v]) => PART_FI[k](v)).join(', ')}${p.reason ? ` (${p.reason})` : ''}`,
       levelOffered: (p) => `${p.name} voi nousta tasolle ${p.level}!`,
@@ -693,9 +696,10 @@ export function sign(n) { return n >= 0 ? `+${n}` : `${n}`; }
 
 /** "8 + 2 = 10": the die that counted, the bonus, and the total. */
 function rollMath(p) {
-  if (!p.mod) return `${p.total}`;
-  const die = p.total - p.mod;
-  return `${die} ${p.mod > 0 ? '+' : '−'} ${Math.abs(p.mod)} = ${p.total}`;
+  const extra = p.extra ?? 0;
+  if (!p.mod && !extra) return `${p.total}`;
+  const die = p.total - p.mod - extra;
+  return `${die}${p.mod ? ` ${p.mod > 0 ? '+' : '−'} ${Math.abs(p.mod)}` : ''}${extra ? ` + ${extra}` : ''} = ${p.total}`;
 }
 
 const HEALTH_EN = { unhurt: 'unhurt', hurt: 'hurt', bloodied: 'bloodied', nearDeath: 'near death', defeated: 'defeated' };
@@ -831,7 +835,7 @@ export const FI_RULES = {
     'guiding-bolt': ['Ohjaava salama', 'Valon välähdys; osuman jälkeen seuraavalla hyökkäyksellä kohdetta vastaan on etu ennen seuraavaa vuoroasi.'],
     'inflict-wounds': ['Haavojen isku', 'Kosketuksesi täyttää olennon kuoleman voimalla.'],
     command: ['Käsky', 'Yhden sanan käsky (tule, pudota, pakene, matele, seis), jota pelastuksessa epäonnistunut tottelee seuraavalla vuorollaan.'],
-    sanctuary: ['Pyhäkkö', 'Minuutin ajan suojattuun olentoon hyökkäävän on ensin onnistuttava VII-pelastuksessa. Päättyy, jos se itse hyökkää.'],
+    sanctuary: ['Pyhäkkö', 'Minuutin ajan suojattuun olentoon hyökkäävän on ensin onnistuttava viisauspelastuksessa. Päättyy, jos se itse hyökkää.'],
     'protection-from-evil-and-good': ['Suoja pahaa ja hyvää vastaan', '10 minuutin ajan poikkeavilla, taivaallisilla, elementaaleilla, keijuilla, paholaisilla ja epäkuolleilla on haitta osua olentoon, eivätkä ne voi lumota, pelotella tai riivata sitä.'],
     'hunters-mark': ['Metsästäjän merkki', 'Merkitse olento tunniksi: aseosumasi siihen tekevät 1d6 lisävahinkoa, ja sen jäljittämisessä on etu.'],
     'hellish-rebuke': ['Helvetillinen kosto', 'Kun olento vahingoittaa sinua, liekit nielaisevat sen; puolet vahingosta onnistuneella pelastuksella.'],
@@ -871,7 +875,7 @@ export const FI_RULES = {
     suggestion: ['Ehdotus', 'Ehdota järkevää toimintaa; pelastuksessa epäonnistunut noudattaa sitä enintään 8 tuntia.'],
     web: ['Seitti', 'Tahmea seitti täyttää 20 jalan kuution tunniksi; siihen jääneet ovat kiinni.'],
     'zone-of-truth': ['Totuuden alue', '10 minuutin ajan 15 jalan ympyrässä pelastuksessa epäonnistuneet eivät voi tahallaan valehdella.'],
-    'beacon-of-hope': ['Toivon majakka', 'Minuutin ajan mikä tahansa määrä olentoja saa edun VII- ja kuolemanpelastuksiin ja parantuu aina täysimääräisesti.'],
+    'beacon-of-hope': ['Toivon majakka', 'Minuutin ajan mikä tahansa määrä olentoja saa edun viisaus- ja kuolemanpelastuksiin ja parantuu aina täysimääräisesti.'],
     'call-lightning': ['Salamankutsu', 'Myrskypilvi 10 minuutiksi; joka vuoro kutsu salama sen alla olevaan 5 jalan ympyrään, puolet vahingosta pelastuksella.'],
     'conjure-animals': ['Eläinten kutsu', 'Keijuhenget ottavat eläinten muodon ja taistelevat puolestasi tunnin; pelinjohtaja valitsee ne kanssasi.'],
     counterspell: ['Vastaloitsu', 'Pysäytä loitsu kesken; 3. tason tai alempi pysähtyy aina, ylemmät vaativat heiton.'],
@@ -880,7 +884,7 @@ export const FI_RULES = {
     fear: ['Kauhu', 'Pelastuksessa epäonnistuneet pudottavat kantamansa ja pakenevat sinua enintään minuutin.'],
     fireball: ['Tulipallo', 'Tulihelmi räjähtää 20 jalan pallossa; puolet vahingosta pelastuksella.'],
     fly: ['Lento', 'Olento voi lentää 60 jalkaa vuorossa 10 minuutin ajan.'],
-    haste: ['Kiihdytys', 'Minuutin ajan olennolla on kaksinkertainen nopeus, +2 panssariluokkaan, etu KET-pelastuksiin ja lisätoiminto; kun se päättyy, se menettää vuoron.'],
+    haste: ['Kiihdytys', 'Minuutin ajan olennolla on kaksinkertainen nopeus, +2 panssariluokkaan, etu ketteryyspelastuksiin ja lisätoiminto; kun se päättyy, se menettää vuoron.'],
     'hypnotic-pattern': ['Hypnoottinen kuvio', 'Kiemurtelevat värit 30 jalan kuutiossa; pelastuksessa epäonnistuneet lumoutuvat ja seisovat paikallaan enintään minuutin.'],
     'lightning-bolt': ['Salamanisku', '100 jalan salamaviiva; puolet vahingosta pelastuksella.'],
     'mass-healing-word': ['Joukon parantava sana', 'Enintään kuusi näkemääsi olentoa saa osumapisteitä takaisin.'],
@@ -906,7 +910,7 @@ export const FI_RULES = {
     Brave: ['Rohkea', 'Etu pelastuksiin pelästymistä vastaan.'],
     'Halfling Nimbleness': ['Puolituisen ketteryys', 'Voit liikkua minkä tahansa sinua suuremman olennon ruudun läpi.'],
     'Naturally Stealthy': ['Luontainen hiiviskelijä', 'Voit yrittää piiloutua vähintään kokoluokkaa suuremman olennon taakse.'],
-    'Gnome Cunning': ['Gnomin oveluus', 'Etu ÄLY-, VII- ja KAR-pelastuksiin taikaa vastaan.'],
+    'Gnome Cunning': ['Gnomin oveluus', 'Etu älykkyys-, viisaus- ja karismapelastuksiin taikaa vastaan.'],
     "Artificer's Lore": ['Mekaanikon tieto', 'Kaksinkertainen taitobonus taikaesineitä, alkemiaa ja tekniikkaa koskeviin historiaheittoihin.'],
     Tinker: ['Näpertelijä', 'Osaat rakentaa pieniä kellopelilelyjä, tulentekijöitä ja soittorasioita.'],
     Versatile: ['Monipuolinen', '+1 kahteen muuhun kykyyn ja kaksi lisätaitoa.'],
@@ -914,22 +918,22 @@ export const FI_RULES = {
     'Relentless Endurance': ['Hellittämätön kestävyys', 'Kerran pitkää lepoa kohden, kun putoaisit 0 osumapisteeseen kuolematta, jäät 1 osumapisteeseen.'],
     'Savage Attacks': ['Raa\'at iskut', 'Lähitaistelun kriittisellä osumalla heitä yksi aseen vahinkonopista vielä kerran ja lisää se.'],
     'Draconic Ancestry': ['Lohikäärmeperimä', 'Punainen lohikäärme: henkäyksesi ja vastustuskykysi ovat tulta.'],
-    'Breath Weapon': ['Henkäysase', 'Toiminto, kerran lyhyttä lepoa kohden: 15 jalan tulikartio, 2d6 vahinkoa, KET-pelastus (8 + KES + taitobonus) puolittaa.'],
+    'Breath Weapon': ['Henkäysase', 'Toiminto, kerran lyhyttä lepoa kohden: 15 jalan tulikartio, 2d6 vahinkoa, ketteryyspelastus (8 + kestävyysmuuttuja + taitobonus) puolittaa.'],
     'Damage Resistance': ['Vastustuskyky', 'Otat puolet tulivahingosta.'],
     'Hellish Resistance': ['Helvetillinen vastustuskyky', 'Otat puolet tulivahingosta.'],
     'Infernal Legacy': ['Helvetillinen perintö', 'Osaat Ihmetyö-loitsahduksen.'],
     'Fighting Style: Defense': ['Taistelutyyli: puolustus', '+1 panssariluokkaan panssari päällä (jo laskettu mukaan).'],
     'Second Wind': ['Uusi puhuri', 'Lisätoiminto: saat takaisin 1d10 + tasosi osumapistettä.'],
-    Rage: ['Raivo', 'Lisätoiminto, kestää minuutin: +2 vahinkoa VOI-lähihyökkäyksiin, etu VOI-heittoihin ja -pelastuksiin, puolet murskaus-, pisto- ja viiltovahingosta.'],
+    Rage: ['Raivo', 'Lisätoiminto, kestää minuutin: +2 vahinkoa voimaa käyttäviin lähihyökkäyksiin, etu voimaheittoihin ja -pelastuksiin, puolet murskaus-, pisto- ja viiltovahingosta.'],
     'Unarmored Defense': ['Panssariton puolustus', 'Ilman panssaria panssariluokkasi on 10 + KET + KES (barbaari) tai 10 + KET + VII (munkki).'],
     'Sneak Attack': ['Salahyökkäys', 'Kerran vuorossa lisävahinkoa (noppa näkyy vieressä) taitavalla tai kaukoaseella, kun sinulla on etu tai liittolainen on kohteen vieressä.'],
     Expertise: ['Asiantuntemus', 'Kaksinkertainen taitobonus hiiviskelyyn ja tiirikoihin.'],
     "Thieves' Cant": ['Varkaiden kieli', 'Salainen slangin ja merkkien sekoitus, jota vain veijarit ymmärtävät.'],
-    'Favored Enemy': ['Lempivihollinen', 'Pedot: etu selviytymisheittoihin niiden jäljittämiseksi ja ÄLY-heittoihin niitä koskevan tiedon muistamiseksi.'],
+    'Favored Enemy': ['Lempivihollinen', 'Pedot: etu selviytymisheittoihin niiden jäljittämiseksi ja älykkyysheittoihin niitä koskevan tiedon muistamiseksi.'],
     'Natural Explorer': ['Luonnon tutkija', 'Metsä: ryhmäsi ei voi eksyä siellä, ja jäljität ja keräät ruokaa kaksi kertaa paremmin.'],
     'Arcane Recovery': ['Mystinen palautuminen', 'Kerran päivässä lyhyen levon jälkeen saat käytetyn loitsupaikan takaisin.'],
     'Draconic Bloodline': ['Lohikäärmeen veri', 'Lohikäärmeen suomut: panssariluokka 13 + KET ilman panssaria ja +1 osumapiste tasoa kohden.'],
-    'Otherworldly Patron: the Fiend': ['Tuonpuoleinen suojelija: Paholainen', 'Kun pudotat vihamielisen olennon 0 osumapisteeseen, saat väliaikaisia osumapisteitä KAR-muuttuja + taso.'],
+    'Otherworldly Patron: the Fiend': ['Tuonpuoleinen suojelija: Paholainen', 'Kun pudotat vihamielisen olennon 0 osumapisteeseen, saat väliaikaisia osumapisteitä karismamuuttuja + taso.'],
     'Pact Magic': ['Sopimustaika', 'Loitsupaikkasi palaa lyhyen levon jälkeen.'],
     'Divine Domain: Life': ['Jumalallinen alue: Elämä', 'Parannusloitsusi palauttavat 2 + loitsun taso osumapistettä enemmän.'],
     'Divine Sense': ['Jumalallinen aisti', 'Toiminto: seuraavaan vuoroosi asti tiedät, missä taivaalliset, paholaiset ja epäkuolleet ovat 60 jalan säteellä.'],
@@ -937,8 +941,8 @@ export const FI_RULES = {
     'Martial Arts': ['Kamppailulajit', 'Aseettomat iskut käyttävät KET:tä ja kamppailunoppaa; hyökkäyksen jälkeen voit tehdä aseettoman iskun lisätoimintona.'],
     Druidic: ['Druidien kieli', 'Druidien salainen kieli; voit jättää sillä piilotettuja viestejä.'],
     'Bardic Inspiration': ['Bardin innoitus', 'Lisätoiminto: 60 jalan päässä oleva olento saa innoitusnopan lisättäväksi yhteen hyökkäykseen, heittoon tai pelastukseen seuraavan 10 minuutin aikana.'],
-    'Reckless Attack': ['Holtiton hyökkäys', 'Vuoron ensimmäisessä hyökkäyksessä: etu VOI-lähihyökkäyksiin tällä vuorolla, mutta hyökkäyksillä sinua vastaan on etu seuraavaan vuoroosi asti.'],
-    'Danger Sense': ['Vaaranvaisto', 'Etu KET-pelastuksiin näkemiäsi vaikutuksia, kuten ansoja ja loitsuja, vastaan.'],
+    'Reckless Attack': ['Holtiton hyökkäys', 'Vuoron ensimmäisessä hyökkäyksessä: etu voimaa käyttäviin lähihyökkäyksiin tällä vuorolla, mutta hyökkäyksillä sinua vastaan on etu seuraavaan vuoroosi asti.'],
+    'Danger Sense': ['Vaaranvaisto', 'Etu ketteryyspelastuksiin näkemiäsi vaikutuksia, kuten ansoja ja loitsuja, vastaan.'],
     Frenzy: ['Hurmos', 'Raivoajan polku: raivotessasi voit tehdä yhden lähiasehyökkäyksen lisätoimintona joka vuoro; kun raivo päättyy, olet uupunut.'],
     'Extra Attack': ['Lisähyökkäys', 'Kun teet hyökkäystoiminnon, hyökkäät kahdesti.'],
     'Fast Movement': ['Nopea liike', '+10 jalkaa nopeutta ilman raskasta panssaria (jo laskettu mukaan).'],
@@ -947,7 +951,7 @@ export const FI_RULES = {
     'Cutting Words': ['Viiltävät sanat', 'Tiedon opisto. Reaktio: käytä bardin innoitus ja vähennä noppa olennon hyökkäys-, kyky- tai vahinkoheitosta.'],
     'Bardic Expertise': ['Bardin asiantuntemus', 'Kaksinkertainen taitobonus kahdessa valitsemassasi taidossa (◉ taitolistassa).'],
     'Font of Inspiration': ['Innoituksen lähde', 'Bardin innoitus palautuu nyt myös lyhyellä levolla.'],
-    'Channel Divinity': ['Jumalallinen kanavointi', 'Kerran lyhyen levon välein: Karkota epäkuolleet (30 jalan sisällä VII-pelastuksessa epäonnistuvat epäkuolleet pakenevat minuutin) tai Varjele elämää (jaa parannusta 30 jalan sisällä oleville, enintään puoleen heidän maksimiosumapisteistään).'],
+    'Channel Divinity': ['Jumalallinen kanavointi', 'Kerran lyhyen levon välein: Karkota epäkuolleet (30 jalan sisällä viisauspelastuksessa epäonnistuvat epäkuolleet pakenevat minuutin) tai Varjele elämää (jaa parannusta 30 jalan sisällä oleville, enintään puoleen heidän maksimiosumapisteistään).'],
     'Destroy Undead': ['Tuhoa epäkuolleet', 'Heikot epäkuolleet, jotka epäonnistuvat karkotustasi vastaan, tuhoutuvat saman tien.'],
     'Wild Shape': ['Villi muoto', 'Toiminto: muutu näkemäksesi eläimeksi enintään puolet tasostasi tunteina. Sen osumapisteet suojaavat omiasi.'],
     'Circle of the Land: Forest': ['Maan piiri: metsä', 'Metsän taikaa: Kaarnaiho ja Hämähäkkikiipeily tasolla 3, Salamankutsu ja Kasvien kasvu tasolla 5, aina osattuina.'],
@@ -962,7 +966,7 @@ export const FI_RULES = {
     'Stunning Strike': ['Tainnuttava isku', 'Kun osut lähiaseella, käytä 1 ki: kohde on tainnoksissa seuraavan vuorosi loppuun, ellei se onnistu pelastuksessa.'],
     'Divine Smite': ['Jumalallinen isku', 'Kun osut lähiaseella, käytä loitsupaikka säteilylisävahinkoon: enemmän ylemmällä paikalla sekä epäkuolleita ja paholaisia vastaan.'],
     'Divine Health': ['Jumalallinen terveys', 'Olet immuuni taudeille.'],
-    'Sacred Oath: Devotion': ['Pyhä vala: omistautuminen', 'Jumalallinen kanavointi kerran lyhyen levon välein: Pyhä ase (lisää KAR aseesi osumaheittoihin minuutiksi) tai Karkota epäpyhät (VII-pelastuksessa epäonnistuvat paholaiset ja epäkuolleet pakenevat).'],
+    'Sacred Oath: Devotion': ['Pyhä vala: omistautuminen', 'Jumalallinen kanavointi kerran lyhyen levon välein: Pyhä ase (lisää karismamuuttujasi aseesi osumaheittoihin minuutiksi) tai Karkota epäpyhät (viisauspelastuksessa epäonnistuvat paholaiset ja epäkuolleet pakenevat).'],
     'Fighting Style: Archery': ['Taistelutyyli: jousiammunta', '+2 osumaan kaukoaseilla (jo laskettu mukaan).'],
     'Colossus Slayer': ['Jättiläisen kaataja', 'Metsästäjä: kerran vuorossa lisävahinkoa, kun osut jo haavoittuneeseen olentoon.'],
     'Primeval Awareness': ['Ikivanha vaisto', 'Käytä loitsupaikka aistiaksesi poikkeavat, taivaalliset, lohikäärmeet, elementaalit, keijut, paholaiset ja epäkuolleet mailin säteellä.'],

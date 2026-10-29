@@ -163,7 +163,10 @@ function spells(c: Character, casting: Sheet['spellcasting']): SheetSpell[] {
   return c.spells.map((base) => {
     const s = scaleCantrip(c, base);
     const addMod = s.addMod || (agonizing && s.id === 'eldritch-blast');
-    const rollParts: Part[] = [...(addMod ? [abilityPart(c, casting.ability)] : []), ...(s.bonus ? [{ from: 'bonus' as const, value: s.bonus }] : [])];
+    // A Life cleric's healing spells restore 2 + the spell's level more.
+    const life = s.heal && s.level > 0 && c.features.some((f) => f.name === 'Divine Domain: Life') ? 2 + s.level : 0;
+    const rollParts: Part[] = [...(addMod ? [abilityPart(c, casting.ability)] : []), ...(s.bonus ? [{ from: 'bonus' as const, value: s.bonus }] : []),
+      ...(life ? [{ from: 'bonus' as const, value: life }] : [])];
     const bonus = total(rollParts);
     const slot = s.level > 0 ? casting.slots[s.level] : undefined;
     return {
@@ -267,7 +270,9 @@ export function attackRoll(c: Character, name: string): NamedRoll {
 }
 
 /** Features whose extra damage is rolled on its own, after the weapon's: their dice grow with level. */
-const DAMAGE_FEATURES = ['Sneak Attack', 'Divine Smite', 'Colossus Slayer'];
+const DAMAGE_FEATURES = ['Sneak Attack', 'Divine Smite', 'Colossus Slayer', 'Breath Weapon'];
+/** What the damage of those features is, when it has a type of its own. */
+const FEATURE_DAMAGE_TYPE: Record<string, string> = { 'Breath Weapon': 'fire', 'Divine Smite': 'radiant' };
 
 /** The damage (or healing) roll of a weapon, spell or extra-damage feature. A critical hit doubles the dice. */
 export function damageRoll(c: Character, name: string, opts: { critical?: boolean; versatile?: boolean } = {}): NamedRoll {
@@ -275,7 +280,7 @@ export function damageRoll(c: Character, name: string, opts: { critical?: boolea
   if (extra) {
     const dice = featureValue(c, extra)!;
     return { label: `${extra} damage`, dice: opts.critical ? dice.replace(/^(\d*)d/, (_, n) => `${2 * Number(n || 1)}d`) : dice, modifier: 0,
-      action: { kind: 'damage', of: 'feature', id: extra, name: extra } };
+      action: { kind: 'damage', of: 'feature', id: extra, name: extra }, ...(FEATURE_DAMAGE_TYPE[extra] ? { damageType: FEATURE_DAMAGE_TYPE[extra] } : {}) };
   }
   const { attack, spell } = findAction(c, name);
   let dice = attack ? (opts.versatile && attack.versatile) || attack.dice : spell!.dice;

@@ -391,7 +391,7 @@ export function buildCharacter(id: string, choice: CharacterChoices): Character 
     features: [...race.traits, ...cls.features].map((f) => ({ ...f })),
     spells: defaultSpells(race.id, cls.id),
     notes: '',
-    resources: defaultResources(cls.id, abilities),
+    resources: defaultResources(cls.id, abilities, 1, race.id),
     status: 'up',
     deathSaves: { successes: 0, failures: 0 },
   };

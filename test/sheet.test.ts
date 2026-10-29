@@ -55,7 +55,8 @@ test('sheet: wizard spells with DC, to-hit, slots', () => {
 test('sheet: warlock spends the pact slot, cleric heals with WIS, tiefling knows Thaumaturgy', () => {
   assert.equal(sheetOf(hero('human', 'warlock')).spells.find((x) => x.name === 'Hex')!.resourceId, 'pact-slot');
   const cleric = hero('dwarf', 'cleric'); // WIS 15 + 1 = 16 (+3)
-  assert.equal(sheetOf(cleric).spells.find((x) => x.name === 'Cure Wounds')!.roll, '1d8+3');
+  // WIS +3, and a Life cleric's healing spells add 2 + the spell's level.
+  assert.equal(sheetOf(cleric).spells.find((x) => x.name === 'Cure Wounds')!.roll, '1d8+6');
   const tief = hero('tiefling', 'fighter');
   assert.deepEqual(tief.spells.map((x) => x.name), ['Thaumaturgy']);
   assert.equal(sheetOf(tief).spellcasting!.ability, 'cha');
@@ -174,7 +175,7 @@ test('status effects: add, replace by name, remove, long rest ends them', async 
   assert.match(r.text, /effects: Blessed, Hasted/);
   assert.match(store.state(g.id).log.at(-1)!.text, /condOn Blessed/);
   await dm.call('update_character', { character_id: 'Mira', add_effects: [{ name: 'blessed', note: '+1d4, 1 round left' }], remove_effects: ['Hasted'] });
-  assert.deepEqual(c().effects, [{ name: 'blessed', note: '+1d4, 1 round left' }]);
+  assert.deepEqual(c().effects, [{ name: 'blessed', note: '+1d4, 1 round left', mods: { rollDice: '1d4' } }]);
   store.append(g.id, { type: 'rest', kind: 'short', characterIds: [c().id] });
   assert.equal(c().effects.length, 1);
   store.append(g.id, { type: 'rest', kind: 'long', characterIds: [c().id] });

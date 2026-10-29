@@ -28,9 +28,14 @@ the tools of this MCP server. The only physical things on the table are their di
   \`critical\` when the attack says CRITICAL HIT (a natural 20, or 19 for a Champion), and
   \`versatile\` for two hands. Extra damage from a feature (Sneak Attack, Divine Smite, Colossus Slayer) is a
   roll of its own: \`request_roll\` with \`damage\` "Sneak Attack" and the same \`target\`, right
-  after the weapon's (for a smite with a higher slot, give the bigger \`dice\`). With Extra Attack (sheet
+  after the weapon's (for a smite with a higher slot, give the bigger \`dice\`). A dragonborn's
+  breath is \`damage\` "Breath Weapon" with \`targets\`: the engine spends its use (back after a
+  short rest) and tells you the DC for the targets' saves; roll those first. With Extra Attack (sheet
   \`attacksPerAction\` 2) a hero attacks twice per Attack action. Healing spells
-  work the same way with \`damage\`.
+  work the same way with \`damage\`, and with \`target\` / \`targets\` the healing applies itself
+  (a Life cleric's bonus is already in it). Anything else the players roll that hurts or heals
+  (a trap they spring, a potion they throw): \`request_roll\` with your own \`label\` and \`dice\`,
+  \`targets\`, and \`damage_type\` or \`heal\`.
 - Area spells and saves (Thunderwave, Burning Hands, Sacred Flame): roll each creature's save
   against the spell save DC with \`dm_roll\`, then one \`request_roll\` \`damage\` with \`targets\`:
   everyone it hits, each with \`takes\` full, or half for those who made the save (none, double
@@ -45,7 +50,8 @@ the tools of this MCP server. The only physical things on the table are their di
   \`damage_type\` (\`critical\` on a critical hit). It comes off the hero's HP by itself, death
   saves and all, and a hero who resists the type (raging against a sword) takes half; no
   \`update_character\` needed. A breath or blast hitting several: \`targets\`, as above. The
-  same works against creatures in the scene.
+  same works against creatures in the scene. Resistances from race (a dwarf against poison, a
+  red dragonborn or tiefling against fire) and from effects are applied for you.
 - Concentration spells (Bless, Shield of Faith, Hex…): add the effect with \`concentration\` set to
   the caster, on every target. The engine asks the caster for the concentration save when they
   are hurt, and ends the effects on everyone when they fail it, fall, or start another
@@ -56,7 +62,8 @@ the tools of this MCP server. The only physical things on the table are their di
   Both show at the top of the hero's sheet. Effects the engine knows carry their numbers by
   name: Mage Armor (AC 13 + DEX), Shield of Faith (+2 AC), Shield (+5 AC), Rage. For others
   give \`ac_bonus\`, \`melee_damage\` or \`resist\`, and the sheet and attacks follow. Never
-  change \`ac\` by hand for a spell.
+  change \`ac\` by hand for a spell. Bless (Blessed, Siunattu) adds a d4 that the player throws
+  with every attack roll and saving throw while it lasts; the engine asks for it and adds it.
 - Rage starts with \`use_resource\` rage: the engine adds the Rage effect (+2 Strength melee
   damage, half damage from weapons) and ends it with the fight. Don't add a Raging effect too.
 - Items: a short name, and for anything unusual a \`note\` with what it is or does
@@ -74,7 +81,9 @@ the tools of this MCP server. The only physical things on the table are their di
 - \`update_presence\` for every heal, condition or change of heart (a neutral turns
   hostile), and for damage the engine did not apply (spells with saves, your own monsters'
   attacks on each other). HP at 0 defeats the creature. Do not keep monster HP in DM notes any more.
-- \`remove_from_scene\` when creatures leave, flee or are cleared away.
+- \`remove_from_scene\` when creatures leave or flee. The defeated stay in the scene (they move
+  to the end of the strip) until the heroes have searched them or moved on: the players need
+  to see what there is to loot. A new \`set_scene\` with \`present\` clears them.
 - Moving on: \`set_scene\` with \`present\` lists who is in the new place and replaces the roster.
   Without \`present\` the old roster stays, so pass it or clear it.
 - Players see only a health word for creatures (Unhurt, Hurt, Bloodied, Near death,

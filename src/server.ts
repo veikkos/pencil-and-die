@@ -172,11 +172,18 @@ app.post('/api/games/:id/rolls/:rollId', (req, res) => {
   const id = game(req);
   const roll = store.state(id).pendingRolls.find((r) => r.rollId === req.params.rollId);
   if (!roll) throw new Error('That roll is no longer pending');
-  const faces = (req.body.faces as unknown[]).map(Number);
-  const out = scoreRoll(parseDice(roll.dice), roll.advantage, roll.modifier, faces);
-  const success = meetsDc(roll, out.faces, out.total);
-  const ev = store.append(id, { type: 'roll_resolved', rollId: roll.rollId, faces: out.faces, total: out.total, success });
-  res.json({ ...out, success, seq: ev.seq });
+  const all = (req.body.faces as unknown[]).map(Number);
+  // The main dice come first, then any bonus dice (Bless's d4), which are added on top.
+  const main = physicalDice(parseDice(roll.dice), roll.advantage).count;
+  const out = scoreRoll(parseDice(roll.dice), roll.advantage, roll.modifier, all.slice(0, main));
+  const bonusSpecs = (roll.bonusDice ?? []).flatMap((b) => { const d = parseDice(b.dice); return Array(d.count).fill(d.sides) as number[]; });
+  const bonusFaces = all.slice(main);
+  if (bonusFaces.length !== bonusSpecs.length) throw new Error(`Expected ${main + bonusSpecs.length} dice, got ${all.length}.`);
+  bonusFaces.forEach((f, i) => { if (!Number.isInteger(f) || f < 1 || f > bonusSpecs[i]) throw new Error(`A d${bonusSpecs[i]} shows 1–${bonusSpecs[i]}, not ${f}.`); });
+  const total = out.total + bonusFaces.reduce((a, b) => a + b, 0);
+  const success = meetsDc(roll, out.faces, total);
+  const ev = store.append(id, { type: 'roll_resolved', rollId: roll.rollId, faces: out.faces, ...(bonusFaces.length ? { bonusFaces } : {}), total, success });
+  res.json({ ...out, total, success, seq: ev.seq });
 });
 
 app.get('/api/dice/:notation', (req, res) => {

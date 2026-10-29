@@ -40,6 +40,10 @@ export interface RollRequest {
   targetId?: string;
   /** Damage: who takes it, and how much of it, when the roll comes in. */
   targets?: DamageTarget[];
+  /** The roll heals its targets instead of hurting them. */
+  heal?: boolean;
+  /** Dice thrown on top and added (Bless's d4), from the effect that gives them. */
+  bonusDice?: { dice: string; from: string }[];
   /** A weapon, spell or feature roll, for the page to name in its own language. */
   action?: RollAction;
   requestedSeq: number;
@@ -47,6 +51,8 @@ export interface RollRequest {
 
 export interface RollResult extends RollRequest {
   faces: number[];
+  /** Faces of `bonusDice`, already in the total. */
+  bonusFaces?: number[];
   total: number;
   success?: boolean;
   resolvedSeq: number;
@@ -122,7 +128,7 @@ export type GameEvent =
   | { type: 'game_started' }
   | { type: 'message'; from: Speaker; characterId?: string; kind: MessageKind; text: string }
   | { type: 'roll_requested'; roll: Omit<RollRequest, 'requestedSeq'> }
-  | { type: 'roll_resolved'; rollId: string; faces: number[]; total: number; success?: boolean; byDm?: boolean }
+  | { type: 'roll_resolved'; rollId: string; faces: number[]; bonusFaces?: number[]; total: number; success?: boolean; byDm?: boolean }
   | { type: 'roll_cancelled'; rollId: string }
   /** `damageTo`: the total comes off that hero's or creature's HP. */
   | { type: 'dm_roll'; roll: Omit<RollResult, 'requestedSeq' | 'resolvedSeq'>; secret: boolean; damageTo?: DamageTarget | DamageTarget[] }
@@ -337,12 +343,12 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
     if (before.status === 'up' && after.status !== 'up') dropConcentration(after.id);
   };
 
-  /** A damage roll's total, shared out to its targets by their factor (halves round down). */
-  const dealDamage = (targets: DamageTarget[], total: number, label: string) => {
+  /** A damage (or healing) roll's total, shared out to its targets by their factor (halves round down). */
+  const dealDamage = (targets: DamageTarget[], total: number, label: string, heal = false) => {
     for (const t of targets) {
-      const dealt = Math.floor(Math.max(0, total) * (t.factor ?? 1));
-      if (t.kind === 'hero') updateCharacter(t.id, { hpDelta: -dealt, critical: t.critical }, label);
-      else updatePresence(t.id, { hpDelta: -dealt });
+      const amount = Math.floor(Math.max(0, total) * (t.factor ?? 1)) * (heal ? 1 : -1);
+      if (t.kind === 'hero') updateCharacter(t.id, { hpDelta: amount, ...(heal ? {} : { critical: t.critical }) }, label);
+      else updatePresence(t.id, { hpDelta: amount });
     }
   };
 
@@ -437,17 +443,18 @@ export function apply(state: GameState, { seq, at, event: e }: StoredEvent): Gam
       const req = s.pendingRolls.find((r) => r.rollId === e.rollId);
       if (!req) break;
       s.pendingRolls = s.pendingRolls.filter((r) => r.rollId !== e.rollId);
-      s.rolls = [...s.rolls, { ...req, faces: e.faces, total: e.total, success: e.success, resolvedSeq: seq, byDm: !!e.byDm }];
+      s.rolls = [...s.rolls, { ...req, faces: e.faces, ...(e.bonusFaces?.length ? { bonusFaces: e.bonusFaces } : {}), total: e.total, success: e.success, resolvedSeq: seq, byDm: !!e.byDm }];
       if (req.purpose === 'death_save') {
         s.characters = s.characters.map((c) => (c.id === req.characterId ? applyDeathSave(c, e.faces[0]) : c));
       }
       const outcome = e.success === undefined ? '' : e.success ? ' — success' : ' — failure';
       // A targeted attack shows as a hit or a miss; its DC is the target's AC and stays hidden.
       const attackOn = req.targetId && req.critOn !== undefined && e.success !== undefined;
-      sys('rolled', { name: nameOf(req.characterId), label: req.label, purpose: req.purpose, action: req.action, faces: e.faces, mod: req.modifier, total: e.total, rollSeq: seq,
+      const extra = e.bonusFaces?.length ? { extra: e.bonusFaces.reduce((a, b) => a + b, 0), extraFrom: req.bonusDice?.map((b) => b.from) ?? [] } : {};
+      sys('rolled', { name: nameOf(req.characterId), label: req.label, purpose: req.purpose, action: req.action, faces: e.faces, mod: req.modifier, total: e.total, rollSeq: seq, ...extra,
         ...(attackOn ? { hit: e.success } : { success: e.success }) },
-        `${nameOf(req.characterId)} rolled ${req.label}: ${e.faces.join(' & ')} ${sign(req.modifier)} = ${e.total}${attackOn ? (e.success ? ' — hit' : ' — miss') : outcome}`);
-      if (req.targets) dealDamage(req.targets, e.total, req.label);
+        `${nameOf(req.characterId)} rolled ${req.label}: ${e.faces.join(' & ')} ${sign(req.modifier)}${e.bonusFaces?.length ? ` + ${extra.extra} (${extra.extraFrom?.join(', ')})` : ''} = ${e.total}${attackOn ? (e.success ? ' — hit' : ' — miss') : outcome}`);
+      if (req.targets) dealDamage(req.targets, e.total, req.label, req.heal);
       else if (req.targetId && req.critOn === undefined) updatePresence(req.targetId, { hpDelta: -Math.max(0, e.total) });
       if (req.purpose === 'concentration' && e.success === false) dropConcentration(req.characterId);
       if (req.purpose === 'hit_die') {

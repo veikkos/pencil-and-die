@@ -74,7 +74,7 @@ test('request_roll refuses targets it cannot apply', async () => {
     assert.equal(r.isError, true, JSON.stringify(args));
     assert.match(r.text, why);
   };
-  await bad({ check: 'Stealth', target: 'goblin-1' }, /go with `attack` or `damage`/);
+  await bad({ check: 'Stealth', target: 'goblin-1' }, /go with `attack`, `damage` or a roll of your own/);
   await bad({ attack: 'Rapier', target: 'shopkeeper' }, /no AC/);
   await bad({ damage: 'Rapier', target: 'shopkeeper' }, /no HP/);
   await bad({ attack: 'Rapier', target: 'goblin-1', dc: 12 }, /leave out `dc`/);
