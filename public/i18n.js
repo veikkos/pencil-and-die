@@ -33,7 +33,7 @@ export const STRINGS = {
     abilityNames: { str: 'Strength', dex: 'Dexterity', con: 'Constitution', int: 'Intelligence', wis: 'Wisdom', cha: 'Charisma' },
     skills: 'Skills', saves: 'Saving throws', inventory: 'Inventory', features: 'Features & traits', gold: 'Gold', xp: 'XP', conditions: 'Conditions', notes: 'Notes',
     dmOffline: 'DM is away', dmListening: 'DM is listening', dmThinking: 'DM is thinking…',
-    speaker: 'Who is speaking?',
+    speaker: 'Who is acting?',
     kinds: { action: 'Do', speech: 'Say', question: 'Ask the DM', ooc: 'Table talk' },
     placeholders: {
       action: 'What do you do? e.g. "I listen at the door"',
@@ -346,7 +346,7 @@ export const STRINGS = {
     abilityNames: { str: 'Voima', dex: 'Ketteryys', con: 'Kestävyys', int: 'Älykkyys', wis: 'Viisaus', cha: 'Karisma' },
     skills: 'Taidot', saves: 'Pelastusheitot', inventory: 'Varusteet', features: 'Kyvyt ja piirteet', gold: 'Kulta', xp: 'KP', conditions: 'Tilat', notes: 'Muistiinpanot',
     dmOffline: 'Pelinjohtaja on poissa', dmListening: 'Pelinjohtaja kuuntelee', dmThinking: 'Pelinjohtaja miettii…',
-    speaker: 'Kuka puhuu?',
+    speaker: 'Kuka toimii?',
     kinds: { action: 'Tee', speech: 'Sano', question: 'Kysy pelinjohtajalta', ooc: 'Pöytäpuhe' },
     placeholders: {
       action: 'Mitä teet? esim. "Kuuntelen ovella"',

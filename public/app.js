@@ -976,7 +976,9 @@ function logLine(l) {
 function renderStory() {
   const el = app.querySelector('#story');
   const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
-  el.innerHTML = shown.log.map(logLine).join('');
+  const thinking = viewSeq === null && live.dmStatus === 'thinking'
+    ? `<p class="msg thinking" role="status" aria-label="${esc(t().dmThinking)}"><span></span><span></span><span></span></p>` : '';
+  el.innerHTML = shown.log.map(logLine).join('') + thinking;
   el.querySelectorAll('[data-speak]').forEach((b) => b.onclick = () => {
     const line = shown.log.find((l) => l.seq === Number(b.dataset.speak));
     if (line) speak(line.text, { interrupt: true });
@@ -1144,15 +1146,18 @@ function showPresence(card) {
   const s = t();
   const word = card.health ? s.health[card.health] ?? card.health : '';
   const n = card.members.length;
+  // A card is a group at one health, so the health word is shared; a description too, usually.
+  const shared = card.members.every((m) => m.description === card.members[0].description);
+  const own = (m) => [!shared && m.description ? `<p>${esc(m.description)}</p>` : '',
+    m.conditions?.length ? `<div class="conds">${condList(m.conditions)}</div>` : ''].join('');
+  const rows = card.members.map((m, i) => ({ m, i, body: own(m) }));
   const modal = document.createElement('div');
-  modal.className = 'modal';
-  modal.innerHTML = `<div class="card"><h2>${esc(card.name)}${n > 1 ? ` ×${n}` : ''}</h2>
-    ${word ? `<div><b>${esc(word)}</b></div>` : ''}
-    ${card.members.map((m) => `<div>
-      ${n > 1 ? `<h3>${esc(m.name)}</h3>` : ''}
-      ${m.description ? `<p>${esc(m.description)}</p>` : ''}
-      ${m.conditions?.length ? `<h3>${esc(s.conditions)}</h3><div>${condList(m.conditions)}</div>` : ''}
-    </div>`).join('')}
+  modal.className = 'modal presence-modal';
+  modal.innerHTML = `<div class="card"><div class="presence-head"><h2>${esc(card.name)}${n > 1 ? ` ×${n}` : ''}</h2>
+      ${word ? `<span class="health ${esc(card.health)}">${esc(word)}</span>` : ''}</div>
+    ${shared && card.members[0].description ? `<p>${esc(card.members[0].description)}</p>` : ''}
+    ${n === 1 ? rows[0].body : rows.some((r) => r.body)
+      ? `<ol class="members">${rows.map(({ m, i, body }) => `<li><b>${esc(m.name)} ${i + 1}</b>${body}</li>`).join('')}</ol>` : ''}
     <div class="wizard-nav"><span></span><button class="btn">OK</button></div></div>`;
   modal.onclick = (e) => { if (e.target === modal || e.target.tagName === 'BUTTON') modal.remove(); };
   document.body.appendChild(modal);
@@ -1268,9 +1273,22 @@ function renderComposer() {
   say.onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } };
 }
 
+let turnKey = null;
+
+/** When a fight moves on to a hero's turn, that hero is the one acting; picking someone else still works. */
+function followTurn() {
+  const c = live?.combat;
+  const now = c && c.round > 0 ? c.order[c.turn] : null;
+  const key = now ? `${c.round}:${c.turn}` : null;
+  if (key === turnKey) return;
+  turnKey = key;
+  if (now?.ref.kind === 'hero') speaker = now.ref.id;
+}
+
 function updateComposer() {
   const s = t();
   const el = app.querySelector('#composer');
+  if (viewSeq === null) followTurn();
   if (!shown.characters.some((c) => c.id === speaker)) speaker = shown.characters[0]?.id ?? null;
   el.querySelector('#speakers').innerHTML = `<span class="label">${esc(s.speaker)}</span>` +
     shown.characters.map((c) => `<button class="chip ${c.id === speaker ? 'on' : ''}" data-speaker="${c.id}">${esc(c.name)}</button>`).join('');

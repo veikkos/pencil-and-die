@@ -188,6 +188,12 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 .5em; }
 .msg.player.speech .text::before { content: '“'; } .msg.player.speech .text::after { content: '”'; }
 .msg.player.ooc { color: var(--ink-faint); font-size: .9em; }
 .msg.system { font-size: .86em; color: var(--ink-soft); font-style: italic; border-top: 1px dashed var(--line); padding-top: 6px; }
+.msg.thinking { display: flex; gap: 5px; padding: 4px 2px; }
+.msg.thinking span { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-faint); animation: thinking 1.2s ease-in-out infinite; }
+.msg.thinking span:nth-child(2) { animation-delay: .2s; }
+.msg.thinking span:nth-child(3) { animation-delay: .4s; }
+@keyframes thinking { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .msg.thinking span { animation: none; opacity: .6; } }
 .msg.levelled { font-style: normal; border: 1.5px solid var(--gold); border-radius: 10px; padding: 8px 12px; }
 .msg.levelled > b { display: block; color: var(--ink); font-family: var(--serif); font-size: 1.15em; margin-bottom: 4px; }
 .msg.levelled dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 12px; margin: 0; }
@@ -348,6 +354,14 @@ span.tip:not(.tip-row) { text-decoration: underline dotted var(--ink-faint); tex
 .tl-toggle { font-size: 1.15em; line-height: 1; opacity: .55; }
 .tl-toggle.on { opacity: 1; }
 .modal.settings .card { width: min(560px, 100%); }
+.presence-modal .card { width: min(520px, 100%); }
+.presence-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin-bottom: 8px; }
+.presence-head h2 { margin: 0; }
+.presence-head .health { font-size: .82em; font-weight: 600; padding: 2px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); }
+.presence-head .health.bloodied, .presence-head .health.nearDeath { color: var(--bad); }
+.presence-modal .members { padding-left: 0; list-style: none; margin: 8px 0 0; }
+.presence-modal .members li { border-top: 1px dashed var(--line); padding: 8px 0; }
+.presence-modal .members li p { margin: 4px 0 0; }
 .settings-head { display: flex; align-items: center; justify-content: space-between; }
 .settings-head h2 { margin: 0; }
 .settings-scope { margin: 4px 0 0; font-size: 0.9em; }
