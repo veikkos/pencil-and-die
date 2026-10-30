@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { lengthNudge, review, sentences } from '../src/dm-report.ts';
+import { asksForRoll, lengthNudge, review, sentences } from '../src/dm-report.ts';
 import type { GameEvent } from '../src/state.ts';
-import { mcpClient, newTable } from './helpers.ts';
+import { mcpClient, mira, newTable } from './helpers.ts';
 
 const log = (...events: GameEvent[]) => events.map((event, i) => ({ seq: i + 1, at: '', event }));
 const dm = (text: string): GameEvent => ({ type: 'message', from: 'dm', kind: 'narration', text });
@@ -44,4 +44,40 @@ test('narrate: nudges the DM when a beat runs long', async () => {
   assert.match((await c.call('narrate', { text: 'One. Two. Three. Four.' })).text, /4 sentences/);
   assert.doesNotMatch((await c.call('narrate', { text: 'One. Two.' })).text, /sentences/);
   assert.doesNotMatch((await c.call('narrate', { text: 'One. Two. Three. Four.', kind: 'ooc' })).text, /sentences/);
+});
+
+const player = (text: string): GameEvent => ({ type: 'message', from: 'player', characterId: 'vesoi', kind: 'action', text });
+const asked = (rollId: string): GameEvent => ({ type: 'roll_requested', roll: { rollId, characterId: 'vesoi', label: 'x', dice: '1d20', modifier: 0, advantage: 'none', hideDc: true } });
+
+test('asksForRoll: a call to roll, not a throw in the story', () => {
+  for (const t of ['Heitä hyökkäys.', 'Heittäkää aloitusjärjestys, kapakkatappelu alkaa.', 'Heitä vielä vahinko, Vesoi.', 'Roll for initiative!']) assert.ok(asksForRoll(t), t);
+  for (const t of ['Jussi heittää tuopin.', 'Kivi lentää.', 'The barrel rolls away.']) assert.ok(!asksForRoll(t), t);
+});
+
+test('review: a roll asked for in the story but never requested (Luolamaailma, seq 222)', () => {
+  const findings = review(log(
+    player('nappaan jakkaran'),
+    dm('Vesoi kahmaisee jakkaran. Heitä hyökkäys.'),
+    player('20d:llä heitetty 10'),
+  ), 4);
+  assert.deepEqual(findings.map((f) => [f.check, f.seq]), [['unrequestedRoll', 2]]);
+  // Narrating first and requesting right after is fine, as is asking while a roll is pending.
+  assert.deepEqual(review(log(dm('Heittäkää kumpikin.'), asked('a'), player('17')), 4), []);
+  assert.deepEqual(review(log(asked('a'), dm('Heitä hyökkäys.'), player('ok')), 4), []);
+  // A quick player rolled what the engine asked for before the DM's narration told them to (Tuhkatorni, seq 50).
+  assert.deepEqual(review(log(asked('a'), { type: 'roll_resolved', rollId: 'a', faces: [5], total: 8 }, dm('Heitä noppaa.'), player('ok')), 4), []);
+});
+
+test('narrate: nudges the DM when it asks for a roll nobody was sent', async () => {
+  const { store, db } = newTable();
+  const g = store.createGame('T');
+  store.append(g.id, { type: 'character_created', character: mira() });
+  const c = await mcpClient(store, db);
+  assert.match((await c.call('narrate', { text: 'Heitä hyökkäys.' })).text, /none is pending/);
+  assert.doesNotMatch((await c.call('narrate', { text: 'Jakkara osuu.' })).text, /none is pending/);
+  // Already rolled since the DM last spoke: nothing to nudge about.
+  store.append(g.id, { type: 'roll_requested', roll: { rollId: 'r1', characterId: 'mira', label: 'Concentration', dice: '1d20', modifier: 3, advantage: 'none', hideDc: true } });
+  store.append(g.id, { type: 'roll_resolved', rollId: 'r1', faces: [5], total: 8, success: false });
+  assert.doesNotMatch((await c.call('narrate', { text: 'Heitä noppaa.' })).text, /none is pending/);
+  assert.match((await c.call('narrate', { text: 'Heitä uudestaan.' })).text, /none is pending/);
 });

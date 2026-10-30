@@ -22,8 +22,20 @@ export function lengthNudge(text: string, verbosity: Verbosity): string {
   return n > most + 1 ? ` That was ${n} sentences; at verbosity ${verbosity}/4 a beat is at most ${most}. Keep the next ones shorter.` : '';
 }
 
+/** Narration that tells a player to roll: "Heitä hyökkäys", "Heittäkää aloitusjärjestys", "Roll for initiative". */
+export const asksForRoll = (text: string) =>
+  /(^|[^\p{L}])(heit(ä|äkää|täkää)|roll)(?![\p{L}])/iu.test(text);
+
+/** Said to the DM when a narration asks for a roll that nobody has been sent: the page has no dice to show.
+ *  A roll counts while it is pending, or when it was asked for since the DM last spoke (a quick player has rolled it already). */
+export function rollNudge(text: string, rollsInPlay: number): string {
+  return asksForRoll(text) && rollsInPlay === 0
+    ? ' That asks for a roll, but none is pending, so the page shows no dice. If a player should roll, call request_roll now.'
+    : '';
+}
+
 export interface Finding {
-  check: 'long' | 'unsketched' | 'unlisted' | 'manualDamage' | 'notedNumbers';
+  check: 'long' | 'unsketched' | 'unlisted' | 'manualDamage' | 'notedNumbers' | 'unrequestedRoll';
   seq: number;
   text: string;
 }
@@ -33,10 +45,29 @@ export function review(events: StoredEvent[], verbosity: Verbosity): Finding[] {
   const out: Finding[] = [];
   const recentNarration: { seq: number; text: string }[] = [];
   let sceneWithoutSketch: number | null = null;
+  const pending = new Set<string>();
+  let requestedSinceDm = 0;
+  // A narration that asked for a roll with none pending; fine if the request follows before the players answer.
+  let askedWithoutRoll: number | null = null;
   for (const { seq, event: e } of events) {
     switch (e.type) {
+      case 'roll_requested':
+        pending.add(e.roll.rollId);
+        requestedSinceDm++;
+        askedWithoutRoll = null;
+        break;
+      case 'roll_resolved':
+      case 'roll_cancelled':
+        pending.delete(e.rollId);
+        break;
       case 'message':
+        if (e.from === 'player' && askedWithoutRoll !== null) {
+          out.push({ check: 'unrequestedRoll', seq: askedWithoutRoll, text: 'asked for a roll in the story but never called request_roll' });
+          askedWithoutRoll = null;
+        }
         if (e.from !== 'dm' || e.kind === 'ooc') break;
+        if (rollNudge(e.text, pending.size + requestedSinceDm)) askedWithoutRoll = seq;
+        requestedSinceDm = 0;
         if (lengthNudge(e.text, verbosity)) out.push({ check: 'long', seq, text: `${sentences(e.text)} sentences at verbosity ${verbosity}` });
         if (sceneWithoutSketch !== null) {
           out.push({ check: 'unsketched', seq, text: `narrated a new scene (seq ${sceneWithoutSketch}) before sketching it` });
@@ -80,6 +111,7 @@ const HEADINGS: Record<Finding['check'], string> = {
   unlisted: 'Creatures in the story before they were in the scene',
   manualDamage: 'Damage applied by hand',
   notedNumbers: 'Numbers kept in notes',
+  unrequestedRoll: 'Rolls asked for without request_roll',
 };
 
 export function reportText(title: string, findings: Finding[]): string {

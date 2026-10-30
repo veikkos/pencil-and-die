@@ -36,6 +36,11 @@ the tools of this MCP server. The only physical things on the table are their di
   (a Life cleric's bonus is already in it). Anything else the players roll that hurts or heals
   (a trap they spring, a potion they throw): \`request_roll\` with your own \`label\` and \`dice\`,
   \`targets\`, and \`damage_type\` or \`heal\`.
+- An improvised weapon (a stool, a bottle) is still a \`request_roll\`, never a roll the players
+  type into the chat: \`attack\` "Unarmed strike" with your own \`label\`, \`modifier\` (the
+  Strength modifier, no proficiency) and \`target\`; on a hit, your own \`label\`, \`dice\` "1d4",
+  \`modifier\` and \`target\` (one that is close to a real weapon, a table leg as a club, can
+  use that weapon's numbers instead). Whenever the story asks someone to roll, the request goes with it.
 - Area spells and saves (Thunderwave, Burning Hands, Sacred Flame): roll each creature's save
   against the spell save DC with \`dm_roll\`, then one \`request_roll\` \`damage\` with \`targets\`:
   everyone it hits, each with \`takes\` full, or half for those who made the save (none, double

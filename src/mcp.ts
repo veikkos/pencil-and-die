@@ -8,7 +8,7 @@ import { getSetting, setSetting, type Db } from './db.ts';
 import { meetsDc, parseDice, physicalDice, virtualRoll } from './dice.ts';
 import { DM_GUIDE } from './dm-guide.ts';
 import { armorClass, presetMods, resists, rollBonusDice } from './effects.ts';
-import { lengthNudge } from './dm-report.ts';
+import { lengthNudge, rollNudge } from './dm-report.ts';
 import { fightRefs, orderText, registerSceneTools, roundText } from './mcp-scene.ts';
 import { canLevel, levelOptions, levelUp, needsChoices, withRecommended, type LevelOptions } from './levels.ts';
 import { findResource, hitDieRoll } from './resources.ts';
@@ -326,8 +326,11 @@ export function createMcpServer(store: GameStore, db: Db): McpServer {
   }, ({ text: t, kind, character_id, game_id }) => {
     const id = resolve(game_id);
     const characterId = character_id ? character(store.state(id), character_id).id : undefined;
+    const before = store.state(id);
+    const spoke = before.log.findLast((l) => l.from === 'dm' && l.kind !== 'ooc')?.seq ?? 0;
+    const rollsInPlay = before.pendingRolls.length + before.rolls.filter((r) => !r.byDm && r.requestedSeq > spoke).length;
     const ev = store.append(id, { type: 'message', from: 'dm', kind, characterId, text: t });
-    const nudge = kind === 'ooc' ? '' : lengthNudge(t, store.verbosity(id));
+    const nudge = kind === 'ooc' ? '' : lengthNudge(t, store.verbosity(id)) + rollNudge(t, rollsInPlay);
     return text(`Shown to the table (seq ${ev.seq}).${nudge}${sketchReminder(store.state(id))}`);
   });
 
